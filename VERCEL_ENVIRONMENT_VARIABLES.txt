@@ -1,0 +1,18 @@
+# TRACE Consulting — Vercel public environment values
+#
+# For the current static site, no Vercel environment variables are required
+# unless you copied the approved assets into client/public/media/.
+
+# Add this to Vercel → Settings → Environment Variables for Preview and
+# Production only after the matching /media/... asset files are in the repo.
+VITE_USE_LOCAL_MEDIA=true
+
+# Optional: leave unset to use the built-in OpenStreetMap office embed.
+# VITE_OFFICE_MAP_EMBED_URL=
+
+# Do not add Manus-only values such as BUILT_IN_FORGE_*,
+# VITE_FRONTEND_FORGE_*, JWT_SECRET, or OAUTH_SERVER_URL to Vercel.
+# Private future contact settings belong only in Vercel server-side settings:
+# RESEND_API_KEY=
+# CONTACT_TO_EMAIL=
+# CONTACT_FROM_EMAIL=

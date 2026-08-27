@@ -1,0 +1,20 @@
+# TRACE Consulting — safe public build settings
+# Copy this file to .env.local for local work. Do not commit .env.local.
+# Every VITE_* value is exposed in the browser after a Vite build.
+
+# CURRENTLY READ BY THE APP
+# Use local files in client/public/media/ instead of Manus preview URLs.
+VITE_USE_LOCAL_MEDIA=true
+
+# Optional: replaces the default OpenStreetMap office embed.
+# Leave blank to use the built-in map at 23.784148, 90.392863.
+VITE_OFFICE_MAP_EMBED_URL=
+
+# RESERVED FOR FUTURE WORK — neither is read by the current frontend.
+# Add a public contact endpoint only after implementing form fetch logic.
+VITE_CONTACT_FORM_ENDPOINT=
+VITE_SITE_URL=
+VITE_MEDIA_BASE_URL=
+
+# Never place SMTP credentials, Resend keys, CRM tokens, database URLs, or
+# other private credentials in this file or any VITE_* variable.
