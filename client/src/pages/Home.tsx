@@ -13,14 +13,10 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { TeamPortrait } from "@/components/TeamPortrait";
 import { TeamLeadershipPreview } from "@/components/TeamHierarchy";
 import { ProjectShowcase, TracePositioningSection } from "@/components/HomePositioning";
-import { ASSETS, innovations, metrics, projects, services, team } from "@/data/traceData";
+import { ASSETS, innovations, projects, services, team } from "@/data/traceData";
 import { useRef, useState } from "react";
 
 const serviceIcons = ["↗", "⌁", "◌", "⟡", "⌘", "◒"];
-
-function Metric({ value, label, index }: { value: string; label: string; index: number }) {
-  return <SectionReveal delay={index * 0.07}><div className="border-l border-trace-teal/45 pl-5"><p className="font-display text-5xl font-extrabold tracking-[-0.07em] text-trace-ink lg:text-6xl">{value}</p><p className="mt-2 max-w-[10rem] text-sm leading-5 text-trace-muted">{label}</p></div></SectionReveal>;
-}
 
 function MethodScene() {
   const ref = useRef<HTMLElement>(null);
@@ -73,7 +69,6 @@ function ExpertiseNetwork() {
 
 export default function Home() {
   return <div className="min-h-screen overflow-x-hidden"><SiteHeader overlay /><main><LandingHero />
-    <section id="proof" className="bg-white py-14 sm:py-20"><div className="mx-auto grid max-w-[1480px] gap-8 px-5 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">{metrics.map((metric, index) => <Metric key={metric.label} {...metric} index={index} />)}</div></section>
     <TracePositioningSection /><ProjectShowcase /><ProjectFocusStage /><DepthCarousel /><InnovationFeature /><TeamLeadershipPreview /><PartnerRail /><OfficeMapPanel />
   </main><SiteFooter /></div>;
 }
