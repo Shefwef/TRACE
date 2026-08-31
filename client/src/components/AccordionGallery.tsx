@@ -32,28 +32,48 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
   const animatePanels = useCallback((next: number, shouldAnimate: boolean) => {
     const count = items.length;
     const grow = count > 1 ? 5.6 : 1;
-    const duration = shouldAnimate && !reduceMotion ? 0.52 : 0;
-    const timeline = gsap.timeline({ defaults: { duration, ease: "power3.out" } });
+    const duration = shouldAnimate && !reduceMotion ? 0.68 : 0;
+    const ease = "power2.out";
 
     panelRefs.current.forEach((panel, index) => {
       if (!panel) return;
       const isActive = index === next;
-      timeline.to(panel, { flexGrow: isActive ? grow : 1, rotateY: isActive ? 0 : index < next ? 3 : -3 }, 0);
+      gsap.to(panel, {
+        flexGrow: isActive ? grow : 1,
+        rotateY: isActive ? 0 : index < next ? 3 : -3,
+        duration,
+        ease,
+        overwrite: "auto",
+      });
       const image = imageRefs.current[index];
-      if (image) timeline.to(image, { filter: isActive ? "grayscale(0) saturate(1)" : "grayscale(1) saturate(0.72)", scale: isActive ? 1.02 : 1 }, 0);
+      if (image) {
+        gsap.to(image, {
+          filter: isActive ? "grayscale(0) saturate(1)" : "grayscale(1) saturate(0.72)",
+          scale: isActive ? 1.02 : 1,
+          duration,
+          ease,
+          overwrite: "auto",
+        });
+      }
       const detail = detailRefs.current[index];
-      if (detail) timeline.to(detail, { autoAlpha: isActive ? 1 : 0, y: isActive ? 0 : 12 }, isActive ? 0.13 : 0);
+      if (detail) {
+        gsap.to(detail, {
+          autoAlpha: isActive ? 1 : 0,
+          y: isActive ? 0 : 12,
+          duration: duration * 0.85,
+          delay: isActive ? 0.12 : 0,
+          ease,
+          overwrite: "auto",
+        });
+      }
     });
-    return () => { timeline.kill(); };
   }, [items.length, reduceMotion]);
 
   useEffect(() => {
-    const cleanup = animatePanels(active, true);
-    return cleanup;
+    animatePanels(active, true);
   }, [active, animatePanels]);
   useEffect(() => {
-    const cleanup = animatePanels(active, false);
-    return cleanup;
+    animatePanels(active, false);
   }, [animatePanels]);
 
   useEffect(() => {
@@ -63,7 +83,7 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
   }, [paused, reduceMotion, items.length, cycleKey]);
 
   const focusPanel = (index: number, manual = true) => {
-    setActive(index);
+    setActive((current) => (current === index ? current : index));
     if (manual) setCycleKey((current) => current + 1);
   };
   const onKeyDown = (index: number, event: React.KeyboardEvent<HTMLDivElement>) => {
