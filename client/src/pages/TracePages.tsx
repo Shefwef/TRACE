@@ -7,6 +7,7 @@ import { SectionReveal } from "@/components/SectionReveal";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TeamPortrait } from "@/components/TeamPortrait";
+import SpecularButton from "@/components/ui/SpecularButton";
 import { ASSETS, contact, innovations, insights, metrics, projects, services, team, type Insight, type Project, type Service, type TeamMember } from "@/data/traceData";
 
 const serviceMedia: Record<string, string> = {
@@ -501,9 +502,23 @@ function CareerRoleCard({ role, expired, index }: { role: CareerRole; expired: b
                       Applications Closed <XCircle className="h-4 w-4" />
                     </span>
                   ) : (
-                    <a href={applyHref} className="inline-flex items-center gap-2 bg-trace-orange px-5 py-3 text-sm font-extrabold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.97]">
+                    <SpecularButton
+                      href={applyHref}
+                      size="md"
+                      radius={4}
+                      baseColor="#123D67"
+                      textColor="#ffffff"
+                      lineColor="#D7F3F0"
+                      shineSize={8}
+                      shineFade={45}
+                      intensity={1}
+                      thickness={1}
+                      speed={0.35}
+                      followMouse
+                      proximity={260}
+                    >
                       Apply Now <Send className="h-4 w-4" />
-                    </a>
+                    </SpecularButton>
                   )}
                 </div>
               </div>
@@ -576,9 +591,23 @@ export function CareersPage() {
 
             <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-trace-ink/10 pt-8 sm:flex-row sm:items-center">
               <p className="max-w-xl text-sm text-trace-muted">Don't see the right fit? TRACE welcomes expressions of interest from specialists across trade, policy, laboratories, and technology.</p>
-              <a href="mailto:contact@traceconsultingltd.com?subject=TRACE%20General%20CV%20Submission" className="inline-flex items-center gap-2 bg-trace-navy px-5 py-3 text-sm font-extrabold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.97]">
+              <SpecularButton
+                href="mailto:contact@traceconsultingltd.com?subject=TRACE%20General%20CV%20Submission"
+                size="lg"
+                radius={4}
+                baseColor="#123D67"
+                textColor="#ffffff"
+                lineColor="#D7F3F0"
+                shineSize={10}
+                shineFade={45}
+                intensity={1}
+                thickness={1}
+                speed={0.35}
+                followMouse
+                proximity={280}
+              >
                 Send your CV <Mail className="h-4 w-4" />
-              </a>
+              </SpecularButton>
             </div>
           </div>
         </section>
@@ -592,7 +621,21 @@ export function ContactPage() {
   const initialSubject = new URLSearchParams(location.split("?")[1] ?? "").get("subject") ?? "";
   const [sent, setSent] = useState(false);
   const submit = (event: FormEvent) => { event.preventDefault(); setSent(true); };
-  return <Shell><main><PageHero label="CONTACT" title={<>Let’s start a <span className="text-trace-teal">conversation.</span></>} description="Whether you are a government agency, development partner, or private company, TRACE is ready to understand the mandate behind your next move." /><section className="py-20 sm:py-28"><div className="mx-auto grid max-w-[1480px] gap-10 px-5 lg:grid-cols-[0.78fr_1.22fr] lg:px-10"><SectionReveal><p className="section-label">HEAD OFFICE — DHAKA</p><div className="mt-7 grid gap-6"><a href={`tel:${contact.phone}`} className="flex items-start gap-4"><Phone className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.phone}</strong><span className="mt-1 block text-sm text-trace-muted">Head Office — Dhaka</span></span></a><a href={`mailto:${contact.email}`} className="flex items-start gap-4"><Mail className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.email}</strong><span className="mt-1 block text-sm text-trace-muted">General enquiries</span></span></a><div className="flex items-start gap-4"><MapPin className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.address}</strong><span className="mt-1 block text-sm text-trace-muted">{contact.hours}</span></span></div></div></SectionReveal><SectionReveal delay={0.1}><form onSubmit={submit} className="border border-trace-ink/10 bg-white p-7 sm:p-10"><AnimatePresence mode="wait">{sent ? <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid min-h-[390px] place-items-center text-center"><div><CheckCircle2 className="mx-auto h-12 w-12 text-trace-teal" /><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink">Message received.</h2><p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-trace-muted">Thank you for outlining your mandate. The TRACE team will respond within one business day.</p><button onClick={() => setSent(false)} type="button" className="mt-7 text-sm font-extrabold text-trace-teal">Send another message</button></div></motion.div> : <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><div className="grid gap-5 sm:grid-cols-2">{[["First name", "firstName"], ["Last name", "lastName"], ["Email address", "email"], ["Mobile number", "phone"], ["Organization", "organization"], ["Subject / service area", "subject"]].map(([label, field]) => <label key={field} className="grid gap-2"><span className="text-xs font-bold text-trace-ink">{label}{["firstName", "lastName", "email", "phone", "subject"].includes(field) && <span className="text-trace-orange"> *</span>}</span><input required={["firstName", "lastName", "email", "phone", "subject"].includes(field)} name={field} type={field === "email" ? "email" : "text"} defaultValue={field === "subject" ? initialSubject : ""} className="border-b border-trace-ink/20 bg-trace-paper px-3 py-3 text-sm outline-none transition-colors focus:border-trace-teal" /></label>)}</div><label className="mt-5 grid gap-2"><span className="text-xs font-bold text-trace-ink">Tell us about your project or challenge <span className="text-trace-orange">*</span></span><textarea required name="message" rows={5} className="resize-none border-b border-trace-ink/20 bg-trace-paper px-3 py-3 text-sm outline-none transition-colors focus:border-trace-teal" /></label><button type="submit" className="mt-7 inline-flex items-center gap-3 bg-trace-orange px-6 py-4 text-sm font-extrabold text-white transition-transform active:scale-[0.97]">Send message <Send className="h-4 w-4" /></button><p className="mt-5 text-xs leading-5 text-trace-muted">By submitting this form, you agree to the Privacy Policy. TRACE does not share your submitted data.</p></motion.div>}</AnimatePresence></form></SectionReveal></div></section></main></Shell>;
+  return <Shell><main><PageHero label="CONTACT" title={<>Let’s start a <span className="text-trace-teal">conversation.</span></>} description="Whether you are a government agency, development partner, or private company, TRACE is ready to understand the mandate behind your next move." /><section className="py-20 sm:py-28"><div className="mx-auto grid max-w-[1480px] gap-10 px-5 lg:grid-cols-[0.78fr_1.22fr] lg:px-10"><SectionReveal><p className="section-label">HEAD OFFICE — DHAKA</p><div className="mt-7 grid gap-6"><a href={`tel:${contact.phone}`} className="flex items-start gap-4"><Phone className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.phone}</strong><span className="mt-1 block text-sm text-trace-muted">Head Office — Dhaka</span></span></a><a href={`mailto:${contact.email}`} className="flex items-start gap-4"><Mail className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.email}</strong><span className="mt-1 block text-sm text-trace-muted">General enquiries</span></span></a><div className="flex items-start gap-4"><MapPin className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.address}</strong><span className="mt-1 block text-sm text-trace-muted">{contact.hours}</span></span></div></div></SectionReveal><SectionReveal delay={0.1}><form onSubmit={submit} className="border border-trace-ink/10 bg-white p-7 sm:p-10"><AnimatePresence mode="wait">{sent ? <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid min-h-[390px] place-items-center text-center"><div><CheckCircle2 className="mx-auto h-12 w-12 text-trace-teal" /><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink">Message received.</h2><p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-trace-muted">Thank you for outlining your mandate. The TRACE team will respond within one business day.</p><button onClick={() => setSent(false)} type="button" className="mt-7 text-sm font-extrabold text-trace-teal">Send another message</button></div></motion.div> : <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><div className="grid gap-5 sm:grid-cols-2">{[["First name", "firstName"], ["Last name", "lastName"], ["Email address", "email"], ["Mobile number", "phone"], ["Organization", "organization"], ["Subject / service area", "subject"]].map(([label, field]) => <label key={field} className="grid gap-2"><span className="text-xs font-bold text-trace-ink">{label}{["firstName", "lastName", "email", "phone", "subject"].includes(field) && <span className="text-trace-orange"> *</span>}</span><input required={["firstName", "lastName", "email", "phone", "subject"].includes(field)} name={field} type={field === "email" ? "email" : "text"} defaultValue={field === "subject" ? initialSubject : ""} className="border-b border-trace-ink/20 bg-trace-paper px-3 py-3 text-sm outline-none transition-colors focus:border-trace-teal" /></label>)}</div><label className="mt-5 grid gap-2"><span className="text-xs font-bold text-trace-ink">Tell us about your project or challenge <span className="text-trace-orange">*</span></span><textarea required name="message" rows={5} className="resize-none border-b border-trace-ink/20 bg-trace-paper px-3 py-3 text-sm outline-none transition-colors focus:border-trace-teal" /></label><div className="mt-7"><SpecularButton
+  type="submit"
+  size="lg"
+  radius={4}
+  baseColor="#123D67"
+  textColor="#ffffff"
+  lineColor="#D7F3F0"
+  shineSize={10}
+  shineFade={45}
+  intensity={1}
+  thickness={1}
+  speed={0.35}
+  followMouse
+  proximity={280}
+>Send message <Send className="h-4 w-4" /></SpecularButton></div><p className="mt-5 text-xs leading-5 text-trace-muted">By submitting this form, you agree to the Privacy Policy. TRACE does not share your submitted data.</p></motion.div>}</AnimatePresence></form></SectionReveal></div></section></main></Shell>;
 }
 
 function NotFoundEntity() {
