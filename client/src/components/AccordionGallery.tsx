@@ -59,9 +59,9 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
       if (detail) {
         gsap.to(detail, {
           autoAlpha: isActive ? 1 : 0,
-          y: isActive ? 0 : 12,
-          duration: duration * 0.85,
-          delay: isActive ? 0.12 : 0,
+          y: isActive ? 0 : 10,
+          duration: isActive ? duration * 0.7 : duration * 0.4,
+          delay: isActive ? duration * 0.55 : 0,
           ease,
           overwrite: "auto",
         });
