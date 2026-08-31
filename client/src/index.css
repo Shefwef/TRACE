@@ -126,6 +126,12 @@
   .people-rail:hover .people-rail-track, .people-rail:focus-within .people-rail-track { animation-play-state: paused; }
   .people-rail[data-static="true"] .people-rail-track { animation: none; flex-wrap: wrap; width: 100%; justify-content: center; }
   @keyframes people-rail-move { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .insights-rail-track { display: flex; width: max-content; gap: 1.25rem; animation: insights-rail-move 68s linear infinite; padding: 0.5rem 0.75rem; }
+  .insights-rail:hover .insights-rail-track, .insights-rail:focus-within .insights-rail-track { animation-play-state: paused; }
+  .insights-rail[data-static="true"] .insights-rail-track { animation: none; flex-wrap: wrap; width: 100%; justify-content: center; }
+  @keyframes insights-rail-move { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
   @media (min-width: 640px) { .container { padding-left: 1.5rem; padding-right: 1.5rem; } }
   @media (min-width: 1024px) { .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; } }
 }
