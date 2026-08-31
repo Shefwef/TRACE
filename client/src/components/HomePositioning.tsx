@@ -7,6 +7,7 @@ import { ASSETS, services, type Service } from "@/data/traceData";
 import { SectionReveal } from "@/components/SectionReveal";
 import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
 import ScrollStack, { ScrollStackItem } from "@/components/ui/ScrollStack";
+import { StarBorder } from "@/components/ui/StarBorder";
 
 const principles = [
   {
@@ -44,19 +45,20 @@ export function TracePositioningSection() {
   ];
 
   const pillarCards = pillars.map((pillar) => (
-    <article
-      key={pillar.label}
-      className="relative flex h-full w-[300px] flex-col overflow-hidden rounded-sm border border-white/12 bg-gradient-to-br from-trace-navy via-[#0f345a] to-trace-ink px-6 py-6 shadow-[0_18px_42px_rgba(8,36,64,0.32)] sm:w-[340px] sm:px-7 sm:py-7"
-      style={{ minHeight: 220 }}
-    >
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-trace-teal via-trace-mint to-trace-teal" />
-      <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full border border-trace-mint/25" />
-      <div className="pointer-events-none absolute -right-4 top-1/2 h-16 w-16 -translate-y-1/2 rounded-full border border-white/12" />
-      <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint">STEP {pillar.tone}</p>
-      <h3 className="mt-4 font-display text-2xl font-extrabold leading-[1.02] tracking-[-0.05em] text-white sm:text-[1.7rem]">{pillar.label}</h3>
-      <p className="mt-3 text-sm leading-6 text-white/85">{pillar.detail}</p>
-      <p className="mt-auto pt-5 font-mono text-[9px] font-bold tracking-[0.18em] text-trace-mint/85">EVIDENCE · DELIVERY · OWNERSHIP</p>
-    </article>
+    <StarBorder key={pillar.label} color="#009CA6" speed="7s" className="w-[260px] sm:w-[300px]" style={{ minHeight: 200 }}>
+      <article
+        className="relative flex h-full flex-col overflow-hidden bg-gradient-to-br from-trace-navy via-[#0f345a] to-trace-ink px-6 py-6 sm:px-7 sm:py-7"
+        style={{ minHeight: 200 }}
+      >
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-trace-teal via-trace-mint to-trace-teal" />
+        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full border border-trace-mint/25" />
+        <div className="pointer-events-none absolute -right-4 top-1/2 h-16 w-16 -translate-y-1/2 rounded-full border border-white/12" />
+        <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint">STEP {pillar.tone}</p>
+        <h3 className="mt-4 font-display text-2xl font-extrabold leading-[1.02] tracking-[-0.05em] text-white sm:text-[1.7rem]">{pillar.label}</h3>
+        <p className="mt-3 text-sm leading-6 text-white/85">{pillar.detail}</p>
+        <p className="mt-auto pt-5 font-mono text-[9px] font-bold tracking-[0.18em] text-trace-mint/85">EVIDENCE · DELIVERY · OWNERSHIP</p>
+      </article>
+    </StarBorder>
   ));
 
   return (
@@ -73,11 +75,12 @@ export function TracePositioningSection() {
 
         <div className="mt-10 sm:mt-12">
           <SectionReveal>
-            <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch">
+              {/* Left: image */}
               <motion.figure
                 whileHover={reduceMotion ? undefined : { y: -4 }}
                 transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }}
-                className="relative overflow-hidden border border-trace-ink/10 bg-white shadow-[0_18px_44px_rgba(18,61,103,0.10)]"
+                className="relative overflow-hidden border border-trace-ink/10 bg-white shadow-[0_18px_44px_rgba(18,61,103,0.10)] lg:w-[48%] lg:shrink-0"
               >
                 <img
                   src={ASSETS.aboutTrace}
@@ -85,31 +88,36 @@ export function TracePositioningSection() {
                   className="block h-full w-full object-cover"
                 />
               </motion.figure>
-              <div className="flex flex-col justify-between border-l-2 border-t-2 border-trace-teal bg-gradient-to-br from-trace-navy via-[#123D67] to-[#0a2b4a] p-6 text-white shadow-[0_16px_38px_rgba(8,36,64,0.22)] sm:p-8">
-                <div>
+
+              {/* Divider */}
+              <div className="hidden w-px shrink-0 bg-[#D5E4EB] lg:block" />
+
+              {/* Right: About card + marquee stacked */}
+              <div className="flex flex-1 flex-col gap-5">
+                {/* About card */}
+                <div className="border-l-2 border-t-2 border-trace-teal bg-gradient-to-br from-trace-navy via-[#123D67] to-[#0a2b4a] p-6 text-white shadow-[0_16px_38px_rgba(8,36,64,0.22)] sm:p-8">
                   <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint">ABOUT TRACE</p>
                   <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.055em] sm:text-4xl">Where evidence, delivery, and ownership converge.</h3>
                   <p className="mt-4 text-base leading-7 text-white/85 sm:text-lg sm:leading-8">Evidence-based strategy paired with practical implementation—so reforms move from ambition into working institutional capability.</p>
+                  <p className="mt-6 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint/75">AN INTEGRATED TRACE SYSTEM</p>
                 </div>
-                <p className="mt-6 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint">AN INTEGRATED TRACE SYSTEM</p>
-              </div>
-            </div>
-          </SectionReveal>
 
-          <SectionReveal delay={0.08}>
-            <div className="relative mt-8 overflow-hidden rounded-sm border border-trace-ink/10 bg-gradient-to-r from-[#0a2b4a] via-trace-navy to-[#0a2b4a] py-6 shadow-[0_18px_44px_rgba(8,36,64,0.20)] sm:mt-10 sm:py-7">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
-              <p className="mb-5 px-6 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint sm:px-8">EVIDENCE · DELIVERY · OWNERSHIP</p>
-              <InfiniteMovingCards
-                items={pillarCards}
-                direction="left"
-                durationSeconds={48}
-                pauseOnHover
-                ariaLabel="Evidence, delivery, and ownership pillars"
-                gapClassName="gap-6 sm:gap-8"
-                className="px-1"
-              />
+                {/* Infinite marquee in the remaining half */}
+                <div className="relative flex-1 overflow-hidden rounded-sm border border-trace-ink/10 bg-gradient-to-r from-[#0a2b4a] via-trace-navy to-[#0a2b4a] py-6 shadow-[0_18px_44px_rgba(8,36,64,0.20)]">
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
+                  <p className="mb-5 px-6 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint sm:px-8">EVIDENCE · DELIVERY · OWNERSHIP</p>
+                  <InfiniteMovingCards
+                    items={pillarCards}
+                    direction="left"
+                    durationSeconds={48}
+                    pauseOnHover
+                    ariaLabel="Evidence, delivery, and ownership pillars"
+                    gapClassName="gap-6 sm:gap-8"
+                    className="px-1"
+                  />
+                </div>
+              </div>
             </div>
           </SectionReveal>
         </div>
@@ -162,7 +170,8 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
   const disciplineText = service.disciplines.join(" · ");
   return (
     <SectionReveal delay={Math.min(index * 0.045, 0.2)}>
-      <article className={`group flex h-full flex-col overflow-hidden border bg-white shadow-[0_14px_32px_rgba(18,61,103,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(18,61,103,0.18)] ${open ? "border-trace-teal" : "border-trace-ink/14 hover:border-trace-teal/55"}`}>
+      <StarBorder color="#009CA6" speed="8s" className="h-full">
+      <article className={`group flex h-full flex-col overflow-hidden bg-white shadow-[0_14px_32px_rgba(18,61,103,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(18,61,103,0.18)]`}>
         <Link href={`/services/${service.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-trace-navy" aria-label={`Open ${service.title} briefing`}>
           <img src={serviceImages[service.slug]} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.055]" />
           <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/52 via-transparent to-transparent" />
@@ -215,6 +224,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
           </div>
         </div>
       </article>
+      </StarBorder>
     </SectionReveal>
   );
 }

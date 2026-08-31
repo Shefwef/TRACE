@@ -140,6 +140,16 @@
   .scroll-stack-item { will-change: transform; }
   .scroll-stack-item[data-sticky] { position: sticky; }
 
+  /* StarBorder: animated teal glow that travels around the card perimeter */
+  .star-border-wrapper { display: block; }
+  .star-border-rail { pointer-events: none; position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }
+  .star-border-rail::before { content: ""; position: absolute; width: 300%; height: 50px; background: radial-gradient(ellipse at center, var(--star-border-color, #009CA6) 0%, transparent 65%); opacity: 0.85; }
+  .star-border-rail-bottom::before { top: calc(100% - 1px); left: -100%; animation: star-border-bottom var(--star-border-speed, 6s) linear infinite; }
+  .star-border-rail-top::before { bottom: calc(100% - 1px); left: -100%; animation: star-border-top var(--star-border-speed, 6s) linear infinite; animation-delay: calc(var(--star-border-speed, 6s) / -2); }
+  .star-border-inner { position: relative; display: block; border: var(--star-border-thickness, 1px) solid color-mix(in srgb, var(--star-border-color, #009CA6) 22%, transparent); border-radius: inherit; }
+  @keyframes star-border-bottom { from { transform: translateX(0%); } to { transform: translateX(33.333%); } }
+  @keyframes star-border-top { from { transform: translateX(0%); } to { transform: translateX(33.333%); } }
+
   @media (min-width: 640px) { .container { padding-left: 1.5rem; padding-right: 1.5rem; } }
   @media (min-width: 1024px) { .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; } }
 }

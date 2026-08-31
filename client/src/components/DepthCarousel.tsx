@@ -4,6 +4,7 @@ import { FileText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { insights, type Insight } from "@/data/traceData";
 import { InsightPreviewDialog } from "@/components/InsightPreviewDialog";
+import { StarBorder } from "@/components/ui/StarBorder";
 
 const fallbackPatterns = ["from-[#0B9FA8] via-[#064a5a] to-[#071B2B]", "from-[#081f35] via-[#175879] to-[#ff7a3d]", "from-[#765542] via-[#1c3947] to-[#0b9fa8]", "from-[#073647] via-[#0b9fa8] to-[#b9f3ec]", "from-[#582941] via-[#101f38] to-[#ff7a3d]"];
 
@@ -187,14 +188,16 @@ function InsightSlide({
       className="absolute left-1/2 top-0 w-[min(78vw,590px)] -translate-x-1/2 origin-center"
     >
       {isFocus ? (
-        <button
-          type="button"
-          onClick={onFocusOpen}
-          aria-label={`Preview ${insight.title}`}
-          className="group block w-full overflow-hidden border border-trace-teal/55 bg-white text-left shadow-[0_28px_65px_rgba(7,27,43,0.18)]"
-        >
-          {cardBody}
-        </button>
+        <StarBorder color="#009CA6" speed="6s">
+          <button
+            type="button"
+            onClick={onFocusOpen}
+            aria-label={`Preview ${insight.title}`}
+            className="group block w-full overflow-hidden bg-white text-left shadow-[0_28px_65px_rgba(7,27,43,0.18)]"
+          >
+            {cardBody}
+          </button>
+        </StarBorder>
       ) : (
         <button
           type="button"
