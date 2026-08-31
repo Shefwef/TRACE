@@ -126,6 +126,20 @@
   .people-rail:hover .people-rail-track, .people-rail:focus-within .people-rail-track { animation-play-state: paused; }
   .people-rail[data-static="true"] .people-rail-track { animation: none; flex-wrap: wrap; width: 100%; justify-content: center; }
   @keyframes people-rail-move { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .imc-container { --imc-direction: forwards; --imc-duration: 42s; }
+  .imc-container.imc-horizontal { mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent); }
+  .imc-container.imc-vertical { mask-image: linear-gradient(180deg, transparent, black 12%, black 88%, transparent); -webkit-mask-image: linear-gradient(180deg, transparent, black 12%, black 88%, transparent); }
+  .imc-container.imc-horizontal .imc-track { width: max-content; animation: imc-scroll-horizontal var(--imc-duration) linear infinite; animation-direction: var(--imc-direction); will-change: transform; }
+  .imc-container.imc-vertical .imc-track { height: max-content; animation: imc-scroll-vertical var(--imc-duration) linear infinite; animation-direction: var(--imc-direction); will-change: transform; }
+  .imc-container[data-pause-on-hover]:hover .imc-track, .imc-container[data-pause-on-hover]:focus-within .imc-track { animation-play-state: paused; }
+  @keyframes imc-scroll-horizontal { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes imc-scroll-vertical { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+
+  .scroll-stack { position: relative; }
+  .scroll-stack-item { will-change: transform; }
+  .scroll-stack-item[data-sticky] { position: sticky; }
+
   @media (min-width: 640px) { .container { padding-left: 1.5rem; padding-right: 1.5rem; } }
   @media (min-width: 1024px) { .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; } }
 }
