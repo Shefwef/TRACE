@@ -8,6 +8,8 @@ export interface InfiniteMovingCardsProps {
   items: ReactNode[];
   direction?: InfiniteMovingCardsDirection;
   speed?: InfiniteMovingCardsSpeed;
+  /** Overrides the speed preset with an exact duration in seconds. */
+  durationSeconds?: number;
   pauseOnHover?: boolean;
   className?: string;
   itemClassName?: string;
@@ -27,6 +29,7 @@ export function InfiniteMovingCards({
   items,
   direction = "left",
   speed = "slow",
+  durationSeconds,
   pauseOnHover = true,
   className = "",
   itemClassName = "",
@@ -44,9 +47,9 @@ export function InfiniteMovingCards({
     if (!container || !track) return;
     const directionValue = direction === "left" || direction === "up" ? "forwards" : "reverse";
     container.style.setProperty("--imc-direction", directionValue);
-    container.style.setProperty("--imc-duration", durationBySpeed[speed]);
+    container.style.setProperty("--imc-duration", durationSeconds ? `${durationSeconds}s` : durationBySpeed[speed]);
     setReady(true);
-  }, [direction, speed]);
+  }, [direction, speed, durationSeconds]);
 
   const orientationClass = vertical
     ? "imc-vertical flex flex-col"

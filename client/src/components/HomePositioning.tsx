@@ -43,11 +43,11 @@ export function TracePositioningSection() {
     { label: "Ownership", detail: "Institutional capability, capacity building, and local stewardship anchor lasting change.", tone: "03" },
   ];
 
-  const pillarCards = pillars.map((pillar, index) => (
+  const pillarCards = pillars.map((pillar) => (
     <article
       key={pillar.label}
-      className="relative flex w-full flex-col overflow-hidden rounded-sm border border-white/12 bg-gradient-to-br from-trace-navy via-[#0f345a] to-trace-ink px-6 py-6 shadow-[0_18px_42px_rgba(8,36,64,0.32)] sm:px-7 sm:py-7"
-      style={{ minHeight: 168 }}
+      className="relative flex h-full w-[300px] flex-col overflow-hidden rounded-sm border border-white/12 bg-gradient-to-br from-trace-navy via-[#0f345a] to-trace-ink px-6 py-6 shadow-[0_18px_42px_rgba(8,36,64,0.32)] sm:w-[340px] sm:px-7 sm:py-7"
+      style={{ minHeight: 220 }}
     >
       <div className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-trace-teal via-trace-mint to-trace-teal" />
       <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full border border-trace-mint/25" />
@@ -56,7 +56,6 @@ export function TracePositioningSection() {
       <h3 className="mt-4 font-display text-2xl font-extrabold leading-[1.02] tracking-[-0.05em] text-white sm:text-[1.7rem]">{pillar.label}</h3>
       <p className="mt-3 text-sm leading-6 text-white/85">{pillar.detail}</p>
       <p className="mt-auto pt-5 font-mono text-[9px] font-bold tracking-[0.18em] text-trace-mint/85">EVIDENCE · DELIVERY · OWNERSHIP</p>
-      {index === 0 && <div className="pointer-events-none absolute inset-x-6 top-3 h-px bg-gradient-to-r from-transparent via-trace-mint/40 to-transparent" />}
     </article>
   ));
 
@@ -72,21 +71,19 @@ export function TracePositioningSection() {
           </div>
         </SectionReveal>
 
-        <div className="mt-10 grid gap-6 sm:mt-12 lg:grid-cols-[1fr_0.9fr] lg:gap-10">
+        <div className="mt-10 sm:mt-12">
           <SectionReveal>
-            <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
               <motion.figure
                 whileHover={reduceMotion ? undefined : { y: -4 }}
                 transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }}
                 className="relative overflow-hidden border border-trace-ink/10 bg-white shadow-[0_18px_44px_rgba(18,61,103,0.10)]"
               >
-                <div className="relative aspect-[5/4]">
-                  <img
-                    src={ASSETS.aboutTrace}
-                    alt="Overhead view of the TRACE team meeting around a table shaped like the TRACE logo"
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                </div>
+                <img
+                  src={ASSETS.aboutTrace}
+                  alt="Overhead view of the TRACE team meeting around a table shaped like the TRACE logo"
+                  className="block h-full w-full object-cover"
+                />
               </motion.figure>
               <div className="flex flex-col justify-between border-l-2 border-t-2 border-trace-teal bg-gradient-to-br from-trace-navy via-[#123D67] to-[#0a2b4a] p-6 text-white shadow-[0_16px_38px_rgba(8,36,64,0.22)] sm:p-8">
                 <div>
@@ -100,37 +97,29 @@ export function TracePositioningSection() {
           </SectionReveal>
 
           <SectionReveal delay={0.08}>
-            <div className="relative h-[420px] overflow-hidden rounded-sm border border-trace-ink/10 bg-gradient-to-b from-[#0a2b4a] via-trace-navy to-[#0a2b4a] p-4 shadow-[0_18px_44px_rgba(8,36,64,0.20)] sm:h-[480px] sm:p-5">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-trace-teal to-transparent" />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-trace-teal to-transparent" />
-              <p className="absolute left-5 top-4 z-10 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint sm:left-6 sm:top-5">EVIDENCE · DELIVERY · OWNERSHIP</p>
-              <div className="mt-10 h-[calc(100%-2.5rem)]">
-                <InfiniteMovingCards
-                  items={pillarCards}
-                  direction="up"
-                  speed="slow"
-                  pauseOnHover
-                  ariaLabel="Evidence, delivery, and ownership pillars"
-                  itemClassName="w-full"
-                  gapClassName="gap-4"
-                />
-              </div>
+            <div className="relative mt-8 overflow-hidden rounded-sm border border-trace-ink/10 bg-gradient-to-r from-[#0a2b4a] via-trace-navy to-[#0a2b4a] py-6 shadow-[0_18px_44px_rgba(8,36,64,0.20)] sm:mt-10 sm:py-7">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
+              <p className="mb-5 px-6 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint sm:px-8">EVIDENCE · DELIVERY · OWNERSHIP</p>
+              <InfiniteMovingCards
+                items={pillarCards}
+                direction="left"
+                durationSeconds={48}
+                pauseOnHover
+                ariaLabel="Evidence, delivery, and ownership pillars"
+                gapClassName="gap-6 sm:gap-8"
+                className="px-1"
+              />
             </div>
           </SectionReveal>
         </div>
 
         <div className="relative mt-14 sm:mt-20">
-          <div className="mb-8 flex flex-col justify-between gap-4 sm:mb-10 sm:flex-row sm:items-end">
-            <SectionReveal>
-              <p className="section-label">WHAT SETS TRACE APART</p>
-              <h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-trace-ink sm:text-5xl">Depth that <span className="text-trace-teal">stays connected</span> to delivery.</h2>
-            </SectionReveal>
-            <SectionReveal delay={0.08}>
-              <p className="max-w-md text-sm leading-6 text-trace-muted">Scroll through the three institutional distinctions that guide every TRACE engagement.</p>
-            </SectionReveal>
-          </div>
-
-          <ScrollStack stackTopBase={104} stackTopStep={24} enableLenis>
+          <SectionReveal>
+            <p className="section-label">WHAT SETS TRACE APART</p>
+            <h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-trace-ink sm:text-5xl">Depth that <span className="text-trace-teal">stays connected</span> to delivery.</h2>
+          </SectionReveal>
+          <ScrollStack className="mt-8 sm:mt-10" stackTopBase={104} stackTopStep={24} enableLenis>
             {principles.map((principle, index) => (
               <ScrollStackItem key={principle.number} className="w-full">
                 <motion.article
