@@ -1,7 +1,7 @@
 /** Civic Signal Field route system: image-led institutional briefings that connect services, projects, experts, and verified insight sources. */
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, CheckCircle2, ExternalLink, FileText, Mail, MapPin, Phone, PlayCircle, Search, Send } from "lucide-react";
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, CheckCircle2, ChevronDown, ExternalLink, FileText, Mail, MapPin, Phone, PlayCircle, Search, Send, XCircle } from "lucide-react";
+import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 import { SectionReveal } from "@/components/SectionReveal";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -85,14 +85,180 @@ export function ServicesPage() {
   return <Shell><main><PageHero label="SERVICES" title={<>Capabilities for <span className="text-trace-mint">systems that matter.</span></>} description="Integrated advisory, technology, research, and implementation services for more competitive, capable, and resilient institutions." tone="navy" /><section className="py-20 sm:py-28"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="max-w-2xl"><p className="section-label">AREAS OF DELIVERY</p><h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Each service starts with context—and ends in capability.</h2></div><div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{services.map((service, index) => <SectionReveal key={service.slug} delay={index * 0.04}><Link href={`/services/${service.slug}`} className="group flex min-h-[415px] flex-col overflow-hidden border border-trace-ink/10 bg-white transition-transform duration-300 hover:-translate-y-1"><div className="relative h-48 overflow-hidden bg-trace-paper"><img src={serviceImage(service)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/58 to-transparent" /><span className="absolute bottom-4 left-5 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-mint">{service.solutions} INTEGRATED SOLUTIONS</span></div><div className="flex flex-1 flex-col p-7"><p className="font-mono text-[10px] font-bold tracking-[0.14em] text-trace-teal">{service.strapline.toUpperCase()}</p><h2 className="mt-4 font-display text-3xl font-extrabold leading-[0.98] tracking-[-0.055em] text-trace-ink">{service.title}</h2><p className="mt-5 text-sm leading-6 text-trace-muted">{service.description}</p><div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-5"><span className="text-xs font-bold text-trace-muted">View service briefing</span><ArrowUpRight className="h-5 w-5 text-trace-orange transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" /></div></div></Link></SectionReveal>)}</div></div></section></main></Shell>;
 }
 
+function ServiceStoryChapter({ chapter, index, isActive, registerRef }: {
+  chapter: { label: string; title: string; body: ReactNode };
+  index: number;
+  isActive: boolean;
+  registerRef: (element: HTMLElement | null, index: number) => void;
+}) {
+  return (
+    <article
+      ref={(element) => registerRef(element, index)}
+      data-service-chapter
+      className={`relative border-l-2 pl-7 transition-colors duration-500 sm:pl-9 ${isActive ? "border-trace-teal" : "border-trace-ink/12"}`}
+    >
+      <span className={`absolute -left-[9px] top-1 h-4 w-4 border-2 bg-white transition-colors duration-500 ${isActive ? "border-trace-teal" : "border-trace-ink/25"}`} aria-hidden="true" />
+      <p className={`font-mono text-[10px] font-bold tracking-[0.16em] transition-colors duration-500 ${isActive ? "text-trace-teal" : "text-trace-muted"}`}>{String(index + 1).padStart(2, "0")} · {chapter.label}</p>
+      <h3 className="mt-3 font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl">{chapter.title}</h3>
+      <div className="mt-5 space-y-4 text-base leading-7 text-trace-muted">{chapter.body}</div>
+    </article>
+  );
+}
+
 export function ServiceDetailPage() {
   const [, params] = useRoute("/services/:slug");
   const service = services.find((item) => item.slug === params?.slug);
+  const [activeChapter, setActiveChapter] = useState(0);
+  const chapterRefs = useRef<Array<HTMLElement | null>>([]);
+  const registerRef = useCallback((element: HTMLElement | null, index: number) => {
+    chapterRefs.current[index] = element;
+  }, []);
+
+  useEffect(() => {
+    if (!service) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) {
+          const index = Number((visible[0].target as HTMLElement).dataset.chapterIndex);
+          if (!Number.isNaN(index)) setActiveChapter(index);
+        }
+      },
+      { rootMargin: "-35% 0px -45% 0px", threshold: [0.15, 0.35, 0.6, 0.9] }
+    );
+    chapterRefs.current.forEach((element, index) => {
+      if (element) {
+        element.dataset.chapterIndex = String(index);
+        observer.observe(element);
+      }
+    });
+    return () => observer.disconnect();
+  }, [service]);
+
   if (!service) return <NotFoundEntity />;
   const relatedProjects = projects.filter((project) => project.serviceSlugs.includes(service.slug));
   const relatedTeam = team.filter((member) => member.serviceSlugs.includes(service.slug));
   const relatedInsights = insights.filter((insight) => insight.serviceSlugs.includes(service.slug));
-  return <Shell><main><DetailMediaHero label="SERVICE" title={<>{service.title}</>} description={service.description} kicker={`${service.solutions} INTEGRATED SOLUTIONS · ${service.strapline.toUpperCase()}`} image={serviceImage(service)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/services" label="services" /><div className="mt-12 grid gap-12 lg:grid-cols-[0.88fr_1.12fr]"><SectionReveal><p className="section-label">OVERVIEW</p><h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] text-trace-ink">A service designed to move across the system.</h2><p className="mt-7 text-base leading-8 text-trace-muted">{service.description} TRACE combines strategic advice with practical implementation, connecting the disciplines required to move an institutional need into a working capability.</p></SectionReveal><SectionReveal delay={0.08}><div className="relative overflow-hidden border border-trace-ink/10 bg-white p-7 sm:p-9"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><p className="section-label">WHAT OUR SERVICE INCLUDES</p><div className="mt-6 divide-y divide-trace-ink/8">{service.disciplines.map((discipline) => <div key={discipline} className="flex items-center gap-4 py-4"><CheckCircle2 className="h-5 w-5 shrink-0 text-trace-teal" /><p className="text-sm font-extrabold text-trace-ink">{discipline}</p></div>)}</div><p className="mt-6 text-sm leading-6 text-trace-muted">The delivery scope is tailored to the mandate, institutional setting, and related project record.</p></div></SectionReveal></div><RelationshipRail title="Work we have delivered" action={<Link href="/projects" className="text-sm font-extrabold text-trace-teal">All projects <ArrowRight className="inline h-4 w-4" /></Link>}>{relatedProjects.length ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Project records will be connected here as they are published.</p>}</RelationshipRail><RelationshipRail title="Experts in this area" action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}>{relatedTeam.length ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Associated experts will be published here.</p>}</RelationshipRail><RelationshipRail title="Relevant insights">{relatedInsights.length ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related insights will be published here.</p>}</RelationshipRail></div></section></main></Shell>;
+
+  const chapters = [
+    {
+      label: "OVERVIEW",
+      title: "A service designed to move across the system.",
+      body: (
+        <>
+          <p>{service.description}</p>
+          <p>TRACE combines strategic advice with practical implementation, connecting the disciplines required to move an institutional need into a working capability.</p>
+        </>
+      ),
+    },
+    {
+      label: "WHAT WE COVER",
+      title: "The disciplines connected inside this service.",
+      body: (
+        <>
+          <p>Each engagement blends the disciplines below into a single delivery track, tailored to the mandate, institutional setting, and related project record.</p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {service.disciplines.map((discipline) => (
+              <li key={discipline} className="flex items-start gap-3 border border-trace-ink/10 bg-white p-4">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-trace-teal" />
+                <span className="text-sm font-extrabold text-trace-ink">{discipline}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      ),
+    },
+    {
+      label: "HOW WE DELIVER",
+      title: "Evidence, delivery, and ownership—together.",
+      body: (
+        <>
+          <p>TRACE anchors every mandate in a three-stage rhythm: evidence-based diagnosis, technology-supported delivery, and institutional handover for lasting capability.</p>
+          <p>Across {service.solutions} integrated solutions, this service ships with the tooling, documentation, and capacity-building needed for the receiving institution to sustain the change beyond the engagement.</p>
+        </>
+      ),
+    },
+    {
+      label: "CONNECTED WORK",
+      title: "See the record behind the recommendation.",
+      body: (
+        <>
+          <p>Every TRACE service links to the projects, experts, and knowledge outputs that put it into practice. The rails below list the delivery records, subject-matter leads, and published insights currently connected to {service.title}.</p>
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <Shell>
+      <main>
+        <DetailMediaHero label="SERVICE" title={<>{service.title}</>} description={service.description} kicker={`${service.solutions} INTEGRATED SOLUTIONS · ${service.strapline.toUpperCase()}`} image={serviceImage(service)} />
+        <section className="bg-trace-paper py-16 sm:py-20">
+          <div className="mx-auto max-w-[1300px] px-5 lg:px-10">
+            <BackLink href="/services" label="services" />
+            <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+              <div className="lg:sticky lg:top-28 lg:h-fit">
+                <SectionReveal>
+                  <figure className="relative overflow-hidden border border-trace-ink/10 bg-trace-navy shadow-[0_18px_44px_rgba(18,61,103,0.12)]">
+                    <img src={serviceImage(service)} alt="" className="aspect-[5/4] w-full object-cover opacity-90" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/72 via-trace-ink/10 to-transparent" />
+                    <figcaption className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+                      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-mint">TRACE SERVICE</p>
+                      <h2 className="mt-3 font-display text-3xl font-extrabold leading-[1.02] tracking-[-0.055em] sm:text-4xl">{service.title}</h2>
+                      <p className="mt-3 text-sm leading-6 text-white/85">{service.strapline}</p>
+                    </figcaption>
+                  </figure>
+                  <div className="mt-6 grid grid-cols-2 gap-3">
+                    <div className="border-l-2 border-t-2 border-trace-teal bg-white p-4">
+                      <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">SOLUTIONS</p>
+                      <p className="mt-2 font-display text-3xl font-extrabold text-trace-ink">{service.solutions}</p>
+                    </div>
+                    <div className="border-l-2 border-t-2 border-trace-teal bg-white p-4">
+                      <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">DISCIPLINES</p>
+                      <p className="mt-2 font-display text-3xl font-extrabold text-trace-ink">{service.disciplines.length}</p>
+                    </div>
+                  </div>
+                  <nav aria-label="Service chapters" className="mt-6 hidden lg:block">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted">CHAPTERS</p>
+                    <ol className="mt-3 space-y-2">
+                      {chapters.map((chapter, index) => (
+                        <li key={chapter.label}>
+                          <button
+                            type="button"
+                            onClick={() => chapterRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                            className={`flex w-full items-center gap-3 border-l-2 py-1.5 pl-3 text-left text-xs font-extrabold transition-colors ${index === activeChapter ? "border-trace-teal text-trace-navy" : "border-trace-ink/12 text-trace-muted hover:text-trace-navy"}`}
+                          >
+                            <span className="font-mono">{String(index + 1).padStart(2, "0")}</span>
+                            <span>{chapter.label}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ol>
+                  </nav>
+                </SectionReveal>
+              </div>
+
+              <div className="space-y-14 sm:space-y-20">
+                {chapters.map((chapter, index) => (
+                  <ServiceStoryChapter
+                    key={chapter.label}
+                    chapter={chapter}
+                    index={index}
+                    isActive={index === activeChapter}
+                    registerRef={registerRef}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <RelationshipRail title="Work we have delivered" action={<Link href="/projects" className="text-sm font-extrabold text-trace-teal">All projects <ArrowRight className="inline h-4 w-4" /></Link>}>{relatedProjects.length ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Project records will be connected here as they are published.</p>}</RelationshipRail>
+            <RelationshipRail title="Experts in this area" action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}>{relatedTeam.length ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Associated experts will be published here.</p>}</RelationshipRail>
+            <RelationshipRail title="Relevant insights">{relatedInsights.length ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related insights will be published here.</p>}</RelationshipRail>
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 export function ProjectsPage() {
@@ -114,8 +280,7 @@ export function ProjectDetailPage() {
   const relatedServices = services.filter((service) => project.serviceSlugs.includes(service.slug));
   const contributors = team.filter((member) => project.teamSlugs.includes(member.slug));
   const relatedInsights = insights.filter((insight) => insight.projectSlugs.includes(project.slug));
-  const relatedProjects = projects.filter((item) => item.slug !== project.slug && item.serviceSlugs.some((slug) => project.serviceSlugs.includes(slug))).slice(0, 3);
-  return <Shell><main><DetailMediaHero label="PROJECT" title={<>{project.title}</>} description={project.summary} kicker={`${project.client.toUpperCase()} · ${project.period} · ${project.status.toUpperCase()}`} image={projectImage(project)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/projects" label="projects" /><div className="mt-12 grid gap-12 lg:grid-cols-[1.2fr_0.8fr]"><SectionReveal><p className="section-label">PROJECT OVERVIEW</p><h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] text-trace-ink">A practical intervention with an institutional line of sight.</h2><div className="mt-7 grid gap-5 text-base leading-8 text-trace-muted"><p>{project.summary}</p><p>This TRACE record links the mandate with its named client, connected service areas, delivery team, and published knowledge content—so the work remains visible in context.</p></div><div className="mt-10 border-l-2 border-trace-teal bg-white p-6"><p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">DELIVERY RECORD</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><div><p className="text-xs font-bold text-trace-muted">CONNECTED SERVICES</p><p className="mt-1 font-display text-2xl font-extrabold text-trace-ink">{relatedServices.length}</p></div><div><p className="text-xs font-bold text-trace-muted">PUBLISHED CONTRIBUTORS</p><p className="mt-1 font-display text-2xl font-extrabold text-trace-ink">{contributors.length}</p></div></div></div></SectionReveal><SectionReveal delay={0.08}><aside className="relative overflow-hidden border border-trace-ink/10 bg-white p-7"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><p className="section-label">PROJECT FACTS</p><dl className="mt-6 divide-y divide-trace-ink/8"><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Client</dt><dd className="max-w-[60%] text-right text-xs font-extrabold text-trace-ink">{project.client}</dd></div><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Period</dt><dd className="text-right text-xs font-extrabold text-trace-ink">{project.period}</dd></div><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Status</dt><dd className="text-right text-xs font-extrabold text-trace-teal">{project.status}</dd></div><div className="py-4"><dt className="text-xs font-bold text-trace-muted">Service areas</dt><dd className="mt-3 flex flex-wrap gap-2">{relatedServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</dd></div></dl></aside></SectionReveal></div><RelationshipRail title="Experts on this mandate" action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}>{contributors.length ? contributors.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Contributors will be connected here as they are verified.</p>}</RelationshipRail><RelationshipRail title="Related insights">{relatedInsights.length ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related knowledge content will be added as it is published.</p>}</RelationshipRail><RelationshipRail title="More connected projects" action={<Link href="/projects" className="text-sm font-extrabold text-trace-teal">All projects <ArrowRight className="inline h-4 w-4" /></Link>}>{relatedProjects.length ? relatedProjects.map((item) => <MiniProject key={item.slug} project={item} />) : <p className="text-sm text-trace-muted">Further related records will be added as they are verified.</p>}</RelationshipRail></div></section></main></Shell>;
+  return <Shell><main><DetailMediaHero label="PROJECT" title={<>{project.title}</>} description={project.summary} kicker={`${project.client.toUpperCase()} · ${project.period} · ${project.status.toUpperCase()}`} image={projectImage(project)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/projects" label="projects" /><div className="mt-12 grid gap-12 lg:grid-cols-[1.2fr_0.8fr]"><SectionReveal><p className="section-label">PROJECT OVERVIEW</p><h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] text-trace-ink">A practical intervention with an institutional line of sight.</h2><div className="mt-7 grid gap-5 text-base leading-8 text-trace-muted"><p>{project.summary}</p><p>This TRACE record links the mandate with its named client, connected service areas, delivery team, and published knowledge content—so the work remains visible in context.</p></div><div className="mt-10 border-l-2 border-trace-teal bg-white p-6"><p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">DELIVERY RECORD</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><div><p className="text-xs font-bold text-trace-muted">CONNECTED SERVICES</p><p className="mt-1 font-display text-2xl font-extrabold text-trace-ink">{relatedServices.length}</p></div><div><p className="text-xs font-bold text-trace-muted">PUBLISHED CONTRIBUTORS</p><p className="mt-1 font-display text-2xl font-extrabold text-trace-ink">{contributors.length}</p></div></div></div></SectionReveal><SectionReveal delay={0.08}><aside className="relative overflow-hidden border border-trace-ink/10 bg-white p-7"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><p className="section-label">PROJECT FACTS</p><dl className="mt-6 divide-y divide-trace-ink/8"><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Client</dt><dd className="max-w-[60%] text-right text-xs font-extrabold text-trace-ink">{project.client}</dd></div><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Period</dt><dd className="text-right text-xs font-extrabold text-trace-ink">{project.period}</dd></div><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Status</dt><dd className="text-right text-xs font-extrabold text-trace-teal">{project.status}</dd></div><div className="py-4"><dt className="text-xs font-bold text-trace-muted">Service areas</dt><dd className="mt-3 flex flex-wrap gap-2">{relatedServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</dd></div></dl></aside></SectionReveal></div><RelationshipRail title="Experts on this mandate" action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}>{contributors.length ? contributors.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Contributors will be connected here as they are verified.</p>}</RelationshipRail><RelationshipRail title="Related insights">{relatedInsights.length ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related knowledge content will be added as it is published.</p>}</RelationshipRail></div></section></main></Shell>;
 }
 
 export function TeamPage() {
@@ -154,10 +319,272 @@ export function InnovationsPage() {
   return <Shell><main><PageHero label="OUR INNOVATIONS" title={<>Intelligence that makes the next <span className="text-trace-teal">move visible.</span></>} description="Digital products that turn complex trade rules, export priorities, and scattered data into usable decisions." tone="dark" /><section className="bg-trace-paper py-20 sm:py-28"><div className="mx-auto grid max-w-[1480px] gap-7 px-5 lg:px-10">{innovations.map((innovation, index) => <SectionReveal key={innovation.slug} delay={index * 0.08}><motion.article whileHover={{ y: -7 }} transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }} className="group grid overflow-hidden border border-trace-ink/10 bg-white lg:grid-cols-[1.1fr_0.9fr]"><div className="relative min-h-[320px] overflow-hidden bg-trace-ink"><img src={innovation.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75 transition-transform duration-700 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-tr from-trace-ink/78 via-trace-ink/22 to-transparent" /><div className="absolute bottom-7 left-7 flex flex-wrap gap-2">{innovation.tags.map((tag) => <span key={tag} className="border border-white/22 bg-white/10 px-3 py-2 font-mono text-[10px] font-bold tracking-[0.12em] text-trace-mint">{tag.toUpperCase()}</span>)}</div></div><div className="flex flex-col justify-between p-8 sm:p-10"><div><p className="section-label">TRACE PRODUCT 0{index + 1}</p><h2 className="mt-5 font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] text-trace-ink">{innovation.title}</h2><p className="mt-6 text-sm leading-7 text-trace-muted">{innovation.description}</p></div><a href={innovation.url} target="_blank" rel="noreferrer" className="mt-10 inline-flex w-fit items-center gap-2 border-b border-trace-teal pb-2 text-sm font-extrabold text-trace-ink transition-transform duration-200 group-hover:translate-x-1">Visit platform <ExternalLink className="h-4 w-4 text-trace-orange" /></a></div></motion.article></SectionReveal>)}</div></section></main></Shell>;
 }
 
-const roles = [{ title: "Trade Economist", discipline: "Trade Policy & Facilitation", experience: "8–10 years", deadline: "Sep 3, 2026" }, { title: "Accounts & Finance Executive", discipline: "Accounts & Finance", experience: "2–3 years", deadline: "Sep 3, 2026" }, { title: "Manager — Business Development", discipline: "Communications & Business Development", experience: "6–7 years", deadline: "Aug 31, 2026" }, { title: "Lead Full Stack Developer", discipline: "Software Development / Engineering", experience: "7–8 years", deadline: "Aug 31, 2026" }, { title: "Research Intern", discipline: "Research & Business Development", experience: "Entry level", deadline: "Aug 27, 2026" }];
+type CareerRole = {
+  title: string;
+  discipline: string;
+  experience: string;
+  deadline: string;
+  employment: string;
+  responsibilities: string[];
+  requirements: string[];
+};
+
+const roles: CareerRole[] = [
+  {
+    title: "Trade Economist",
+    discipline: "Trade Policy & Facilitation",
+    experience: "8–10 years",
+    deadline: "2026-09-03",
+    employment: "Full-time",
+    responsibilities: [
+      "Lead economic and trade policy analysis on active TRACE mandates.",
+      "Design evidence-based recommendations for institutional and regulatory reform.",
+      "Support cross-border trade facilitation and tariff modernisation programmes.",
+    ],
+    requirements: [
+      "Postgraduate qualification in economics, trade policy, or a related field.",
+      "8+ years of applied trade or public-policy experience.",
+      "Strong quantitative analysis and briefing communication skills.",
+    ],
+  },
+  {
+    title: "Accounts & Finance Executive",
+    discipline: "Accounts & Finance",
+    experience: "2–3 years",
+    deadline: "2026-09-03",
+    employment: "Full-time",
+    responsibilities: [
+      "Manage day-to-day bookkeeping, invoicing, and financial records.",
+      "Support monthly reconciliation and reporting cycles.",
+      "Coordinate with external auditors and tax advisors.",
+    ],
+    requirements: [
+      "Bachelor's in accounting, finance, or a related field.",
+      "2+ years of accounts or finance experience in a professional-services setting.",
+      "Working knowledge of common accounting platforms and tax compliance.",
+    ],
+  },
+  {
+    title: "Manager — Business Development",
+    discipline: "Communications & Business Development",
+    experience: "6–7 years",
+    deadline: "2026-08-31",
+    employment: "Full-time",
+    responsibilities: [
+      "Identify and develop qualified opportunities across TRACE service areas.",
+      "Lead proposal development, partner outreach, and client relationship building.",
+      "Coordinate with technical leads to shape bids and strategic pitches.",
+    ],
+    requirements: [
+      "6+ years of business-development experience in consulting, development, or trade.",
+      "Strong writing, stakeholder engagement, and proposal-management skills.",
+      "Demonstrable track record of qualified pipeline generation.",
+    ],
+  },
+  {
+    title: "Lead Full Stack Developer",
+    discipline: "Software Development / Engineering",
+    experience: "7–8 years",
+    deadline: "2026-08-31",
+    employment: "Full-time",
+    responsibilities: [
+      "Lead delivery of TRACE digital products across the full stack.",
+      "Own architecture, code quality, and technical mentorship for the engineering team.",
+      "Partner with product and policy leads to translate mandates into working systems.",
+    ],
+    requirements: [
+      "7+ years of full-stack engineering experience with modern JavaScript/TypeScript stacks.",
+      "Hands-on experience with React, Node.js, and relational databases.",
+      "Comfort operating cloud infrastructure and CI/CD pipelines.",
+    ],
+  },
+  {
+    title: "Research Intern",
+    discipline: "Research & Business Development",
+    experience: "Entry level",
+    deadline: "2026-08-27",
+    employment: "Internship",
+    responsibilities: [
+      "Support desk research across trade, policy, and quality-systems topics.",
+      "Help prepare briefing notes, literature reviews, and internal databases.",
+      "Coordinate content for TRACE knowledge outputs.",
+    ],
+    requirements: [
+      "Current student or recent graduate in economics, public policy, or a related field.",
+      "Strong writing and analytical skills.",
+      "Curiosity, attention to detail, and reliability with deadlines.",
+    ],
+  },
+];
+
+function isDeadlinePassed(iso: string, now: Date = new Date()) {
+  // Treat the deadline day itself as still open: applications close at end-of-day on the deadline.
+  const [year, month, day] = iso.split("-").map(Number);
+  const endOfDeadline = new Date(year, month - 1, day, 23, 59, 59, 999);
+  return now.getTime() > endOfDeadline.getTime();
+}
+
+function formatDeadline(iso: string) {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function CareerRoleCard({ role, expired, index }: { role: CareerRole; expired: boolean; index: number }) {
+  const [open, setOpen] = useState(false);
+  const reduceMotion = false;
+  const detailsId = `career-details-${index}`;
+  const applyHref = `mailto:contact@traceconsultingltd.com?subject=${encodeURIComponent(`TRACE Career Application — ${role.title}`)}`;
+  return (
+    <article className={`overflow-hidden border bg-white transition-colors ${expired ? "border-trace-ink/12 opacity-95" : "border-trace-ink/10 hover:border-trace-teal/55"}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        aria-expanded={open}
+        aria-controls={detailsId}
+        className="grid w-full grid-cols-1 items-start gap-5 px-5 py-6 text-left sm:px-7 md:grid-cols-[1.4fr_1fr_0.9fr_auto] md:items-center"
+      >
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`inline-flex items-center gap-1.5 border px-2.5 py-1 font-mono text-[9px] font-black tracking-[0.14em] ${expired ? "border-trace-ink/20 bg-trace-paper text-trace-muted" : "border-trace-teal/40 bg-trace-teal/8 text-trace-teal"}`}>
+              {expired ? <XCircle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
+              {expired ? "APPLICATIONS CLOSED" : "OPEN POSITION"}
+            </span>
+            <span className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-muted">{role.employment.toUpperCase()}</span>
+          </div>
+          <h3 className="mt-3 font-display text-2xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-3xl">{role.title}</h3>
+          <p className="mt-2 text-sm text-trace-muted">{role.discipline}</p>
+        </div>
+        <p className="flex items-center gap-2 text-sm font-bold text-trace-muted"><MapPin className="h-4 w-4 text-trace-teal" />Mohakhali DOHS, Dhaka</p>
+        <p className="text-sm text-trace-muted">
+          <span className="font-bold text-trace-ink">{role.experience}</span><br />
+          <span className={expired ? "text-trace-muted" : "text-trace-navy"}>{expired ? "Closed" : "Closes"} {formatDeadline(role.deadline)}</span>
+        </p>
+        <span className="inline-flex items-center gap-1.5 justify-self-start text-xs font-extrabold text-trace-navy md:justify-self-end">
+          {open ? "Hide details" : "View details"}
+          <ChevronDown className={`h-4 w-4 text-trace-teal transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        </span>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id={detailsId}
+            key="details"
+            initial={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+            animate={reduceMotion ? { opacity: 1 } : { height: "auto", opacity: 1 }}
+            exit={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            className="overflow-hidden border-t border-trace-ink/8 bg-trace-paper"
+          >
+            <div className="grid gap-8 px-5 py-8 sm:px-7 md:grid-cols-2">
+              <div>
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">RESPONSIBILITIES</p>
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-trace-muted">
+                  {role.responsibilities.map((item) => (
+                    <li key={item} className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-trace-teal" />{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">REQUIREMENTS</p>
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-trace-muted">
+                  {role.requirements.map((item) => (
+                    <li key={item} className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-trace-orange" />{item}</li>
+                  ))}
+                </ul>
+                <div className="mt-8 flex flex-col gap-3 border-t border-trace-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="flex items-center gap-2 text-xs font-bold text-trace-muted"><CalendarDays className="h-4 w-4 text-trace-teal" />
+                    {expired ? `Closed on ${formatDeadline(role.deadline)}` : `Apply by ${formatDeadline(role.deadline)}`}
+                  </p>
+                  {expired ? (
+                    <span aria-disabled="true" className="inline-flex cursor-not-allowed items-center gap-2 border border-trace-ink/15 bg-trace-paper px-5 py-3 text-sm font-extrabold text-trace-muted">
+                      Applications Closed <XCircle className="h-4 w-4" />
+                    </span>
+                  ) : (
+                    <a href={applyHref} className="inline-flex items-center gap-2 bg-trace-orange px-5 py-3 text-sm font-extrabold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.97]">
+                      Apply Now <Send className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </article>
+  );
+}
 
 export function CareersPage() {
-  return <Shell><main><PageHero label="CAREERS" title={<>Work that <span className="text-trace-mint">matters.</span></>} description="Join a growing team of trade specialists, researchers, technologists, and project managers working on consequential reform programmes in South Asia." tone="navy" /><section className="py-20 sm:py-28"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col justify-between gap-6 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end"><div><p className="section-label">OPEN ROLES</p><h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink">Find your next line of impact.</h2></div><a href="mailto:contact@traceconsultingltd.com?subject=TRACE%20Career%20Application" className="inline-flex items-center gap-2 bg-trace-orange px-5 py-3 text-sm font-extrabold text-white">Send your CV <Mail className="h-4 w-4" /></a></div><div className="divide-y divide-trace-ink/10">{roles.map((role, index) => <SectionReveal key={role.title} delay={index * 0.04}><article className="grid gap-5 py-8 md:grid-cols-[1.4fr_1fr_0.7fr_auto] md:items-center"><div><h3 className="font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">{role.title}</h3><p className="mt-2 text-sm text-trace-muted">{role.discipline}</p></div><p className="flex items-center gap-2 text-sm font-bold text-trace-muted"><MapPin className="h-4 w-4 text-trace-teal" />Mohakhali DOHS, Dhaka</p><p className="text-sm text-trace-muted"><span className="font-bold text-trace-ink">{role.experience}</span><br />Closes {role.deadline}</p><a href="mailto:contact@traceconsultingltd.com?subject=TRACE%20Career%20Application" className="inline-flex items-center gap-2 text-sm font-extrabold text-trace-ink">Apply <ArrowUpRight className="h-4 w-4 text-trace-orange" /></a></article></SectionReveal>)}</div></div></section></main></Shell>;
+  const now = new Date();
+  const rolesWithStatus = roles.map((role) => ({ role, expired: isDeadlinePassed(role.deadline, now) }));
+  const openRoles = rolesWithStatus.filter((entry) => !entry.expired);
+  const closedRoles = rolesWithStatus.filter((entry) => entry.expired);
+  return (
+    <Shell>
+      <main>
+        <PageHero label="CAREERS" title={<>Work that <span className="text-trace-mint">matters.</span></>} description="Join a growing team of trade specialists, researchers, technologists, and project managers working on consequential reform programmes in South Asia." tone="navy" />
+        <section className="py-20 sm:py-28">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="flex flex-col justify-between gap-6 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end">
+              <div>
+                <p className="section-label">CURRENT OPPORTUNITIES</p>
+                <h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink">Find your next line of impact.</h2>
+                <p className="mt-4 max-w-2xl text-sm leading-6 text-trace-muted">Expand any role to see responsibilities, requirements, and the current application status. Applications close at the end of each posted deadline.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="rounded-none border border-trace-teal/40 bg-trace-teal/10 px-3 py-2 text-center">
+                  <p className="font-display text-2xl font-extrabold text-trace-navy">{openRoles.length}</p>
+                  <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">OPEN</p>
+                </div>
+                <div className="rounded-none border border-trace-ink/12 bg-trace-paper px-3 py-2 text-center">
+                  <p className="font-display text-2xl font-extrabold text-trace-ink/70">{closedRoles.length}</p>
+                  <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-muted">CLOSED</p>
+                </div>
+              </div>
+            </div>
+
+            {openRoles.length > 0 && (
+              <div className="mt-10">
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">ACCEPTING APPLICATIONS</p>
+                <div className="mt-5 grid gap-4">
+                  {openRoles.map(({ role, expired }, index) => (
+                    <SectionReveal key={role.title} delay={index * 0.04}>
+                      <CareerRoleCard role={role} expired={expired} index={index} />
+                    </SectionReveal>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {closedRoles.length > 0 && (
+              <div className="mt-14">
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">CLOSED — APPLICATIONS NO LONGER ACCEPTED</p>
+                <div className="mt-5 grid gap-4">
+                  {closedRoles.map(({ role, expired }, index) => (
+                    <SectionReveal key={role.title} delay={index * 0.04}>
+                      <CareerRoleCard role={role} expired={expired} index={openRoles.length + index} />
+                    </SectionReveal>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {rolesWithStatus.length === 0 && (
+              <p className="mt-16 text-center text-trace-muted">No open roles are currently published.</p>
+            )}
+
+            <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-trace-ink/10 pt-8 sm:flex-row sm:items-center">
+              <p className="max-w-xl text-sm text-trace-muted">Don't see the right fit? TRACE welcomes expressions of interest from specialists across trade, policy, laboratories, and technology.</p>
+              <a href="mailto:contact@traceconsultingltd.com?subject=TRACE%20General%20CV%20Submission" className="inline-flex items-center gap-2 bg-trace-navy px-5 py-3 text-sm font-extrabold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.97]">
+                Send your CV <Mail className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 export function ContactPage() {
