@@ -54,13 +54,13 @@ export function TracePositioningSection() {
 
         <div className="mt-10 grid gap-4 sm:mt-12 sm:gap-5 lg:grid-cols-6 lg:grid-rows-[auto_auto] lg:[grid-auto-flow:dense]">
           <SectionReveal className="lg:col-span-4 lg:row-span-2">
-            <motion.figure whileHover={reduceMotion ? undefined : { y: -4 }} transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }} className="group relative h-full min-h-[380px] overflow-hidden border border-trace-ink/10 bg-white shadow-[0_18px_44px_rgba(18,61,103,0.10)] lg:min-h-[540px]">
+            <motion.figure whileHover={reduceMotion ? undefined : { y: -4 }} transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }} className="group relative h-full min-h-[200px] overflow-hidden border border-trace-ink/10 bg-white shadow-[0_18px_44px_rgba(18,61,103,0.10)] lg:min-h-[280px]">
               <img src={ASSETS.aboutTrace} alt="Overhead view of the TRACE team meeting around a table shaped like the TRACE logo" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
               <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/72 via-trace-ink/12 to-transparent" />
               <figcaption className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-mint">ABOUT TRACE</p>
-                <h3 className="mt-3 max-w-md font-display text-3xl font-extrabold leading-[1.02] tracking-[-0.055em] sm:text-4xl">Where evidence, delivery, and ownership converge.</h3>
-                <p className="mt-4 max-w-lg text-sm leading-6 text-white/85">Evidence-based strategy paired with practical implementation—so reforms move from ambition into working institutional capability.</p>
+                <p className="font-mono text-xs font-bold tracking-[0.18em] text-trace-mint sm:text-sm">ABOUT TRACE</p>
+                <h3 className="mt-3 max-w-2xl font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.055em] sm:text-5xl lg:text-6xl">Where evidence, delivery, and ownership converge.</h3>
+                <p className="mt-4 max-w-xl text-base leading-7 text-white/90 sm:text-lg sm:leading-8">Evidence-based strategy paired with practical implementation—so reforms move from ambition into working institutional capability.</p>
               </figcaption>
             </motion.figure>
           </SectionReveal>
