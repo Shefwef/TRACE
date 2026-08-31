@@ -1,6 +1,6 @@
 /** Civic Signal Field route system: image-led institutional briefings that connect services, projects, experts, and verified insight sources. */
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, CheckCircle2, ChevronDown, ExternalLink, FileText, Mail, MapPin, Phone, PlayCircle, Search, Send, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Briefcase, CalendarDays, CheckCircle2, ChevronDown, Clock, ExternalLink, FileText, Mail, MapPin, Phone, PlayCircle, Search, Send, Upload, XCircle } from "lucide-react";
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 import { SectionReveal } from "@/components/SectionReveal";
@@ -321,22 +321,30 @@ export function InnovationsPage() {
 }
 
 type CareerRole = {
+  slug: string;
   title: string;
   discipline: string;
   experience: string;
   deadline: string;
+  postedDate: string;
   employment: string;
+  location: string;
+  intro: string;
   responsibilities: string[];
   requirements: string[];
 };
 
 const roles: CareerRole[] = [
   {
+    slug: "trade-economist",
     title: "Trade Economist",
     discipline: "Trade Policy & Facilitation",
     experience: "8–10 years",
     deadline: "2026-09-03",
+    postedDate: "2026-08-20",
     employment: "Full-time",
+    location: "Mohakhali DOHS, Dhaka, Bangladesh",
+    intro: "This role sits within TRACE's Trade Policy & Facilitation team, contributing to evidence-based advisory work on cross-border trade, tariff modernisation, and institutional reform programmes.",
     responsibilities: [
       "Lead economic and trade policy analysis on active TRACE mandates.",
       "Design evidence-based recommendations for institutional and regulatory reform.",
@@ -349,11 +357,15 @@ const roles: CareerRole[] = [
     ],
   },
   {
+    slug: "accounts-finance-executive",
     title: "Accounts & Finance Executive",
     discipline: "Accounts & Finance",
     experience: "2–3 years",
     deadline: "2026-09-03",
+    postedDate: "2026-08-20",
     employment: "Full-time",
+    location: "Mohakhali DOHS, Dhaka, Bangladesh",
+    intro: "The Accounts & Finance Executive supports TRACE's financial operations, keeping day-to-day records, reconciliations, and reporting cycles running cleanly.",
     responsibilities: [
       "Manage day-to-day bookkeeping, invoicing, and financial records.",
       "Support monthly reconciliation and reporting cycles.",
@@ -366,11 +378,15 @@ const roles: CareerRole[] = [
     ],
   },
   {
+    slug: "manager-business-development",
     title: "Manager — Business Development",
     discipline: "Communications & Business Development",
     experience: "6–7 years",
     deadline: "2026-08-31",
+    postedDate: "2026-08-18",
     employment: "Full-time",
+    location: "Mohakhali DOHS, Dhaka, Bangladesh",
+    intro: "The Business Development Manager identifies qualified opportunities across TRACE's service areas and leads proposal development, partner outreach, and strategic pitches.",
     responsibilities: [
       "Identify and develop qualified opportunities across TRACE service areas.",
       "Lead proposal development, partner outreach, and client relationship building.",
@@ -383,11 +399,15 @@ const roles: CareerRole[] = [
     ],
   },
   {
+    slug: "lead-full-stack-developer",
     title: "Lead Full Stack Developer",
     discipline: "Software Development / Engineering",
     experience: "7–8 years",
     deadline: "2026-08-31",
+    postedDate: "2026-08-18",
     employment: "Full-time",
+    location: "Mohakhali DOHS, Dhaka, Bangladesh",
+    intro: "The Lead Full Stack Developer owns the technical delivery of TRACE's digital products end-to-end, from architecture and code quality to mentoring the engineering team.",
     responsibilities: [
       "Lead delivery of TRACE digital products across the full stack.",
       "Own architecture, code quality, and technical mentorship for the engineering team.",
@@ -400,11 +420,15 @@ const roles: CareerRole[] = [
     ],
   },
   {
+    slug: "research-intern",
     title: "Research Intern",
     discipline: "Research & Business Development",
     experience: "Entry level",
     deadline: "2026-08-27",
+    postedDate: "2026-08-14",
     employment: "Internship",
+    location: "Mohakhali DOHS, Dhaka, Bangladesh",
+    intro: "The Research Intern supports desk research across trade, policy, and quality-systems topics and helps prepare briefing notes, literature reviews, and internal databases.",
     responsibilities: [
       "Support desk research across trade, policy, and quality-systems topics.",
       "Help prepare briefing notes, literature reviews, and internal databases.",
@@ -430,23 +454,22 @@ function formatDeadline(iso: string) {
   return new Date(year, month - 1, day).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function CareerRoleCard({ role, expired, index }: { role: CareerRole; expired: boolean; index: number }) {
-  const [open, setOpen] = useState(false);
-  const reduceMotion = false;
-  const detailsId = `career-details-${index}`;
-  const applyHref = `mailto:contact@traceconsultingltd.com?subject=${encodeURIComponent(`TRACE Career Application — ${role.title}`)}`;
+function CareerRoleCard({ role, expired }: { role: CareerRole; expired: boolean }) {
   return (
-    <article className={`overflow-hidden border bg-white transition-colors ${expired ? "border-trace-ink/12 opacity-95" : "border-trace-ink/10 hover:border-trace-teal/55"}`}>
-      <button
-        type="button"
-        onClick={() => setOpen((current) => !current)}
-        aria-expanded={open}
-        aria-controls={detailsId}
-        className="grid w-full grid-cols-1 items-start gap-5 px-5 py-6 text-left sm:px-7 md:grid-cols-[1.4fr_1fr_0.9fr_auto] md:items-center"
+    <Link
+      href={`/careers/${role.slug}`}
+      aria-label={`${expired ? "View closed role" : "View and apply for"}: ${role.title}`}
+      className={`group relative block overflow-hidden border bg-white transition-all ${expired ? "border-trace-ink/12 hover:border-trace-ink/25" : "border-trace-ink/10 hover:-translate-y-0.5 hover:border-trace-teal/55 hover:shadow-[0_18px_38px_rgba(18,61,103,0.12)]"}`}
+    >
+      {expired && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1] bg-[repeating-linear-gradient(135deg,_rgba(8,36,64,0.035)_0_10px,_transparent_10px_22px)]" />
+      )}
+      <div
+        className={`grid grid-cols-1 items-start gap-5 px-5 py-6 sm:px-7 md:grid-cols-[1.4fr_1fr_0.9fr_auto] md:items-center ${expired ? "opacity-70 grayscale-[45%]" : ""}`}
       >
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 border px-2.5 py-1 font-mono text-[9px] font-black tracking-[0.14em] ${expired ? "border-trace-ink/20 bg-trace-paper text-trace-muted" : "border-trace-teal/40 bg-trace-teal/8 text-trace-teal"}`}>
+            <span className={`inline-flex items-center gap-1.5 border px-2.5 py-1 font-mono text-[9px] font-black tracking-[0.14em] ${expired ? "border-trace-ink/20 bg-trace-paper text-trace-muted" : "border-trace-teal/40 bg-trace-teal/10 text-trace-teal"}`}>
               {expired ? <XCircle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
               {expired ? "APPLICATIONS CLOSED" : "OPEN POSITION"}
             </span>
@@ -460,73 +483,17 @@ function CareerRoleCard({ role, expired, index }: { role: CareerRole; expired: b
           <span className="font-bold text-trace-ink">{role.experience}</span><br />
           <span className={expired ? "text-trace-muted" : "text-trace-navy"}>{expired ? "Closed" : "Closes"} {formatDeadline(role.deadline)}</span>
         </p>
-        <span className="inline-flex items-center gap-1.5 justify-self-start text-xs font-extrabold text-trace-navy md:justify-self-end">
-          {open ? "Hide details" : "View details"}
-          <ChevronDown className={`h-4 w-4 text-trace-teal transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        <span className={`inline-flex items-center gap-1.5 justify-self-start text-xs font-extrabold md:justify-self-end ${expired ? "text-trace-muted" : "text-trace-navy transition-transform group-hover:translate-x-0.5"}`}>
+          {expired ? "View closed role" : "View & apply"}
+          <ArrowUpRight className={`h-4 w-4 ${expired ? "text-trace-muted" : "text-trace-orange"}`} />
         </span>
-      </button>
-
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            id={detailsId}
-            key="details"
-            initial={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            animate={reduceMotion ? { opacity: 1 } : { height: "auto", opacity: 1 }}
-            exit={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="overflow-hidden border-t border-trace-ink/8 bg-trace-paper"
-          >
-            <div className="grid gap-8 px-5 py-8 sm:px-7 md:grid-cols-2">
-              <div>
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">RESPONSIBILITIES</p>
-                <ul className="mt-4 space-y-3 text-sm leading-6 text-trace-muted">
-                  {role.responsibilities.map((item) => (
-                    <li key={item} className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-trace-teal" />{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">REQUIREMENTS</p>
-                <ul className="mt-4 space-y-3 text-sm leading-6 text-trace-muted">
-                  {role.requirements.map((item) => (
-                    <li key={item} className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-trace-orange" />{item}</li>
-                  ))}
-                </ul>
-                <div className="mt-8 flex flex-col gap-3 border-t border-trace-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="flex items-center gap-2 text-xs font-bold text-trace-muted"><CalendarDays className="h-4 w-4 text-trace-teal" />
-                    {expired ? `Closed on ${formatDeadline(role.deadline)}` : `Apply by ${formatDeadline(role.deadline)}`}
-                  </p>
-                  {expired ? (
-                    <span aria-disabled="true" className="inline-flex cursor-not-allowed items-center gap-2 border border-trace-ink/15 bg-trace-paper px-5 py-3 text-sm font-extrabold text-trace-muted">
-                      Applications Closed <XCircle className="h-4 w-4" />
-                    </span>
-                  ) : (
-                    <SpecularButton
-                      href={applyHref}
-                      size="md"
-                      radius={4}
-                      baseColor="#123D67"
-                      textColor="#ffffff"
-                      lineColor="#D7F3F0"
-                      shineSize={8}
-                      shineFade={45}
-                      intensity={1}
-                      thickness={1}
-                      speed={0.35}
-                      followMouse
-                      proximity={260}
-                    >
-                      Apply Now <Send className="h-4 w-4" />
-                    </SpecularButton>
-                  )}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </article>
+      </div>
+      {expired && (
+        <span aria-hidden="true" className="pointer-events-none absolute right-4 top-4 z-[2] rotate-6 border-2 border-trace-ink/25 px-3 py-1 font-mono text-[10px] font-black tracking-[0.18em] text-trace-ink/45">
+          CLOSED
+        </span>
+      )}
+    </Link>
   );
 }
 
@@ -565,7 +532,7 @@ export function CareersPage() {
                 <div className="mt-5 grid gap-4">
                   {openRoles.map(({ role, expired }, index) => (
                     <SectionReveal key={role.title} delay={index * 0.04}>
-                      <CareerRoleCard role={role} expired={expired} index={index} />
+                      <CareerRoleCard role={role} expired={expired} />
                     </SectionReveal>
                   ))}
                 </div>
@@ -578,7 +545,7 @@ export function CareersPage() {
                 <div className="mt-5 grid gap-4">
                   {closedRoles.map(({ role, expired }, index) => (
                     <SectionReveal key={role.title} delay={index * 0.04}>
-                      <CareerRoleCard role={role} expired={expired} index={openRoles.length + index} />
+                      <CareerRoleCard role={role} expired={expired} />
                     </SectionReveal>
                   ))}
                 </div>
@@ -609,6 +576,228 @@ export function CareersPage() {
                 Send your CV <Mail className="h-4 w-4" />
               </SpecularButton>
             </div>
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
+}
+
+function formatFullDate(iso: string) {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function CareerApplyForm({ role, disabled }: { role: CareerRole; disabled: boolean }) {
+  const [submitted, setSubmitted] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (disabled) return;
+    setSubmitted(true);
+  };
+  if (submitted) {
+    return (
+      <div className="grid min-h-[380px] place-items-center px-6 py-8 text-center">
+        <div>
+          <CheckCircle2 className="mx-auto h-12 w-12 text-trace-teal" />
+          <h3 className="mt-5 font-display text-2xl font-extrabold tracking-[-0.05em] text-trace-ink">Application received.</h3>
+          <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-trace-muted">Thanks for applying for the {role.title} role. Our team will review your submission and follow up if there's a match.</p>
+          <button onClick={() => { setSubmitted(false); setFileName(null); }} type="button" className="mt-6 text-sm font-extrabold text-trace-teal">Submit another application</button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <form onSubmit={submit} className="grid gap-4 p-6 sm:p-7">
+      <label className="grid gap-2">
+        <span className="text-xs font-bold text-trace-ink">Full Name <span className="text-trace-orange">*</span></span>
+        <input required disabled={disabled} name="fullName" type="text" placeholder="Enter your name" className="border border-trace-ink/12 bg-trace-paper px-3 py-2.5 text-sm outline-none transition-colors focus:border-trace-teal disabled:cursor-not-allowed disabled:opacity-60" />
+      </label>
+      <label className="grid gap-2">
+        <span className="text-xs font-bold text-trace-ink">Email Address <span className="text-trace-orange">*</span></span>
+        <input required disabled={disabled} name="email" type="email" placeholder="email@example.com" className="border border-trace-ink/12 bg-trace-paper px-3 py-2.5 text-sm outline-none transition-colors focus:border-trace-teal disabled:cursor-not-allowed disabled:opacity-60" />
+      </label>
+      <label className="grid gap-2">
+        <span className="text-xs font-bold text-trace-ink">Phone Number <span className="text-trace-orange">*</span></span>
+        <input required disabled={disabled} name="phone" type="tel" placeholder="+880 ..." className="border border-trace-ink/12 bg-trace-paper px-3 py-2.5 text-sm outline-none transition-colors focus:border-trace-teal disabled:cursor-not-allowed disabled:opacity-60" />
+      </label>
+      <div className="grid gap-2">
+        <span className="text-xs font-bold text-trace-ink">Upload CV (PDF, DOC / DOCX) <span className="text-trace-orange">*</span></span>
+        <label className={`flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-trace-ink/20 bg-trace-paper px-4 py-6 text-center transition-colors hover:border-trace-teal ${disabled ? "cursor-not-allowed opacity-60 hover:border-trace-ink/20" : ""}`}>
+          <Upload className="h-6 w-6 text-trace-teal" />
+          <span className="text-xs font-bold text-trace-navy">{fileName ?? "Click to upload or drag & drop"}</span>
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx"
+            required
+            disabled={disabled}
+            className="sr-only"
+            onChange={(event) => setFileName(event.target.files?.[0]?.name ?? null)}
+          />
+        </label>
+      </div>
+      <div className="mt-2">
+        {disabled ? (
+          <span aria-disabled="true" className="flex w-full cursor-not-allowed items-center justify-center gap-2 border border-trace-ink/15 bg-trace-paper px-5 py-3 text-sm font-extrabold text-trace-muted">
+            Applications Closed <XCircle className="h-4 w-4" />
+          </span>
+        ) : (
+          <div className="[&_button]:w-full">
+            <SpecularButton
+              type="submit"
+              size="lg"
+              radius={4}
+              baseColor="#123D67"
+              textColor="#ffffff"
+              lineColor="#D7F3F0"
+              shineSize={10}
+              shineFade={45}
+              intensity={1}
+              thickness={1}
+              speed={0.35}
+              followMouse
+              proximity={280}
+            >
+              Submit Application <Send className="h-4 w-4" />
+            </SpecularButton>
+          </div>
+        )}
+      </div>
+      <p className="text-[10px] leading-4 text-trace-muted">By submitting, you confirm the information provided is accurate. TRACE stores applications only for the recruitment process for this role.</p>
+    </form>
+  );
+}
+
+export function CareerDetailPage() {
+  const [, params] = useRoute("/careers/:slug");
+  const role = roles.find((item) => item.slug === params?.slug);
+  if (!role) return <NotFoundEntity />;
+  const expired = isDeadlinePassed(role.deadline);
+  return (
+    <Shell>
+      <main>
+        <section className="relative overflow-hidden bg-trace-navy pt-36 text-white sm:pt-44">
+          <div className="pointer-events-none absolute inset-0 opacity-40 hero-grid" />
+          <div className="pointer-events-none absolute right-[8%] top-[-18%] h-[360px] w-[360px] rounded-full bg-trace-teal/20 blur-[90px]" />
+          <div className="relative mx-auto max-w-[1300px] px-5 pb-16 lg:px-10 sm:pb-20">
+            <Link href="/careers" className="inline-flex items-center gap-2 text-sm font-extrabold text-white/85 transition-colors hover:text-trace-mint">
+              <ArrowLeft className="h-4 w-4 text-trace-mint" />Back to Careers
+            </Link>
+            <p className="mt-8 section-label !text-trace-mint">{role.discipline.toUpperCase()}</p>
+            <h1 className="mt-4 max-w-4xl font-display text-4xl font-extrabold leading-[0.94] tracking-[-0.06em] sm:text-6xl">{role.title}</h1>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <span className={`inline-flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[10px] font-black tracking-[0.16em] ${expired ? "border-white/25 bg-white/8 text-white/70" : "border-trace-mint/45 bg-trace-mint/12 text-trace-mint"}`}>
+                {expired ? <XCircle className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                {expired ? "APPLICATIONS CLOSED" : "OPEN POSITION"}
+              </span>
+              <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-white/70">{role.employment.toUpperCase()}</span>
+              <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-white/70">{role.location.toUpperCase()}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-trace-paper py-16 sm:py-20">
+          <div className="mx-auto max-w-[1300px] px-5 lg:px-10">
+            <div className="grid gap-10 lg:grid-cols-[1.35fr_0.85fr] lg:gap-14">
+              <div className="min-w-0">
+                <SectionReveal>
+                  <p className="text-base leading-7 text-trace-muted sm:text-lg sm:leading-8">{role.intro}</p>
+                </SectionReveal>
+
+                <SectionReveal delay={0.06}>
+                  <div className="mt-12 border-t border-trace-ink/10 pt-8">
+                    <p className="section-label">KEY RESPONSIBILITIES</p>
+                    <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-4xl">What you'll do.</h2>
+                    <ul className="mt-6 space-y-4">
+                      {role.responsibilities.map((item) => (
+                        <li key={item} className="flex gap-3 text-sm leading-7 text-trace-muted sm:text-base">
+                          <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-trace-teal" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </SectionReveal>
+
+                <SectionReveal delay={0.08}>
+                  <div className="mt-12 border-t border-trace-ink/10 pt-8">
+                    <p className="section-label">REQUIRED QUALIFICATIONS</p>
+                    <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-4xl">What we're looking for.</h2>
+                    <ul className="mt-6 space-y-4">
+                      {role.requirements.map((item) => (
+                        <li key={item} className="flex gap-3 text-sm leading-7 text-trace-muted sm:text-base">
+                          <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-trace-teal" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </SectionReveal>
+              </div>
+
+              <aside className="lg:sticky lg:top-28 lg:h-fit">
+                <SectionReveal delay={0.1}>
+                  <div className="overflow-hidden border border-trace-ink/10 bg-white shadow-[0_16px_38px_rgba(18,61,103,0.10)]">
+                    <div className="border-b border-trace-ink/10 bg-trace-paper px-6 py-5 sm:px-7">
+                      <p className="font-mono text-[10px] font-black tracking-[0.16em] text-trace-teal">SUMMARY</p>
+                    </div>
+                    <dl className="grid gap-4 px-6 py-6 sm:px-7">
+                      <div className="grid grid-cols-[minmax(0,120px)_1fr] items-start gap-4">
+                        <dt className="flex items-center gap-2 text-xs font-bold text-trace-muted"><Briefcase className="h-4 w-4 text-trace-teal" />Employment</dt>
+                        <dd className="text-right text-sm font-extrabold text-trace-ink">{role.employment}</dd>
+                      </div>
+                      <div className="grid grid-cols-[minmax(0,120px)_1fr] items-start gap-4 border-t border-trace-ink/8 pt-4">
+                        <dt className="flex items-center gap-2 text-xs font-bold text-trace-muted"><MapPin className="h-4 w-4 text-trace-teal" />Location</dt>
+                        <dd className="text-right text-sm font-extrabold text-trace-ink">{role.location}</dd>
+                      </div>
+                      <div className="grid grid-cols-[minmax(0,120px)_1fr] items-start gap-4 border-t border-trace-ink/8 pt-4">
+                        <dt className="flex items-center gap-2 text-xs font-bold text-trace-muted"><Clock className="h-4 w-4 text-trace-teal" />Experience</dt>
+                        <dd className="text-right text-sm font-extrabold text-trace-ink">{role.experience}</dd>
+                      </div>
+                      <div className="grid grid-cols-[minmax(0,120px)_1fr] items-start gap-4 border-t border-trace-ink/8 pt-4">
+                        <dt className="flex items-center gap-2 text-xs font-bold text-trace-muted"><CalendarDays className="h-4 w-4 text-trace-teal" />Deadline</dt>
+                        <dd className={`text-right text-sm font-extrabold ${expired ? "text-trace-muted line-through" : "text-trace-ink"}`}>{formatFullDate(role.deadline)}</dd>
+                      </div>
+                      <div className="grid grid-cols-[minmax(0,120px)_1fr] items-start gap-4 border-t border-trace-ink/8 pt-4">
+                        <dt className="flex items-center gap-2 text-xs font-bold text-trace-muted"><CalendarDays className="h-4 w-4 text-trace-teal" />Posted</dt>
+                        <dd className="text-right text-sm font-extrabold text-trace-ink">{formatFullDate(role.postedDate)}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <div className="mt-6 overflow-hidden border border-trace-ink/10 bg-white shadow-[0_16px_38px_rgba(18,61,103,0.10)]">
+                    <div className="flex items-center justify-between border-b border-trace-ink/10 bg-trace-paper px-6 py-5 sm:px-7">
+                      <p className="font-mono text-[10px] font-black tracking-[0.16em] text-trace-teal">APPLY FOR THIS POSITION</p>
+                      {expired && (
+                        <span className="inline-flex items-center gap-1.5 border border-trace-ink/20 bg-white px-2.5 py-1 font-mono text-[9px] font-black tracking-[0.14em] text-trace-muted">
+                          <XCircle className="h-3 w-3" />CLOSED
+                        </span>
+                      )}
+                    </div>
+                    {expired && (
+                      <div className="border-b border-trace-ink/8 bg-trace-paper/60 px-6 py-4 sm:px-7">
+                        <p className="text-xs leading-5 text-trace-muted">This position closed on <span className="font-bold text-trace-ink">{formatFullDate(role.deadline)}</span>. Applications are no longer being accepted. Browse the open roles listed on the careers page.</p>
+                      </div>
+                    )}
+                    <CareerApplyForm role={role} disabled={expired} />
+                  </div>
+                </SectionReveal>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-trace-navy py-14 text-white sm:py-16">
+          <div className="mx-auto flex max-w-[1300px] flex-col items-start justify-between gap-6 px-5 lg:flex-row lg:items-center lg:gap-10 lg:px-10">
+            <div>
+              <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint">EXPLORE MORE OPPORTUNITIES</p>
+              <h2 className="mt-3 max-w-2xl font-display text-3xl font-extrabold leading-[1.02] tracking-[-0.055em] sm:text-4xl">Not quite the right fit? <span className="text-trace-mint">Keep looking.</span></h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/80">TRACE welcomes applications for open roles across trade, policy, laboratories, and technology.</p>
+            </div>
+            <Link href="/careers" className="inline-flex items-center gap-2 border border-trace-mint/45 bg-white/5 px-5 py-3 text-sm font-extrabold text-white transition-colors hover:bg-white/10">
+              View all open roles <ArrowRight className="h-4 w-4 text-trace-mint" />
+            </Link>
           </div>
         </section>
       </main>
