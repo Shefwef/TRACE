@@ -5,9 +5,9 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { ASSETS, services, type Service } from "@/data/traceData";
 import { SectionReveal } from "@/components/SectionReveal";
-import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
 import ScrollStack, { ScrollStackItem } from "@/components/ui/ScrollStack";
 import { StarBorder } from "@/components/ui/StarBorder";
+import PillarCarousel from "@/components/ui/PillarCarousel";
 
 const principles = [
   {
@@ -38,28 +38,12 @@ const serviceImages: Record<Service["slug"], string> = {
 
 export function TracePositioningSection() {
   const reduceMotion = useReducedMotion();
-  const pillars = [
-    { label: "Evidence", detail: "Policy intelligence, applied research, and data-driven diagnosis inform every mandate.", tone: "01" },
-    { label: "Delivery", detail: "Digital implementation, technology, and structured programme execution translate design into practice.", tone: "02" },
-    { label: "Ownership", detail: "Institutional capability, capacity building, and local stewardship anchor lasting change.", tone: "03" },
-  ];
 
-  const pillarCards = pillars.map((pillar) => (
-    <StarBorder key={pillar.label} color="#009CA6" speed="7s" className="w-[260px] sm:w-[300px]" style={{ minHeight: 200 }}>
-      <article
-        className="relative flex h-full flex-col overflow-hidden bg-gradient-to-br from-trace-navy via-[#0f345a] to-trace-ink px-6 py-6 sm:px-7 sm:py-7"
-        style={{ minHeight: 200 }}
-      >
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-trace-teal via-trace-mint to-trace-teal" />
-        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full border border-trace-mint/25" />
-        <div className="pointer-events-none absolute -right-4 top-1/2 h-16 w-16 -translate-y-1/2 rounded-full border border-white/12" />
-        <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint">STEP {pillar.tone}</p>
-        <h3 className="mt-4 font-display text-2xl font-extrabold leading-[1.02] tracking-[-0.05em] text-white sm:text-[1.7rem]">{pillar.label}</h3>
-        <p className="mt-3 text-sm leading-6 text-white/85">{pillar.detail}</p>
-        <p className="mt-auto pt-5 font-mono text-[9px] font-bold tracking-[0.18em] text-trace-mint/85">EVIDENCE · DELIVERY · OWNERSHIP</p>
-      </article>
-    </StarBorder>
-  ));
+  const pillarItems = [
+    { id: 1, title: "Evidence", description: "Policy intelligence, applied research, and data-driven diagnosis inform every mandate." },
+    { id: 2, title: "Delivery", description: "Digital implementation, technology, and structured programme execution translate design into practice." },
+    { id: 3, title: "Ownership", description: "Institutional capability, capacity building, and local stewardship anchor lasting change." },
+  ];
 
   return (
     <section className="relative overflow-hidden border-y border-[#D5E4EB] bg-trace-paper py-16 sm:py-[4.5rem]" aria-labelledby="trace-positioning-title">
@@ -102,19 +86,18 @@ export function TracePositioningSection() {
                   <p className="mt-6 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint/75">AN INTEGRATED TRACE SYSTEM</p>
                 </div>
 
-                {/* Infinite marquee in the remaining half */}
-                <div className="relative flex-1 overflow-hidden rounded-sm border border-trace-ink/10 bg-gradient-to-r from-[#0a2b4a] via-trace-navy to-[#0a2b4a] py-6 shadow-[0_18px_44px_rgba(8,36,64,0.20)]">
+                {/* Pillar carousel */}
+                <div className="relative flex-1 overflow-hidden bg-gradient-to-br from-[#0a2b4a] via-trace-navy to-[#0a2b4a] shadow-[0_18px_44px_rgba(8,36,64,0.20)] flex flex-col justify-center items-center py-6">
                   <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
-                  <p className="mb-5 px-6 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint sm:px-8">EVIDENCE · DELIVERY · OWNERSHIP</p>
-                  <InfiniteMovingCards
-                    items={pillarCards}
-                    direction="left"
-                    durationSeconds={48}
-                    pauseOnHover
-                    ariaLabel="Evidence, delivery, and ownership pillars"
-                    gapClassName="gap-6 sm:gap-8"
-                    className="px-1"
+                  <PillarCarousel
+                    items={pillarItems}
+                    baseWidth={330}
+                    autoplay={false}
+                    autoplayDelay={3000}
+                    pauseOnHover={false}
+                    loop
+                    round={false}
                   />
                 </div>
               </div>
