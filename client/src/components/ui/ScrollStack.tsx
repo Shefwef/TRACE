@@ -1,5 +1,5 @@
-/** ScrollStack — React Bits stacking-card scroll effect. Offsets cached once, transforms computed via rAF-throttled scroll. */
-import React, { useLayoutEffect, useRef, useCallback, type ReactNode } from "react";
+/** ScrollStack — sticky-pin stacking cards. Native CSS sticky handles the pin (no JS jank), JS only interpolates scale/opacity. */
+import React, { useLayoutEffect, useRef, useCallback, type ReactNode, Children } from "react";
 
 export interface ScrollStackItemProps {
   itemClassName?: string;
@@ -7,157 +7,125 @@ export interface ScrollStackItemProps {
 }
 
 export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({ children, itemClassName = "" }) => (
-  <div className={`scroll-stack-card relative w-full origin-top will-change-transform ${itemClassName}`.trim()}>
-    {children}
-  </div>
+  <div className={`scroll-stack-card ${itemClassName}`.trim()}>{children}</div>
 );
 
 interface ScrollStackProps {
   className?: string;
   children: ReactNode;
-  itemDistance?: number;
-  itemScale?: number;
-  itemStackDistance?: number;
-  stackPosition?: string;
-  scaleEndPosition?: string;
-  baseScale?: number;
-  rotationAmount?: number;
-  blurAmount?: number;
+  /** px between stacked cards (top offset stagger) */
+  stackOffset?: number;
+  /** top pin offset in vh (%) */
+  topPercent?: number;
+  /** how much smaller each behind-card gets per depth */
+  scaleStep?: number;
+  /** min card height */
+  cardMinHeight?: number;
+  /** vertical gap between cards in normal flow */
+  itemGap?: number;
 }
 
 const ScrollStack: React.FC<ScrollStackProps> = ({
   children,
   className = "",
-  itemDistance = 100,
-  itemScale = 0.03,
-  itemStackDistance = 30,
-  stackPosition = "20%",
-  scaleEndPosition = "10%",
-  baseScale = 0.85,
-  rotationAmount = 0,
-  blurAmount = 0,
+  stackOffset = 22,
+  topPercent = 15,
+  scaleStep = 0.04,
+  cardMinHeight = 420,
+  itemGap = 40,
 }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const wrappersRef = useRef<HTMLElement[]>([]);
   const cardsRef = useRef<HTMLElement[]>([]);
-  // Cached layout — only recomputed on resize/mount, NOT on every scroll frame.
-  const cardOffsetsRef = useRef<number[]>([]);
-  const endOffsetRef = useRef(0);
+  const cardBottomsRef = useRef<number[]>([]);
   const rafRef = useRef<number | null>(null);
-  const lastTransformsRef = useRef(new Map<number, { translateY: number; scale: number; rotation: number; blur: number }>());
-
-  const parsePercentage = useCallback((value: string | number, containerHeight: number) => {
-    if (typeof value === "string" && value.includes("%")) return (parseFloat(value) / 100) * containerHeight;
-    return parseFloat(value as string);
-  }, []);
+  const lastScalesRef = useRef<Map<number, number>>(new Map());
 
   const recomputeOffsets = useCallback(() => {
-    const cards = cardsRef.current;
-    const offsets: number[] = [];
-    for (let i = 0; i < cards.length; i++) {
-      offsets.push(cards[i].getBoundingClientRect().top + window.scrollY);
+    const wrappers = wrappersRef.current;
+    const bottoms: number[] = [];
+    for (let i = 0; i < wrappers.length; i++) {
+      const rect = wrappers[i].getBoundingClientRect();
+      bottoms.push(rect.top + window.scrollY + rect.height);
     }
-    cardOffsetsRef.current = offsets;
-    const endEl = scrollerRef.current?.querySelector(".scroll-stack-end") as HTMLElement | null;
-    endOffsetRef.current = endEl ? endEl.getBoundingClientRect().top + window.scrollY : 0;
+    cardBottomsRef.current = bottoms;
   }, []);
 
-  const updateTransforms = useCallback(() => {
+  const updateScales = useCallback(() => {
     const cards = cardsRef.current;
+    const bottoms = cardBottomsRef.current;
     if (!cards.length) return;
-
     const scrollTop = window.scrollY;
     const containerHeight = window.innerHeight;
-    const stackPositionPx = parsePercentage(stackPosition, containerHeight);
-    const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
-    const endElementTop = endOffsetRef.current;
-    const offsets = cardOffsetsRef.current;
-    // Global pin release: same for every card so no card jumps at a different moment.
-    // Guard: if the end element is too close, keep the current pin baseline (avoids negative range).
-    const pinEnd = Math.max(endElementTop - containerHeight / 2, offsets[cards.length - 1] || 0);
+    const topPx = (topPercent / 100) * containerHeight;
+    const total = cards.length;
 
-    for (let i = 0; i < cards.length; i++) {
+    for (let i = 0; i < total; i++) {
       const card = cards[i];
-      const cardTop = offsets[i];
-      const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
-      const triggerEnd = cardTop - scaleEndPositionPx;
-      const pinStart = triggerStart;
-
-      let scaleProgress = 0;
-      if (scrollTop >= triggerStart) {
-        scaleProgress = scrollTop >= triggerEnd ? 1 : (scrollTop - triggerStart) / (triggerEnd - triggerStart);
+      // A card is "behind" if any later card's pinned top has scrolled past this card's pin point.
+      // Simpler heuristic: how many cards have been scrolled past (their bottom is above our pin line).
+      let behindCount = 0;
+      for (let j = i + 1; j < total; j++) {
+        // Card j has fully arrived when its wrapper top hits the pin line
+        const jTopArriveScroll = bottoms[j] - card.getBoundingClientRect().height - topPx - stackOffset * i - itemGap;
+        if (scrollTop >= jTopArriveScroll) behindCount++;
       }
 
-      const targetScale = baseScale + i * itemScale;
-      const scale = 1 - scaleProgress * (1 - targetScale);
-      const rotation = rotationAmount ? i * rotationAmount * scaleProgress : 0;
-
-      let blur = 0;
-      if (blurAmount) {
-        let topCardIndex = 0;
-        for (let j = 0; j < cards.length; j++) {
-          const jTriggerStart = offsets[j] - stackPositionPx - itemStackDistance * j;
-          if (scrollTop >= jTriggerStart) topCardIndex = j;
+      // Also: how much progress toward the next card taking over (for smooth scale transition)
+      let nextProgress = 0;
+      if (i + 1 < total) {
+        const nextStart = bottoms[i] - containerHeight; // when this card's bottom reaches viewport bottom
+        const nextEnd = bottoms[i];                     // when its bottom leaves viewport top
+        if (scrollTop >= nextStart) {
+          nextProgress = Math.min(1, Math.max(0, (scrollTop - nextStart) / Math.max(1, nextEnd - nextStart)));
         }
-        if (i < topCardIndex) blur = Math.max(0, (topCardIndex - i) * blurAmount);
       }
 
-      // Pin translation — clamp between 0 and (pinEnd - cardTop + offset).
-      let translateY = 0;
-      const pinnedOffset = stackPositionPx + itemStackDistance * i;
-      if (scrollTop >= pinStart) {
-        const desired = scrollTop - cardTop + pinnedOffset;
-        const maxDesired = pinEnd - cardTop + pinnedOffset;
-        translateY = Math.min(desired, maxDesired);
-      }
-
-      const last = lastTransformsRef.current.get(i);
-      const changed = !last ||
-        Math.abs(last.translateY - translateY) > 0.1 ||
-        Math.abs(last.scale - scale) > 0.0015 ||
-        Math.abs(last.rotation - rotation) > 0.1 ||
-        Math.abs(last.blur - blur) > 0.1;
-
-      if (changed) {
-        // Round to whole pixels to eliminate subpixel flicker.
-        const ty = Math.round(translateY);
-        card.style.transform = `translate3d(0,${ty}px,0) scale(${scale.toFixed(4)}) rotate(${rotation.toFixed(2)}deg)`;
-        card.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : "";
-        lastTransformsRef.current.set(i, { translateY, scale, rotation, blur });
+      const targetScale = 1 - behindCount * scaleStep - nextProgress * scaleStep * 0.5;
+      const last = lastScalesRef.current.get(i);
+      if (last === undefined || Math.abs(last - targetScale) > 0.0015) {
+        card.style.transform = `scale(${targetScale.toFixed(4)})`;
+        lastScalesRef.current.set(i, targetScale);
       }
     }
-  }, [itemScale, itemStackDistance, stackPosition, scaleEndPosition, baseScale, rotationAmount, blurAmount, parsePercentage]);
+  }, [scaleStep, stackOffset, topPercent, itemGap]);
 
   useLayoutEffect(() => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
+    const wrappers = Array.from(scroller.querySelectorAll(".scroll-stack-wrapper")) as HTMLElement[];
     const cards = Array.from(scroller.querySelectorAll(".scroll-stack-card")) as HTMLElement[];
+    wrappersRef.current = wrappers;
     cardsRef.current = cards;
-    const transformsCache = lastTransformsRef.current;
+    const cache = lastScalesRef.current;
 
-    cards.forEach((card, i) => {
-      if (i < cards.length - 1) card.style.marginBottom = `${itemDistance}px`;
-      card.style.willChange = "transform, filter";
-      card.style.transformOrigin = "top center";
+    cards.forEach((card) => {
+      card.style.willChange = "transform";
+      card.style.transformOrigin = "center top";
       card.style.backfaceVisibility = "hidden";
     });
 
     recomputeOffsets();
 
-    // Direct scroll handler — no rAF gap. scroll events already coalesce with the compositor.
-    const onScroll = () => updateTransforms();
-
+    let rafPending = false;
+    const onScroll = () => {
+      if (rafPending) return;
+      rafPending = true;
+      rafRef.current = requestAnimationFrame(() => {
+        rafPending = false;
+        updateScales();
+      });
+    };
     const onResize = () => {
       recomputeOffsets();
-      updateTransforms();
+      updateScales();
     };
 
-    updateTransforms();
+    updateScales();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize, { passive: true });
-
-    // Recompute offsets after images/fonts load (they can change document height).
     const t1 = window.setTimeout(onResize, 300);
-    const t2 = window.setTimeout(onResize, 1200);
+    const t2 = window.setTimeout(onResize, 1500);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
@@ -165,17 +133,32 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       window.clearTimeout(t1);
       window.clearTimeout(t2);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      wrappersRef.current = [];
       cardsRef.current = [];
-      cardOffsetsRef.current = [];
-      transformsCache.clear();
+      cardBottomsRef.current = [];
+      cache.clear();
     };
-  }, [itemDistance, itemScale, itemStackDistance, stackPosition, scaleEndPosition, baseScale, rotationAmount, blurAmount, recomputeOffsets, updateTransforms]);
+  }, [stackOffset, topPercent, scaleStep, cardMinHeight, itemGap, recomputeOffsets, updateScales]);
+
+  const items = Children.toArray(children);
 
   return (
     <div className={`scroll-stack-scroller relative w-full ${className}`.trim()} ref={scrollerRef}>
-      <div className="scroll-stack-inner pt-[8vh] pb-[30vh]">
-        {children}
-        <div className="scroll-stack-end w-full h-px" />
+      <div className="pt-[6vh] pb-[8vh]">
+        {items.map((child, i) => (
+          <div
+            key={i}
+            className="scroll-stack-wrapper sticky"
+            style={{
+              top: `calc(${topPercent}vh + ${i * stackOffset}px)`,
+              zIndex: i + 1,
+              marginBottom: i < items.length - 1 ? `${itemGap}px` : 0,
+              minHeight: `${cardMinHeight}px`,
+            }}
+          >
+            {child}
+          </div>
+        ))}
       </div>
     </div>
   );

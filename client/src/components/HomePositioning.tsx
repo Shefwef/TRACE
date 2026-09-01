@@ -65,18 +65,26 @@ const serviceImages: Record<Service["slug"], string> = {
   "research-innovation": ASSETS.heroResearch,
 };
 
-/** Auto-rotating 3D deck of pillar cards. Front card rotates to the back every ~4s. */
+/** Auto-rotating 3D deck of pillar cards. Front card cycles back every ~4s; back cards are clickable to bring forward. */
 function PillarDisplayCards() {
   const [front, setFront] = useState(0);
+  const [paused, setPaused] = useState(false);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || paused) return;
     const timer = window.setInterval(() => setFront((c) => (c + 1) % pillars.length), 4200);
     return () => window.clearInterval(timer);
-  }, [reduceMotion]);
+  }, [reduceMotion, paused]);
 
   const orderOf = (i: number) => (i - front + pillars.length) % pillars.length;
+
+  const bringForward = (i: number) => {
+    // Reset auto-cycle timing by pausing briefly, then resuming
+    setFront(i);
+    setPaused(true);
+    window.setTimeout(() => setPaused(false), 2500);
+  };
 
   return (
     <div className="grid h-[340px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[360px]">
@@ -85,15 +93,16 @@ function PillarDisplayCards() {
         const depth = orderOf(i);
         const isFront = depth === 0;
 
-        // Cards behind are offset diagonally + scaled — NO rotation (keeps them flat & aligned).
-        const offset = depth * 46;
+        // Straight cards — offset diagonally, no rotation.
+        const offset = depth * 42;
         const scale = 1 - depth * 0.045;
-        const opacity = 1 - depth * 0.18;
+        const opacity = 1 - depth * 0.16;
 
         return (
           <motion.article
             key={pillar.number}
-            className="pointer-events-none relative flex flex-col overflow-hidden rounded-xl border-2 bg-white shadow-[0_20px_50px_rgba(8,36,64,0.16)]"
+            onClick={() => !isFront && bringForward(i)}
+            className={`relative flex flex-col overflow-hidden rounded-xl border-2 bg-white shadow-[0_20px_50px_rgba(8,36,64,0.16)] ${isFront ? "" : "cursor-pointer"}`}
             style={{
               gridArea: "stack",
               width: "26rem",
@@ -101,6 +110,7 @@ function PillarDisplayCards() {
               padding: "1.5rem 1.75rem",
               borderColor: isFront ? `${accent.color}55` : "#DCE7EC",
               zIndex: pillars.length - depth,
+              rotate: 0,
             }}
             initial={false}
             animate={{
@@ -108,9 +118,10 @@ function PillarDisplayCards() {
               y: offset * 0.55,
               scale,
               opacity,
-              filter: isFront ? "grayscale(0)" : "grayscale(0.3)",
+              rotate: 0,
             }}
-            transition={{ duration: 0.75, ease: [0.23, 1, 0.32, 1] }}
+            transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+            whileHover={!isFront ? { scale: scale * 1.02, opacity: Math.min(1, opacity + 0.1) } : undefined}
           >
             {/* Accent bar */}
             <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.color }} />
@@ -203,12 +214,11 @@ export function TracePositioningSection() {
 
         <ScrollStack
           className="mx-auto max-w-[1200px] px-5 lg:px-10"
-          itemDistance={80}
-          itemStackDistance={28}
-          stackPosition="22%"
-          scaleEndPosition="10%"
-          baseScale={0.88}
-          itemScale={0.03}
+          topPercent={12}
+          stackOffset={20}
+          scaleStep={0.035}
+          cardMinHeight={460}
+          itemGap={48}
         >
           {principles.map((principle, index) => {
             const accent = PILLAR_ACCENTS[index];
@@ -216,7 +226,7 @@ export function TracePositioningSection() {
               <ScrollStackItem key={principle.number} itemClassName="overflow-hidden rounded-xl shadow-[0_20px_50px_rgba(8,36,64,0.28)]">
                 <div
                   className="relative p-12 sm:p-16"
-                  style={{ backgroundColor: accent.cardBg, minHeight: "420px" }}
+                  style={{ backgroundColor: accent.cardBg, minHeight: "460px" }}
                 >
                   {/* Accent radial wash */}
                   <div
@@ -237,13 +247,13 @@ export function TracePositioningSection() {
                       <div className="h-px flex-1 sm:mt-6 sm:block sm:w-14" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
                     </div>
                     <div>
-                      <p className="font-mono text-[14px] font-bold tracking-[0.22em]" style={{ color: accent.onDark }}>
+                      <p className="font-mono text-[16px] font-bold tracking-[0.22em]" style={{ color: accent.onDark }}>
                         DISTINCTION {principle.number}
                       </p>
                       <h3 className="mt-5 font-display text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.055em] text-white sm:text-[3.2rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-6 text-[1.05rem] leading-[1.7] text-white/85 sm:text-[1.2rem] sm:leading-[1.7]">
+                      <p className="mt-6 text-[1.55rem] leading-[1.55] text-white/85 sm:text-[1.8rem] sm:leading-[1.5]">
                         {principle.body}
                       </p>
                     </div>
