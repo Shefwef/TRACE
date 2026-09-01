@@ -1,7 +1,7 @@
 /** TRACE accessible light foundation: a systems-led positioning brief and scan-friendly project showcase using approved navy, turquoise, and existing TRACE project data. */
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
-import { useState } from "react";
 import { Link } from "wouter";
 import { ASSETS, services, type Service } from "@/data/traceData";
 import { SectionReveal } from "@/components/SectionReveal";
@@ -64,7 +64,86 @@ const serviceImages: Record<Service["slug"], string> = {
   "research-innovation": ASSETS.heroResearch,
 };
 
-/** Static two-column card: image left, all three pillar rows on the right. */
+/** Auto-rotating 3D-skewed deck of pillar cards. Front card rotates to the back every ~4s. */
+function PillarDisplayCards() {
+  const [front, setFront] = useState(0);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const timer = window.setInterval(() => setFront((c) => (c + 1) % pillars.length), 4200);
+    return () => window.clearInterval(timer);
+  }, [reduceMotion]);
+
+  // Depth-order the cards: current front = 0 (top), then behind it.
+  const orderOf = (i: number) => (i - front + pillars.length) % pillars.length;
+
+  return (
+    <div className="grid h-[380px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[420px]">
+      {pillars.map((pillar, i) => {
+        const accent = PILLAR_ACCENTS[i];
+        const depth = orderOf(i); // 0 = front, 1 = middle, 2 = back
+        const isFront = depth === 0;
+
+        // Stagger back cards down-right so the deck reads as 3D.
+        const offset = depth * 44; // px per level
+        const scale = 1 - depth * 0.045;
+        const opacity = 1 - depth * 0.18;
+
+        return (
+          <motion.article
+            key={pillar.number}
+            className="pointer-events-none relative flex h-[220px] w-[19rem] -skew-y-[7deg] flex-col justify-between overflow-hidden rounded-xl border-2 bg-white px-5 py-4 shadow-[0_20px_50px_rgba(8,36,64,0.14)] sm:h-[240px] sm:w-[22rem]"
+            style={{
+              gridArea: "stack",
+              borderColor: isFront ? `${accent.color}55` : "#DCE7EC",
+              zIndex: pillars.length - depth,
+            }}
+            initial={false}
+            animate={{
+              x: offset,
+              y: offset * 0.55,
+              scale,
+              opacity,
+              filter: isFront ? "grayscale(0)" : "grayscale(0.35)",
+            }}
+            transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+          >
+            {/* Accent bar */}
+            <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.color }} />
+            {/* Right fade for a display-cards style vignette */}
+            <div
+              className="pointer-events-none absolute inset-y-0 -right-1 w-40"
+              style={{ background: "linear-gradient(to left, white, transparent)" }}
+            />
+
+            <div className="relative flex items-center gap-2">
+              <span
+                className="grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] font-bold text-white"
+                style={{ backgroundColor: accent.color }}
+              >
+                {pillar.number}
+              </span>
+              <p className="font-mono text-[11px] font-bold tracking-[0.18em]" style={{ color: accent.color }}>
+                {pillar.tag}
+              </p>
+            </div>
+
+            <h3 className="relative font-display text-xl font-extrabold leading-[1.08] tracking-[-0.04em] text-trace-ink sm:text-[1.35rem]">
+              {pillar.title}
+            </h3>
+
+            <p className="relative text-[12px] leading-[1.55] text-trace-muted line-clamp-2 sm:text-[13px]">
+              {pillar.body}
+            </p>
+          </motion.article>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Two-column card: image left, auto-rotating pillar deck on the right. */
 function HowTraceWorksCard() {
   return (
     <div className="mx-auto max-w-[1380px] px-5 pb-16 lg:px-10">
@@ -81,35 +160,9 @@ function HowTraceWorksCard() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[rgba(8,36,64,0.14)]" />
           </div>
 
-          {/* Right: three pillar rows */}
-          <div className="flex flex-1 flex-col divide-y divide-[#D5E4EB] bg-white">
-            {pillars.map((pillar, i) => {
-              const accent = PILLAR_ACCENTS[i];
-              return (
-                <div key={pillar.number} className="relative flex items-start gap-6 px-8 py-8 sm:gap-10 sm:px-12 sm:py-10">
-                  {/* Left accent bar */}
-                  <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.color }} />
-                  {/* Number */}
-                  <span
-                    className="shrink-0 font-display text-4xl font-extrabold tracking-[-0.06em] sm:text-5xl"
-                    style={{ color: accent.color }}
-                  >
-                    {pillar.number}
-                  </span>
-                  <div>
-                    <p className="font-mono text-[10px] font-bold tracking-[0.18em]" style={{ color: accent.color }}>
-                      {pillar.tag}
-                    </p>
-                    <h3 className="mt-1.5 font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink sm:text-2xl">
-                      {pillar.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-trace-muted sm:text-[15px] sm:leading-7">
-                      {pillar.body}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+          {/* Right: rotating 3D pillar deck */}
+          <div className="flex flex-1 items-center justify-center bg-white px-6 py-10 sm:px-10 sm:py-12">
+            <PillarDisplayCards />
           </div>
 
         </div>
@@ -150,13 +203,9 @@ export function TracePositioningSection() {
 
         <ScrollStack
           className="mx-auto max-w-[1200px] px-5 lg:px-10"
-          useWindowScroll
-          itemDistance={80}
-          itemStackDistance={24}
-          stackPosition="18%"
-          scaleEndPosition="8%"
-          baseScale={0.88}
-          itemScale={0.03}
+          topOffset={110}
+          stackOffset={18}
+          scaleStep={0.045}
         >
           {principles.map((principle, index) => {
             const accent = PILLAR_ACCENTS[index];
