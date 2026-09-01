@@ -10,10 +10,11 @@ import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
 
 // TRACE logo colors per pillar. cardBg used for ScrollStack cards.
+// onDark is a lighter variant used when the accent needs contrast against a dark card background.
 const PILLAR_ACCENTS = [
-  { color: "#009CA6", cardBg: "#082440", label: "TEAL"   },  // Evidence  01
-  { color: "#F47A20", cardBg: "#0d1f38", label: "ORANGE" },  // Delivery  02
-  { color: "#123D67", cardBg: "#06182c", label: "NAVY"   },  // Ownership 03
+  { color: "#009CA6", onDark: "#33C4CE", cardBg: "#082440", label: "TEAL"   },  // Evidence  01
+  { color: "#F47A20", onDark: "#F8964F", cardBg: "#0d1f38", label: "ORANGE" },  // Delivery  02
+  { color: "#123D67", onDark: "#6DA1D4", cardBg: "#06182c", label: "NAVY"   },  // Ownership 03
 ] as const;
 
 const pillars = [
@@ -75,27 +76,29 @@ function PillarDisplayCards() {
     return () => window.clearInterval(timer);
   }, [reduceMotion]);
 
-  // Depth-order the cards: current front = 0 (top), then behind it.
   const orderOf = (i: number) => (i - front + pillars.length) % pillars.length;
 
   return (
-    <div className="grid h-[380px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[420px]">
+    <div className="grid h-[440px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[500px]">
       {pillars.map((pillar, i) => {
         const accent = PILLAR_ACCENTS[i];
-        const depth = orderOf(i); // 0 = front, 1 = middle, 2 = back
+        const depth = orderOf(i);
         const isFront = depth === 0;
 
-        // Stagger back cards down-right so the deck reads as 3D.
-        const offset = depth * 44; // px per level
-        const scale = 1 - depth * 0.045;
-        const opacity = 1 - depth * 0.18;
+        // Larger stagger + scale to read as a proper 3D deck.
+        const offset = depth * 52;
+        const scale = 1 - depth * 0.05;
+        const opacity = 1 - depth * 0.16;
 
         return (
           <motion.article
             key={pillar.number}
-            className="pointer-events-none relative flex h-[220px] w-[19rem] -skew-y-[7deg] flex-col justify-between overflow-hidden rounded-xl border-2 bg-white px-5 py-4 shadow-[0_20px_50px_rgba(8,36,64,0.14)] sm:h-[240px] sm:w-[22rem]"
+            className="pointer-events-none relative flex flex-col justify-between overflow-hidden rounded-xl border-2 bg-white shadow-[0_24px_60px_rgba(8,36,64,0.16)]"
             style={{
               gridArea: "stack",
+              width: "26rem",
+              height: "300px",
+              padding: "1.6rem 1.75rem",
               borderColor: isFront ? `${accent.color}55` : "#DCE7EC",
               zIndex: pillars.length - depth,
             }}
@@ -105,35 +108,34 @@ function PillarDisplayCards() {
               y: offset * 0.55,
               scale,
               opacity,
-              filter: isFront ? "grayscale(0)" : "grayscale(0.35)",
+              rotate: depth * -1.5,
+              filter: isFront ? "grayscale(0)" : "grayscale(0.3)",
             }}
-            transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+            transition={{ duration: 0.75, ease: [0.23, 1, 0.32, 1] }}
           >
             {/* Accent bar */}
-            <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.color }} />
-            {/* Right fade for a display-cards style vignette */}
-            <div
-              className="pointer-events-none absolute inset-y-0 -right-1 w-40"
-              style={{ background: "linear-gradient(to left, white, transparent)" }}
-            />
+            <div className="absolute inset-y-0 left-0 w-[4px]" style={{ backgroundColor: accent.color }} />
 
-            <div className="relative flex items-center gap-2">
+            {/* Top row: number badge + tag */}
+            <div className="relative flex items-center gap-3">
               <span
-                className="grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] font-bold text-white"
+                className="grid h-10 w-10 place-items-center rounded-full font-mono text-[13px] font-bold text-white"
                 style={{ backgroundColor: accent.color }}
               >
                 {pillar.number}
               </span>
-              <p className="font-mono text-[11px] font-bold tracking-[0.18em]" style={{ color: accent.color }}>
+              <p className="font-mono text-[13px] font-bold tracking-[0.22em]" style={{ color: accent.color }}>
                 {pillar.tag}
               </p>
             </div>
 
-            <h3 className="relative font-display text-xl font-extrabold leading-[1.08] tracking-[-0.04em] text-trace-ink sm:text-[1.35rem]">
+            {/* Center title — larger, dominant */}
+            <h3 className="relative font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.05em] text-trace-ink">
               {pillar.title}
             </h3>
 
-            <p className="relative text-[12px] leading-[1.55] text-trace-muted line-clamp-2 sm:text-[13px]">
+            {/* Body copy — larger */}
+            <p className="relative text-[15px] leading-[1.6] text-trace-muted line-clamp-3">
               {pillar.body}
             </p>
           </motion.article>
@@ -143,15 +145,15 @@ function PillarDisplayCards() {
   );
 }
 
-/** Two-column card: image left, auto-rotating pillar deck on the right. */
+/** Two-column card: compact image left, roomy pillar deck on the right. */
 function HowTraceWorksCard() {
   return (
     <div className="mx-auto max-w-[1380px] px-5 pb-16 lg:px-10">
       <div className="overflow-hidden rounded-sm shadow-[0_24px_60px_rgba(8,36,64,0.13)]">
         <div className="flex flex-col lg:flex-row">
 
-          {/* Left: image */}
-          <div className="relative h-64 w-full shrink-0 lg:h-auto lg:w-[46%]">
+          {/* Left: image — narrower so cards get more room */}
+          <div className="relative h-56 w-full shrink-0 lg:h-auto lg:w-[36%]">
             <img
               src={ASSETS.aboutTrace}
               alt="Overhead view of the TRACE team around a table shaped like the TRACE logo"
@@ -160,8 +162,8 @@ function HowTraceWorksCard() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[rgba(8,36,64,0.14)]" />
           </div>
 
-          {/* Right: rotating 3D pillar deck */}
-          <div className="flex flex-1 items-center justify-center bg-white px-6 py-10 sm:px-10 sm:py-12">
+          {/* Right: rotating 3D pillar deck — tighter padding, more card room */}
+          <div className="flex flex-1 items-center justify-center bg-white px-4 py-8 sm:px-6 sm:py-10">
             <PillarDisplayCards />
           </div>
 
@@ -203,44 +205,47 @@ export function TracePositioningSection() {
 
         <ScrollStack
           className="mx-auto max-w-[1200px] px-5 lg:px-10"
-          topOffset={110}
-          stackOffset={18}
-          scaleStep={0.045}
+          itemDistance={80}
+          itemStackDistance={28}
+          stackPosition="22%"
+          scaleEndPosition="10%"
+          baseScale={0.88}
+          itemScale={0.03}
         >
           {principles.map((principle, index) => {
             const accent = PILLAR_ACCENTS[index];
             return (
-              <ScrollStackItem key={principle.number} itemClassName="overflow-hidden rounded-sm">
+              <ScrollStackItem key={principle.number} itemClassName="overflow-hidden rounded-xl shadow-[0_20px_50px_rgba(8,36,64,0.28)]">
                 <div
                   className="relative p-10 sm:p-14"
-                  style={{ backgroundColor: accent.cardBg, minHeight: "360px" }}
+                  style={{ backgroundColor: accent.cardBg, minHeight: "380px" }}
                 >
                   {/* Accent radial wash */}
                   <div
                     className="pointer-events-none absolute inset-0"
-                    style={{ background: `radial-gradient(ellipse 65% 50% at 95% 50%, ${accent.color}22 0%, transparent 70%)` }}
+                    style={{ background: `radial-gradient(ellipse 65% 50% at 95% 50%, ${accent.onDark}25 0%, transparent 70%)` }}
                   />
-                  {/* Left accent bar */}
-                  <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.color }} />
+                  {/* Left accent bar — uses onDark for visibility on dark bg */}
+                  <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.onDark }} />
 
                   <div className="relative grid gap-6 sm:grid-cols-[100px_minmax(0,1fr)] sm:items-start sm:gap-12">
                     <div className="flex items-center gap-4 sm:block">
                       <span
                         className="font-display text-6xl font-extrabold tracking-[-0.07em] sm:text-7xl"
-                        style={{ color: accent.color }}
+                        style={{ color: accent.onDark }}
                       >
                         {principle.number}
                       </span>
-                      <div className="h-px flex-1 sm:mt-5 sm:block sm:w-10" style={{ backgroundColor: accent.color, opacity: 0.35 }} />
+                      <div className="h-px flex-1 sm:mt-5 sm:block sm:w-10" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
                     </div>
                     <div>
-                      <p className="font-mono text-[10px] font-bold tracking-[0.2em]" style={{ color: accent.color }}>
+                      <p className="font-mono text-[10px] font-bold tracking-[0.2em]" style={{ color: accent.onDark }}>
                         DISTINCTION {principle.number}
                       </p>
                       <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-white sm:text-[2.2rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-5 text-base leading-[1.76] text-white/75 sm:text-lg">
+                      <p className="mt-5 text-base leading-[1.76] text-white/80 sm:text-lg">
                         {principle.body}
                       </p>
                     </div>
