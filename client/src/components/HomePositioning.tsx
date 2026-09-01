@@ -1,5 +1,5 @@
 /** TRACE accessible light foundation: a systems-led positioning brief and scan-friendly project showcase using approved navy, turquoise, and existing TRACE project data. */
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, useSpring } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
@@ -8,13 +8,12 @@ import { SectionReveal } from "@/components/SectionReveal";
 import ScrollStack, { ScrollStackItem } from "@/components/ui/ScrollStack";
 import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
-import SoftAurora from "@/components/ui/SoftAurora";
 
-// TRACE logo colors: teal, orange, navy — one per pillar
+// TRACE logo colors: teal, orange, navy — one per pillar. bg is a deep tinted dark for each card.
 const PILLAR_ACCENTS = [
-  { color: "#009CA6", aurora1: "#009CA6", aurora2: "#D7F3F0", label: "TEAL"   },  // Evidence
-  { color: "#F47A20", aurora1: "#F47A20", aurora2: "#FDE8D4", label: "ORANGE" },  // Delivery
-  { color: "#123D67", aurora1: "#1a5a9a", aurora2: "#D7F3F0", label: "NAVY"   },  // Ownership
+  { color: "#009CA6", bg: "#031e22", label: "TEAL"   },  // Evidence  — deep teal-black
+  { color: "#F47A20", bg: "#1e1008", label: "ORANGE" },  // Delivery  — deep amber-black
+  { color: "#123D67", bg: "#050e1c", label: "NAVY"   },  // Ownership — deep navy-black
 ] as const;
 
 const pillars = [
@@ -65,164 +64,154 @@ const serviceImages: Record<Service["slug"], string> = {
   "research-innovation": ASSETS.heroResearch,
 };
 
-/** Sticky-scroll section: image pinned left, pillar content scrolls right with per-pillar accent color. */
+/** Sticky-scroll: image pinned left inside a contained box, three pillar cards revealed on the right as user scrolls. */
 function HowTraceWorksStickyScroll() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 60, damping: 22 });
 
-  // Active pillar index derived from scroll progress
   const [activePillar, setActivePillar] = useState(0);
   useEffect(() => {
     return smoothProgress.on("change", (v) => {
-      const idx = Math.min(Math.floor(v * pillars.length), pillars.length - 1);
-      setActivePillar(idx);
+      setActivePillar(Math.min(Math.floor(v * pillars.length), pillars.length - 1));
     });
   }, [smoothProgress]);
 
-  const accent = PILLAR_ACCENTS[activePillar];
+  const safeIndex = Math.min(Math.max(activePillar, 0), PILLAR_ACCENTS.length - 1);
+  const accent = PILLAR_ACCENTS[safeIndex];
 
-  // Smooth color transition via CSS custom property on a wrapper
   return (
-    <div ref={sectionRef} className="relative" style={{ height: `${pillars.length * 100}vh` }}>
-      {/* Sticky viewport */}
-      <div className="sticky top-0 h-screen overflow-hidden">
-        <div className="flex h-full">
-          {/* Left: pinned image — always visible */}
-          <div className="relative hidden w-[48%] shrink-0 overflow-hidden lg:block">
-            <img
-              src={ASSETS.aboutTrace}
-              alt="Overhead view of the TRACE team around a table shaped like the TRACE logo"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            {/* Accent edge that transitions color */}
-            <motion.div
-              className="absolute inset-y-0 right-0 w-1"
-              animate={{ backgroundColor: accent.color }}
-              transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-            />
-            {/* Step counter */}
-            <div className="absolute bottom-8 left-8">
-              <motion.p
-                key={activePillar}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="font-mono text-[11px] font-bold tracking-[0.2em] text-white"
-                style={{ textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}
-              >
-                {String(activePillar + 1).padStart(2, "0")} / {String(pillars.length).padStart(2, "0")}
-              </motion.p>
+    /* Outer scroll driver: 3 × 100vh so each pillar gets a full screen of scroll travel */
+    <div ref={sectionRef} style={{ height: `${pillars.length * 100}vh` }}>
+      {/* Sticky container — stays in view while outer scrolls */}
+      <div className="sticky top-0 flex h-screen items-center">
+        <div className="mx-auto w-full max-w-[1380px] px-5 lg:px-10">
+          {/* Contained card: image left + cards right */}
+          <div className="overflow-hidden rounded-sm shadow-[0_32px_80px_rgba(8,36,64,0.18)]" style={{ height: "min(78vh, 640px)" }}>
+            <div className="flex h-full">
+
+              {/* Left: pinned image */}
+              <div className="relative hidden w-[46%] shrink-0 overflow-hidden lg:block">
+                <img
+                  src={ASSETS.aboutTrace}
+                  alt="Overhead view of the TRACE team around a table shaped like the TRACE logo"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[rgba(8,36,64,0.18)]" />
+                {/* Color accent edge */}
+                <motion.div
+                  className="absolute inset-y-0 right-0 w-[3px]"
+                  animate={{ backgroundColor: accent.color }}
+                  transition={{ duration: 0.65, ease: [0.23, 1, 0.32, 1] }}
+                />
+                {/* Step counter */}
+                <div className="absolute bottom-7 left-7">
+                  <motion.p
+                    key={activePillar}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35 }}
+                    className="font-mono text-[10px] font-bold tracking-[0.22em] text-white/80"
+                    style={{ textShadow: "0 1px 6px rgba(0,0,0,0.7)" }}
+                  >
+                    {String(safeIndex + 1).padStart(2, "0")} / {String(pillars.length).padStart(2, "0")}
+                  </motion.p>
+                </div>
+              </div>
+
+              {/* Right: pillar cards — each with its own subtle colored background */}
+              <div className="relative flex flex-1 overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activePillar}
+                    initial={{ opacity: 0, x: 28 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -18 }}
+                    transition={{ duration: 0.48, ease: [0.23, 1, 0.32, 1] }}
+                    className="absolute inset-0 flex flex-col justify-center px-8 sm:px-14"
+                    style={{ backgroundColor: accent.bg }}
+                  >
+                    {/* Subtle color wash layer */}
+                    <div
+                      className="pointer-events-none absolute inset-0"
+                      style={{
+                        background: `radial-gradient(ellipse 80% 60% at 80% 50%, ${accent.color}18 0%, transparent 70%)`,
+                      }}
+                    />
+
+                    {/* Dot nav */}
+                    <div className="absolute right-7 top-1/2 flex -translate-y-1/2 flex-col gap-3">
+                      {pillars.map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="rounded-full"
+                          animate={{
+                            height: i === activePillar ? 20 : 6,
+                            width: 6,
+                            backgroundColor: i === activePillar ? accent.color : "rgba(255,255,255,0.18)",
+                          }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Card content */}
+                    <div className="relative max-w-lg">
+                      <motion.p
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.36, delay: 0.04 }}
+                        className="font-mono text-[10px] font-bold tracking-[0.22em]"
+                        style={{ color: accent.color }}
+                      >
+                        {pillars[safeIndex].tag}
+                      </motion.p>
+
+                      <motion.h3
+                        initial={{ opacity: 0, y: 18 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.48, delay: 0.09, ease: [0.23, 1, 0.32, 1] }}
+                        className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-white sm:text-5xl"
+                      >
+                        {pillars[safeIndex].title}
+                      </motion.h3>
+
+                      <motion.p
+                        initial={{ opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.48, delay: 0.16, ease: [0.23, 1, 0.32, 1] }}
+                        className="mt-5 text-[15px] leading-7 text-white/72 sm:text-base sm:leading-[1.78]"
+                      >
+                        {pillars[safeIndex].body}
+                      </motion.p>
+
+                      <motion.div
+                        className="mt-7 h-px w-14"
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ duration: 0.44, delay: 0.22, ease: [0.23, 1, 0.32, 1] }}
+                        style={{ backgroundColor: accent.color, transformOrigin: "left", opacity: 0.7 }}
+                      />
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 0.28 }}
+                        className="mt-3 font-mono text-[9px] font-bold tracking-[0.18em] text-white/36"
+                      >
+                        EVIDENCE · DELIVERY · OWNERSHIP
+                      </motion.p>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
             </div>
           </div>
 
-          {/* Divider */}
-          <motion.div
-            className="hidden w-[3px] shrink-0 lg:block"
-            animate={{ backgroundColor: accent.color }}
-            transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-          />
-
-          {/* Right: content panel */}
-          <motion.div
-            className="relative flex flex-1 flex-col justify-center overflow-hidden bg-[#06182c] px-8 py-12 sm:px-14"
-            animate={{ backgroundColor: "#06182c" }}
-            transition={{ duration: 0.7 }}
-          >
-            {/* Subtle aurora background — reacts to active pillar color */}
-            <div className="pointer-events-none absolute inset-0 opacity-30">
-              <SoftAurora
-                key={activePillar}
-                speed={0.3}
-                scale={1.8}
-                brightness={0.7}
-                color1={accent.aurora1}
-                color2={accent.aurora2}
-                noiseFrequency={2.0}
-                noiseAmplitude={0.7}
-                bandHeight={0.5}
-                bandSpread={1.2}
-                octaveDecay={0.15}
-                layerOffset={0.3}
-                colorSpeed={0.6}
-                enableMouseInteraction={false}
-                mouseInfluence={0}
-              />
-            </div>
-
-            {/* Pill dots navigation */}
-            <div className="absolute right-8 top-1/2 flex -translate-y-1/2 flex-col gap-2.5">
-              {pillars.map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="h-1.5 rounded-full"
-                  animate={{
-                    width: i === activePillar ? 24 : 6,
-                    backgroundColor: i === activePillar ? accent.color : "rgba(255,255,255,0.2)",
-                  }}
-                  transition={{ duration: 0.3 }}
-                />
-              ))}
-            </div>
-
-            {/* Pillar content — animates in on change */}
-            <div className="relative max-w-xl">
-              <motion.p
-                key={`tag-${activePillar}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.38, ease: [0.23, 1, 0.32, 1] }}
-                className="font-mono text-[10px] font-bold tracking-[0.22em]"
-                style={{ color: accent.color }}
-              >
-                {pillars[activePillar].tag}
-              </motion.p>
-
-              <motion.h3
-                key={`title-${activePillar}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.06, ease: [0.23, 1, 0.32, 1] }}
-                className="mt-5 font-display text-5xl font-extrabold leading-[0.96] tracking-[-0.065em] text-white sm:text-6xl"
-              >
-                {pillars[activePillar].title}
-              </motion.h3>
-
-              <motion.p
-                key={`body-${activePillar}`}
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.13, ease: [0.23, 1, 0.32, 1] }}
-                className="mt-6 text-base leading-7 text-white/72 sm:text-lg sm:leading-8"
-              >
-                {pillars[activePillar].body}
-              </motion.p>
-
-              <motion.div
-                key={`bar-${activePillar}`}
-                className="mt-8 h-px w-16"
-                initial={{ scaleX: 0, opacity: 0 }}
-                animate={{ scaleX: 1, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
-                style={{ backgroundColor: accent.color, transformOrigin: "left" }}
-              />
-              <motion.p
-                key={`label-${activePillar}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4, delay: 0.28 }}
-                className="mt-4 font-mono text-[9px] font-bold tracking-[0.18em] text-white/40"
-              >
-                EVIDENCE · DELIVERY · OWNERSHIP
-              </motion.p>
-            </div>
-
-            {/* Mobile: image strip */}
-            <div className="mt-8 block overflow-hidden rounded-sm lg:hidden">
-              <img src={ASSETS.aboutTrace} alt="" className="h-40 w-full object-cover" />
-            </div>
-          </motion.div>
+          {/* Mobile: stacked image */}
+          <div className="mt-5 block overflow-hidden rounded-sm lg:hidden">
+            <img src={ASSETS.aboutTrace} alt="" className="h-44 w-full object-cover" />
+          </div>
         </div>
       </div>
     </div>
@@ -265,26 +254,6 @@ export function TracePositioningSection() {
                 key={principle.number}
                 itemClassName="min-h-[360px] sm:min-h-[400px]"
               >
-                {/* Aurora background fills the card */}
-                <div className="pointer-events-none absolute inset-0 rounded-[inherit] overflow-hidden opacity-20">
-                  <SoftAurora
-                    speed={0.4}
-                    scale={1.6}
-                    brightness={0.9}
-                    color1={accent.aurora1}
-                    color2={accent.aurora2}
-                    noiseFrequency={2.2}
-                    noiseAmplitude={0.8}
-                    bandHeight={0.45}
-                    bandSpread={1.1}
-                    octaveDecay={0.12}
-                    layerOffset={0.2}
-                    colorSpeed={0.7}
-                    enableMouseInteraction
-                    mouseInfluence={0.15}
-                  />
-                </div>
-
                 {/* Card content */}
                 <div className="relative grid gap-6 sm:grid-cols-[110px_minmax(0,1fr)] sm:items-start sm:gap-10">
                   <div className="flex items-center gap-4 sm:block">
