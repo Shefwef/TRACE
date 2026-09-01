@@ -171,19 +171,31 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       card.style.transform = "translateZ(0)";
     });
 
-    let lenis: Lenis;
     if (useWindowScroll) {
-      lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-        touchMultiplier: 2,
-        wheelMultiplier: 1,
-        lerp: 0.1,
-        syncTouch: true,
-      });
+      // Window-scroll mode: use a passive scroll listener + rAF. No Lenis — avoids double-instance flicker.
+      let rafPending = false;
+      const onScroll = () => {
+        if (!rafPending) {
+          rafPending = true;
+          animationFrameRef.current = requestAnimationFrame(() => {
+            rafPending = false;
+            updateCardTransforms();
+          });
+        }
+      };
+      window.addEventListener("scroll", onScroll, { passive: true });
+      updateCardTransforms();
+
+      return () => {
+        window.removeEventListener("scroll", onScroll);
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        stackCompletedRef.current = false;
+        cardsRef.current = [];
+        transformsCache.clear();
+        isUpdatingRef.current = false;
+      };
     } else {
-      lenis = new Lenis({
+      const lenis = new Lenis({
         wrapper: scroller,
         content: scroller.querySelector(".scroll-stack-inner") as HTMLElement,
         duration: 1.2,
@@ -194,22 +206,22 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         lerp: 0.1,
         syncTouch: true,
       });
+
+      lenis.on("scroll", updateCardTransforms);
+      const raf = (time: number) => { lenis.raf(time); animationFrameRef.current = requestAnimationFrame(raf); };
+      animationFrameRef.current = requestAnimationFrame(raf);
+      lenisRef.current = lenis;
+      updateCardTransforms();
+
+      return () => {
+        if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+        lenisRef.current?.destroy();
+        stackCompletedRef.current = false;
+        cardsRef.current = [];
+        transformsCache.clear();
+        isUpdatingRef.current = false;
+      };
     }
-
-    lenis.on("scroll", updateCardTransforms);
-    const raf = (time: number) => { lenis.raf(time); animationFrameRef.current = requestAnimationFrame(raf); };
-    animationFrameRef.current = requestAnimationFrame(raf);
-    lenisRef.current = lenis;
-    updateCardTransforms();
-
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      lenisRef.current?.destroy();
-      stackCompletedRef.current = false;
-      cardsRef.current = [];
-      transformsCache.clear();
-      isUpdatingRef.current = false;
-    };
   }, [itemDistance, itemScale, itemStackDistance, stackPosition, scaleEndPosition, baseScale, scaleDuration, rotationAmount, blurAmount, useWindowScroll, onStackComplete, updateCardTransforms]);
 
   return (
