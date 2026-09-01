@@ -255,7 +255,7 @@ export function TracePositioningSection() {
                       <h3 className="mt-5 font-display text-[2rem] font-extrabold leading-[1.04] tracking-[-0.055em] text-white sm:text-[2.4rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-6 text-[1.15rem] leading-[1.6] text-white/85 sm:text-[1.35rem] sm:leading-[1.55]">
+                      <p className="mt-6 text-[1.265rem] leading-[1.6] text-white/85 sm:text-[1.485rem] sm:leading-[1.55]">
                         {principle.body}
                       </p>
                     </div>
