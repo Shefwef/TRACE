@@ -27,6 +27,9 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
   const panelRefs = useRef<Array<HTMLDivElement | null>>([]);
   const imageRefs = useRef<Array<HTMLImageElement | null>>([]);
   const detailRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const titleRefs = useRef<Array<HTMLHeadingElement | null>>([]);
+  const clientRefs = useRef<Array<HTMLParagraphElement | null>>([]);
+  const categoryRefs = useRef<Array<HTMLParagraphElement | null>>([]);
   const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const animatePanels = useCallback((next: number, shouldAnimate: boolean) => {
@@ -55,6 +58,46 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
           overwrite: "auto",
         });
       }
+
+      // Category label: fade in quickly, fade out instantly
+      const category = categoryRefs.current[index];
+      if (category) {
+        gsap.to(category, {
+          autoAlpha: isActive ? 1 : 0,
+          y: isActive ? 0 : 6,
+          duration: isActive ? duration * 0.5 : duration * 0.25,
+          delay: isActive ? duration * 0.3 : 0,
+          ease,
+          overwrite: "auto",
+        });
+      }
+
+      // Title h3: slides up from 18px below, fades in after category
+      const title = titleRefs.current[index];
+      if (title) {
+        gsap.to(title, {
+          autoAlpha: isActive ? 1 : 0,
+          y: isActive ? 0 : 18,
+          duration: isActive ? duration * 0.65 : duration * 0.25,
+          delay: isActive ? duration * 0.38 : 0,
+          ease,
+          overwrite: "auto",
+        });
+      }
+
+      // Client name: same slide-up, staggers after title
+      const client = clientRefs.current[index];
+      if (client) {
+        gsap.to(client, {
+          autoAlpha: isActive ? 1 : 0,
+          y: isActive ? 0 : 14,
+          duration: isActive ? duration * 0.6 : duration * 0.2,
+          delay: isActive ? duration * 0.46 : 0,
+          ease,
+          overwrite: "auto",
+        });
+      }
+
       const detail = detailRefs.current[index];
       if (detail) {
         gsap.to(detail, {
@@ -99,9 +142,9 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
         <div className="trace-accordion-overlay" />
         <div className="trace-accordion-rail"><span>{String(index + 1).padStart(2, "0")}</span><span className="trace-accordion-dot" /></div>
         <div className="trace-accordion-caption">
-          <p className="trace-accordion-category">{item.category}</p>
-          <h3>{item.label}</h3>
-          <p className="trace-accordion-client">{item.client}</p>
+          <p ref={(element) => { categoryRefs.current[index] = element; }} className="trace-accordion-category" style={{ opacity: isActive ? 1 : 0 }}>{item.category}</p>
+          <h3 ref={(element) => { titleRefs.current[index] = element; }} style={{ opacity: isActive ? 1 : 0, transform: isActive ? "none" : "translateY(18px)" }}>{item.label}</h3>
+          <p ref={(element) => { clientRefs.current[index] = element; }} className="trace-accordion-client" style={{ opacity: isActive ? 1 : 0, transform: isActive ? "none" : "translateY(14px)" }}>{item.client}</p>
           <div ref={(element) => { detailRefs.current[index] = element; }} className="trace-accordion-detail">
             <p>{item.summary}</p>
             <Link href={item.href} onClick={(event) => event.stopPropagation()} className="trace-accordion-action">View project details <ArrowUpRight className="h-4 w-4" /></Link>

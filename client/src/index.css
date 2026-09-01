@@ -102,16 +102,15 @@
   .trace-accordion-panel:not(.is-active) .trace-accordion-overlay { background: linear-gradient(180deg, rgba(18,61,103,.20) 18%, rgba(8,36,64,.82) 100%); }
   .trace-accordion-rail { position: absolute; inset: 18px 16px auto; z-index: 2; display: flex; align-items: center; justify-content: space-between; color: rgba(255,255,255,.82); font-family: "IBM Plex Mono", monospace; font-size: 9px; font-weight: 700; letter-spacing: .15em; }
   .trace-accordion-dot { width: 8px; height: 8px; border: 1px solid #D7F3F0; border-radius: 50%; box-shadow: 0 0 0 4px rgba(215,243,240,.14); }
-  .trace-accordion-caption { position: absolute; right: 20px; bottom: 20px; left: 20px; z-index: 2; color: white; transition: right 0.68s cubic-bezier(.23,1,.32,1), left 0.68s cubic-bezier(.23,1,.32,1), bottom 0.68s cubic-bezier(.23,1,.32,1); }
-  .trace-accordion-category { margin: 0; color: #D7F3F0; font-family: "IBM Plex Mono", monospace; font-size: 9px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; transition: font-size 0.4s cubic-bezier(.23,1,.32,1), color 0.4s ease; }
-  .trace-accordion-caption h3 { margin: 10px 0 0; font-family: "Manrope", sans-serif; font-size: clamp(1.1rem, 1.6vw, 1.9rem); font-weight: 800; letter-spacing: -.055em; line-height: 1.06; transition: font-size 0.5s cubic-bezier(.23,1,.32,1); }
-  .trace-accordion-client { margin: 10px 0 0; color: rgba(255,255,255,.82); font-size: 13px; font-weight: 700; line-height: 1.35; }
+  .trace-accordion-caption { position: absolute; right: 20px; bottom: 20px; left: 20px; z-index: 2; color: white; }
+  .trace-accordion-category { margin: 0; color: #D7F3F0; font-family: "IBM Plex Mono", monospace; font-size: 9px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; will-change: opacity, transform; }
+  .trace-accordion-caption h3 { margin: 10px 0 0; font-family: "Manrope", sans-serif; font-size: clamp(1.1rem, 1.6vw, 1.9rem); font-weight: 800; letter-spacing: -.055em; line-height: 1.06; will-change: opacity, transform; }
+  .trace-accordion-client { margin: 8px 0 0; color: rgba(255,255,255,.82); font-size: 13px; font-weight: 700; line-height: 1.35; will-change: opacity, transform; }
   .trace-accordion-detail { margin-top: 15px; opacity: 0; visibility: hidden; will-change: opacity, transform; }
   .trace-accordion-detail > p { max-width: 38rem; margin: 0; color: rgba(255,255,255,.86); font-size: 13px; line-height: 1.55; }
   .trace-accordion-action { display: inline-flex; align-items: center; gap: 9px; margin-top: 16px; background: white; color: #123D67; padding: 11px 14px; font-size: 13px; font-weight: 800; text-decoration: none; transition: transform 160ms cubic-bezier(.23,1,.32,1); }
   .trace-accordion-action:hover { transform: translateY(-2px); }
   .trace-accordion-panel:not(.is-active) .trace-accordion-caption { right: 13px; bottom: 18px; left: 13px; writing-mode: vertical-rl; transform: rotate(180deg); }
-  .trace-accordion-panel:not(.is-active) .trace-accordion-caption h3, .trace-accordion-panel:not(.is-active) .trace-accordion-client { display: none; }
   .trace-accordion-panel:not(.is-active) .trace-accordion-category { color: rgba(255,255,255,.92); font-size: 8px; white-space: nowrap; }
   @media (max-width: 900px) { .trace-accordion-gallery { height: 600px; flex-direction: column; perspective: none; } .trace-accordion-panel { min-height: 78px; flex: 1 1 0; transform: none !important; } .trace-accordion-caption { right: 16px; bottom: 15px; left: 16px; } .trace-accordion-rail { inset: 13px 14px auto; } .trace-accordion-caption h3 { font-size: 1.35rem; } }
   @media (max-width: 900px) { .trace-accordion-panel:not(.is-active) .trace-accordion-caption { right: 16px; bottom: 15px; left: 16px; writing-mode: horizontal-tb; transform: none; } .trace-accordion-panel:not(.is-active) .trace-accordion-category { font-size: 8px; } }
