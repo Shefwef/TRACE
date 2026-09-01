@@ -9,11 +9,11 @@ import ScrollStack, { ScrollStackItem } from "@/components/ui/ScrollStack";
 import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
 
-// TRACE logo colors: teal, orange, navy — one per pillar. bg is a deep tinted dark for each card.
+// TRACE logo colors per pillar. cardBg used for ScrollStack cards.
 const PILLAR_ACCENTS = [
-  { color: "#009CA6", bg: "#031e22", label: "TEAL"   },  // Evidence  — deep teal-black
-  { color: "#F47A20", bg: "#1e1008", label: "ORANGE" },  // Delivery  — deep amber-black
-  { color: "#123D67", bg: "#050e1c", label: "NAVY"   },  // Ownership — deep navy-black
+  { color: "#009CA6", cardBg: "#082440", label: "TEAL"   },  // Evidence  01
+  { color: "#F47A20", cardBg: "#0d1f38", label: "ORANGE" },  // Delivery  02
+  { color: "#123D67", cardBg: "#06182c", label: "NAVY"   },  // Ownership 03
 ] as const;
 
 const pillars = [
@@ -129,7 +129,7 @@ function HowTraceWorksStickyScroll() {
                     exit={{ opacity: 0, x: -18 }}
                     transition={{ duration: 0.48, ease: [0.23, 1, 0.32, 1] }}
                     className="absolute inset-0 flex flex-col justify-center px-8 sm:px-14"
-                    style={{ backgroundColor: accent.bg }}
+                    style={{ backgroundColor: "#06182c" }}
                   >
                     {/* Subtle color wash layer */}
                     <div
@@ -220,29 +220,30 @@ function HowTraceWorksStickyScroll() {
 
 export function TracePositioningSection() {
   return (
-    <section className="relative overflow-hidden border-t border-[#D5E4EB] bg-trace-paper" aria-labelledby="trace-positioning-title">
-      {/* Section heading — light bg, scrolls away before sticky kicks in */}
-      <div className="relative mx-auto max-w-[1380px] px-5 py-16 lg:px-10 sm:py-[4.5rem]">
-        <SectionReveal>
-          <div className="max-w-3xl">
-            <p className="section-label">HOW TRACE WORKS</p>
-            <h2 id="trace-positioning-title" className="mt-5 font-display text-5xl font-extrabold leading-[0.94] tracking-[-0.068em] text-trace-ink sm:text-6xl">Systems thinking for <span className="text-trace-teal">lasting change.</span></h2>
-            <p className="mt-6 text-base leading-7 text-trace-muted">TRACE integrates policy expertise, technology, and institutional innovation to help governments, international institutions, and enterprises navigate systemic shifts and achieve sustainable growth.</p>
-          </div>
-        </SectionReveal>
-      </div>
-
-      {/* Dark block: sticky scroll + What Sets TRACE Apart — single bg so no white gap */}
-      <div className="relative bg-[#06182c]">
-        {/* Sticky scroll — takes up 3 viewport heights */}
-        <HowTraceWorksStickyScroll />
-
-        {/* What Sets TRACE Apart */}
-        <div className="relative mx-auto max-w-[1380px] px-5 pb-10 pt-14 lg:px-10 sm:pt-16">
+    <>
+      {/* ── HOW TRACE WORKS: white bg, contained sticky card, clean border divide ── */}
+      <section className="border-y border-[#D5E4EB] bg-trace-paper" aria-labelledby="trace-positioning-title">
+        <div className="mx-auto max-w-[1380px] px-5 pb-10 pt-16 lg:px-10 sm:pt-[4.5rem]">
           <SectionReveal>
-            <p className="section-label" style={{ color: "#009CA6" }}>WHAT SETS TRACE APART</p>
-            <h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-white sm:text-5xl">
-              Depth that <span style={{ color: "#009CA6" }}>stays connected</span> to delivery.
+            <div className="max-w-3xl">
+              <p className="section-label">HOW TRACE WORKS</p>
+              <h2 id="trace-positioning-title" className="mt-5 font-display text-5xl font-extrabold leading-[0.94] tracking-[-0.068em] text-trace-ink sm:text-6xl">
+                Systems thinking for <span className="text-trace-teal">lasting change.</span>
+              </h2>
+              <p className="mt-6 text-base leading-7 text-trace-muted">TRACE integrates policy expertise, technology, and institutional innovation to help governments, international institutions, and enterprises navigate systemic shifts and achieve sustainable growth.</p>
+            </div>
+          </SectionReveal>
+        </div>
+        <HowTraceWorksStickyScroll />
+      </section>
+
+      {/* ── WHAT SETS TRACE APART: white bg, dark navy stacking cards ── */}
+      <section className="bg-trace-paper" aria-labelledby="trace-apart-title">
+        <div className="mx-auto max-w-[1380px] px-5 pb-10 pt-16 lg:px-10 sm:pt-[4.5rem]">
+          <SectionReveal>
+            <p className="section-label">WHAT SETS TRACE APART</p>
+            <h2 id="trace-apart-title" className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-trace-ink sm:text-5xl">
+              Depth that <span className="text-trace-teal">stays connected</span> to delivery.
             </h2>
           </SectionReveal>
         </div>
@@ -260,27 +261,19 @@ export function TracePositioningSection() {
           {principles.map((principle, index) => {
             const accent = PILLAR_ACCENTS[index];
             return (
-              <ScrollStackItem
-                key={principle.number}
-                itemClassName="overflow-hidden rounded-sm"
-              >
-                {/* White card shell */}
+              <ScrollStackItem key={principle.number} itemClassName="overflow-hidden rounded-sm">
                 <div
-                  className="relative bg-white p-10 shadow-[0_8px_40px_rgba(18,61,103,0.10)] sm:p-14"
-                  style={{ minHeight: "360px" }}
+                  className="relative p-10 sm:p-14"
+                  style={{ backgroundColor: accent.cardBg, minHeight: "360px" }}
                 >
-                  {/* Subtle colored radial wash */}
+                  {/* Accent radial wash */}
                   <div
                     className="pointer-events-none absolute inset-0"
-                    style={{ background: `radial-gradient(ellipse 65% 50% at 95% 50%, ${accent.color}0d 0%, transparent 70%)` }}
+                    style={{ background: `radial-gradient(ellipse 65% 50% at 95% 50%, ${accent.color}22 0%, transparent 70%)` }}
                   />
                   {/* Left accent bar */}
-                  <div
-                    className="absolute inset-y-0 left-0 w-[3px]"
-                    style={{ backgroundColor: accent.color }}
-                  />
+                  <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.color }} />
 
-                  {/* Card content */}
                   <div className="relative grid gap-6 sm:grid-cols-[100px_minmax(0,1fr)] sm:items-start sm:gap-12">
                     <div className="flex items-center gap-4 sm:block">
                       <span
@@ -289,22 +282,16 @@ export function TracePositioningSection() {
                       >
                         {principle.number}
                       </span>
-                      <div
-                        className="h-px flex-1 sm:mt-5 sm:block sm:w-10"
-                        style={{ backgroundColor: accent.color, opacity: 0.35 }}
-                      />
+                      <div className="h-px flex-1 sm:mt-5 sm:block sm:w-10" style={{ backgroundColor: accent.color, opacity: 0.35 }} />
                     </div>
                     <div>
-                      <p
-                        className="font-mono text-[10px] font-bold tracking-[0.2em]"
-                        style={{ color: accent.color }}
-                      >
+                      <p className="font-mono text-[10px] font-bold tracking-[0.2em]" style={{ color: accent.color }}>
                         DISTINCTION {principle.number}
                       </p>
-                      <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-trace-ink sm:text-[2.2rem]">
+                      <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-white sm:text-[2.2rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-5 text-base leading-[1.76] text-trace-muted sm:text-lg">
+                      <p className="mt-5 text-base leading-[1.76] text-white/75 sm:text-lg">
                         {principle.body}
                       </p>
                     </div>
@@ -314,8 +301,8 @@ export function TracePositioningSection() {
             );
           })}
         </ScrollStack>
-      </div>{/* end dark block */}
-    </section>
+      </section>
+    </>
   );
 }
 
