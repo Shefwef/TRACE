@@ -220,8 +220,8 @@ function HowTraceWorksStickyScroll() {
 
 export function TracePositioningSection() {
   return (
-    <section className="relative overflow-hidden border-y border-[#D5E4EB] bg-trace-paper" aria-labelledby="trace-positioning-title">
-      {/* Section heading — scrolls away before sticky kicks in */}
+    <section className="relative overflow-hidden border-t border-[#D5E4EB] bg-trace-paper" aria-labelledby="trace-positioning-title">
+      {/* Section heading — light bg, scrolls away before sticky kicks in */}
       <div className="relative mx-auto max-w-[1380px] px-5 py-16 lg:px-10 sm:py-[4.5rem]">
         <SectionReveal>
           <div className="max-w-3xl">
@@ -232,11 +232,12 @@ export function TracePositioningSection() {
         </SectionReveal>
       </div>
 
-      {/* Sticky scroll — takes up 3 viewport heights */}
-      <HowTraceWorksStickyScroll />
-
-      {/* What Sets TRACE Apart */}
+      {/* Dark block: sticky scroll + What Sets TRACE Apart — single bg so no white gap */}
       <div className="relative bg-[#06182c]">
+        {/* Sticky scroll — takes up 3 viewport heights */}
+        <HowTraceWorksStickyScroll />
+
+        {/* What Sets TRACE Apart */}
         <div className="relative mx-auto max-w-[1380px] px-5 pb-10 pt-14 lg:px-10 sm:pt-16">
           <SectionReveal>
             <p className="section-label" style={{ color: "#009CA6" }}>WHAT SETS TRACE APART</p>
@@ -263,15 +264,15 @@ export function TracePositioningSection() {
                 key={principle.number}
                 itemClassName="overflow-hidden rounded-sm"
               >
-                {/* Dark tinted card shell */}
+                {/* White card shell */}
                 <div
-                  className="relative p-10 sm:p-14"
-                  style={{ backgroundColor: accent.bg, minHeight: "380px" }}
+                  className="relative bg-white p-10 shadow-[0_8px_40px_rgba(18,61,103,0.10)] sm:p-14"
+                  style={{ minHeight: "360px" }}
                 >
                   {/* Subtle colored radial wash */}
                   <div
                     className="pointer-events-none absolute inset-0"
-                    style={{ background: `radial-gradient(ellipse 70% 55% at 90% 50%, ${accent.color}1a 0%, transparent 70%)` }}
+                    style={{ background: `radial-gradient(ellipse 65% 50% at 95% 50%, ${accent.color}0d 0%, transparent 70%)` }}
                   />
                   {/* Left accent bar */}
                   <div
@@ -290,7 +291,7 @@ export function TracePositioningSection() {
                       </span>
                       <div
                         className="h-px flex-1 sm:mt-5 sm:block sm:w-10"
-                        style={{ backgroundColor: accent.color, opacity: 0.4 }}
+                        style={{ backgroundColor: accent.color, opacity: 0.35 }}
                       />
                     </div>
                     <div>
@@ -300,10 +301,10 @@ export function TracePositioningSection() {
                       >
                         DISTINCTION {principle.number}
                       </p>
-                      <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-white sm:text-[2.2rem]">
+                      <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-trace-ink sm:text-[2.2rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-5 text-base leading-[1.76] text-white/80 sm:text-lg">
+                      <p className="mt-5 text-base leading-[1.76] text-trace-muted sm:text-lg">
                         {principle.body}
                       </p>
                     </div>
@@ -313,7 +314,7 @@ export function TracePositioningSection() {
             );
           })}
         </ScrollStack>
-      </div>
+      </div>{/* end dark block */}
     </section>
   );
 }
