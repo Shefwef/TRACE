@@ -65,7 +65,7 @@ const serviceImages: Record<Service["slug"], string> = {
   "research-innovation": ASSETS.heroResearch,
 };
 
-/** Auto-rotating 3D-skewed deck of pillar cards. Front card rotates to the back every ~4s. */
+/** Auto-rotating 3D deck of pillar cards. Front card rotates to the back every ~4s. */
 function PillarDisplayCards() {
   const [front, setFront] = useState(0);
   const reduceMotion = useReducedMotion();
@@ -79,26 +79,26 @@ function PillarDisplayCards() {
   const orderOf = (i: number) => (i - front + pillars.length) % pillars.length;
 
   return (
-    <div className="grid h-[440px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[500px]">
+    <div className="grid h-[280px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[300px]">
       {pillars.map((pillar, i) => {
         const accent = PILLAR_ACCENTS[i];
         const depth = orderOf(i);
         const isFront = depth === 0;
 
-        // Larger stagger + scale to read as a proper 3D deck.
-        const offset = depth * 52;
-        const scale = 1 - depth * 0.05;
-        const opacity = 1 - depth * 0.16;
+        // Compact deck — offsets and rotation stay proportional.
+        const offset = depth * 42;
+        const scale = 1 - depth * 0.045;
+        const opacity = 1 - depth * 0.18;
 
         return (
           <motion.article
             key={pillar.number}
-            className="pointer-events-none relative flex flex-col justify-between overflow-hidden rounded-xl border-2 bg-white shadow-[0_24px_60px_rgba(8,36,64,0.16)]"
+            className="pointer-events-none relative flex flex-col overflow-hidden rounded-xl border-2 bg-white shadow-[0_20px_50px_rgba(8,36,64,0.16)]"
             style={{
               gridArea: "stack",
-              width: "26rem",
-              height: "300px",
-              padding: "1.6rem 1.75rem",
+              width: "22rem",
+              height: "220px",
+              padding: "1.15rem 1.4rem",
               borderColor: isFront ? `${accent.color}55` : "#DCE7EC",
               zIndex: pillars.length - depth,
             }}
@@ -114,28 +114,28 @@ function PillarDisplayCards() {
             transition={{ duration: 0.75, ease: [0.23, 1, 0.32, 1] }}
           >
             {/* Accent bar */}
-            <div className="absolute inset-y-0 left-0 w-[4px]" style={{ backgroundColor: accent.color }} />
+            <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.color }} />
 
             {/* Top row: number badge + tag */}
-            <div className="relative flex items-center gap-3">
+            <div className="relative flex items-center gap-2.5">
               <span
-                className="grid h-10 w-10 place-items-center rounded-full font-mono text-[13px] font-bold text-white"
+                className="grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] font-bold text-white"
                 style={{ backgroundColor: accent.color }}
               >
                 {pillar.number}
               </span>
-              <p className="font-mono text-[13px] font-bold tracking-[0.22em]" style={{ color: accent.color }}>
+              <p className="font-mono text-[11px] font-bold tracking-[0.2em]" style={{ color: accent.color }}>
                 {pillar.tag}
               </p>
             </div>
 
-            {/* Center title — larger, dominant */}
-            <h3 className="relative font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.05em] text-trace-ink">
+            {/* Title — sits close under top row */}
+            <h3 className="relative mt-3 font-display text-2xl font-extrabold leading-[1.05] tracking-[-0.045em] text-trace-ink">
               {pillar.title}
             </h3>
 
-            {/* Body copy — larger */}
-            <p className="relative text-[15px] leading-[1.6] text-trace-muted line-clamp-3">
+            {/* Body — no wasted space below */}
+            <p className="relative mt-2.5 text-[13px] leading-[1.55] text-trace-muted line-clamp-3">
               {pillar.body}
             </p>
           </motion.article>
@@ -145,15 +145,15 @@ function PillarDisplayCards() {
   );
 }
 
-/** Two-column card: compact image left, roomy pillar deck on the right. */
+/** Two-column card: image + deck centered together, minimal gap between them. */
 function HowTraceWorksCard() {
   return (
-    <div className="mx-auto max-w-[1380px] px-5 pb-16 lg:px-10">
+    <div className="mx-auto max-w-[1180px] px-5 pb-16 lg:px-10">
       <div className="overflow-hidden rounded-sm shadow-[0_24px_60px_rgba(8,36,64,0.13)]">
-        <div className="flex flex-col lg:flex-row">
+        <div className="flex flex-col items-stretch lg:flex-row lg:items-center">
 
-          {/* Left: image — narrower so cards get more room */}
-          <div className="relative h-56 w-full shrink-0 lg:h-auto lg:w-[36%]">
+          {/* Left: image — compact, aligned to card center */}
+          <div className="relative h-56 w-full shrink-0 lg:h-[320px] lg:w-[42%]">
             <img
               src={ASSETS.aboutTrace}
               alt="Overhead view of the TRACE team around a table shaped like the TRACE logo"
@@ -162,8 +162,8 @@ function HowTraceWorksCard() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[rgba(8,36,64,0.14)]" />
           </div>
 
-          {/* Right: rotating 3D pillar deck — tighter padding, more card room */}
-          <div className="flex flex-1 items-center justify-center bg-white px-4 py-8 sm:px-6 sm:py-10">
+          {/* Right: deck — starts right after image, centered vertically */}
+          <div className="flex flex-1 items-center justify-center bg-white px-2 py-8 sm:px-4 lg:py-4">
             <PillarDisplayCards />
           </div>
 
