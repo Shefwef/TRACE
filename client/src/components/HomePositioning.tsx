@@ -1,14 +1,42 @@
 /** TRACE accessible light foundation: a systems-led positioning brief and scan-friendly project showcase using approved navy, turquoise, and existing TRACE project data. */
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { ASSETS, services, type Service } from "@/data/traceData";
 import { SectionReveal } from "@/components/SectionReveal";
 import ScrollStack, { ScrollStackItem } from "@/components/ui/ScrollStack";
 import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
-import PillarCarousel from "@/components/ui/PillarCarousel";
+import SoftAurora from "@/components/ui/SoftAurora";
+
+// TRACE logo colors: teal, orange, navy — one per pillar
+const PILLAR_ACCENTS = [
+  { color: "#009CA6", aurora1: "#009CA6", aurora2: "#D7F3F0", label: "TEAL"   },  // Evidence
+  { color: "#F47A20", aurora1: "#F47A20", aurora2: "#FDE8D4", label: "ORANGE" },  // Delivery
+  { color: "#123D67", aurora1: "#1a5a9a", aurora2: "#D7F3F0", label: "NAVY"   },  // Ownership
+] as const;
+
+const pillars = [
+  {
+    number: "01",
+    tag: "EVIDENCE",
+    title: "Evidence",
+    body: "Policy intelligence, applied research, and data-driven diagnosis inform every mandate. We turn fragmented signals into a coherent picture that drives confident institutional decisions.",
+  },
+  {
+    number: "02",
+    tag: "DELIVERY",
+    title: "Delivery",
+    body: "Digital implementation, technology, and structured programme execution translate design into practice. Systems, tools, and traceable processes that work beyond the project lifecycle.",
+  },
+  {
+    number: "03",
+    tag: "OWNERSHIP",
+    title: "Ownership",
+    body: "Institutional capability, capacity building, and local stewardship anchor lasting change. Reform sticks when the people who run the system understand it from the inside.",
+  },
+] as const;
 
 const principles = [
   {
@@ -37,19 +65,175 @@ const serviceImages: Record<Service["slug"], string> = {
   "research-innovation": ASSETS.heroResearch,
 };
 
-export function TracePositioningSection() {
-  const reduceMotion = useReducedMotion();
+/** Sticky-scroll section: image pinned left, pillar content scrolls right with per-pillar accent color. */
+function HowTraceWorksStickyScroll() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 60, damping: 22 });
 
-  const pillarItems = [
-    { id: 1, title: "Evidence", description: "Policy intelligence, applied research, and data-driven diagnosis inform every mandate." },
-    { id: 2, title: "Delivery", description: "Digital implementation, technology, and structured programme execution translate design into practice." },
-    { id: 3, title: "Ownership", description: "Institutional capability, capacity building, and local stewardship anchor lasting change." },
-  ];
+  // Active pillar index derived from scroll progress
+  const [activePillar, setActivePillar] = useState(0);
+  useEffect(() => {
+    return smoothProgress.on("change", (v) => {
+      const idx = Math.min(Math.floor(v * pillars.length), pillars.length - 1);
+      setActivePillar(idx);
+    });
+  }, [smoothProgress]);
 
+  const accent = PILLAR_ACCENTS[activePillar];
+
+  // Smooth color transition via CSS custom property on a wrapper
   return (
-    <section className="relative overflow-hidden border-y border-[#D5E4EB] bg-trace-paper py-16 sm:py-[4.5rem]" aria-labelledby="trace-positioning-title">
-      <div className="pointer-events-none absolute left-1/4 right-1/4 top-0 h-1 bg-gradient-to-r from-transparent via-trace-teal to-transparent" />
-      <div className="relative mx-auto max-w-[1380px] px-5 lg:px-10">
+    <div ref={sectionRef} className="relative" style={{ height: `${pillars.length * 100}vh` }}>
+      {/* Sticky viewport */}
+      <div className="sticky top-0 h-screen overflow-hidden">
+        <div className="flex h-full">
+          {/* Left: pinned image — always visible */}
+          <div className="relative hidden w-[48%] shrink-0 overflow-hidden lg:block">
+            <img
+              src={ASSETS.aboutTrace}
+              alt="Overhead view of the TRACE team around a table shaped like the TRACE logo"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            {/* Accent edge that transitions color */}
+            <motion.div
+              className="absolute inset-y-0 right-0 w-1"
+              animate={{ backgroundColor: accent.color }}
+              transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+            />
+            {/* Step counter */}
+            <div className="absolute bottom-8 left-8">
+              <motion.p
+                key={activePillar}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="font-mono text-[11px] font-bold tracking-[0.2em] text-white"
+                style={{ textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}
+              >
+                {String(activePillar + 1).padStart(2, "0")} / {String(pillars.length).padStart(2, "0")}
+              </motion.p>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <motion.div
+            className="hidden w-[3px] shrink-0 lg:block"
+            animate={{ backgroundColor: accent.color }}
+            transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
+          />
+
+          {/* Right: content panel */}
+          <motion.div
+            className="relative flex flex-1 flex-col justify-center overflow-hidden bg-[#06182c] px-8 py-12 sm:px-14"
+            animate={{ backgroundColor: "#06182c" }}
+            transition={{ duration: 0.7 }}
+          >
+            {/* Subtle aurora background — reacts to active pillar color */}
+            <div className="pointer-events-none absolute inset-0 opacity-30">
+              <SoftAurora
+                key={activePillar}
+                speed={0.3}
+                scale={1.8}
+                brightness={0.7}
+                color1={accent.aurora1}
+                color2={accent.aurora2}
+                noiseFrequency={2.0}
+                noiseAmplitude={0.7}
+                bandHeight={0.5}
+                bandSpread={1.2}
+                octaveDecay={0.15}
+                layerOffset={0.3}
+                colorSpeed={0.6}
+                enableMouseInteraction={false}
+                mouseInfluence={0}
+              />
+            </div>
+
+            {/* Pill dots navigation */}
+            <div className="absolute right-8 top-1/2 flex -translate-y-1/2 flex-col gap-2.5">
+              {pillars.map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="h-1.5 rounded-full"
+                  animate={{
+                    width: i === activePillar ? 24 : 6,
+                    backgroundColor: i === activePillar ? accent.color : "rgba(255,255,255,0.2)",
+                  }}
+                  transition={{ duration: 0.3 }}
+                />
+              ))}
+            </div>
+
+            {/* Pillar content — animates in on change */}
+            <div className="relative max-w-xl">
+              <motion.p
+                key={`tag-${activePillar}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.38, ease: [0.23, 1, 0.32, 1] }}
+                className="font-mono text-[10px] font-bold tracking-[0.22em]"
+                style={{ color: accent.color }}
+              >
+                {pillars[activePillar].tag}
+              </motion.p>
+
+              <motion.h3
+                key={`title-${activePillar}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.06, ease: [0.23, 1, 0.32, 1] }}
+                className="mt-5 font-display text-5xl font-extrabold leading-[0.96] tracking-[-0.065em] text-white sm:text-6xl"
+              >
+                {pillars[activePillar].title}
+              </motion.h3>
+
+              <motion.p
+                key={`body-${activePillar}`}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.13, ease: [0.23, 1, 0.32, 1] }}
+                className="mt-6 text-base leading-7 text-white/72 sm:text-lg sm:leading-8"
+              >
+                {pillars[activePillar].body}
+              </motion.p>
+
+              <motion.div
+                key={`bar-${activePillar}`}
+                className="mt-8 h-px w-16"
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                style={{ backgroundColor: accent.color, transformOrigin: "left" }}
+              />
+              <motion.p
+                key={`label-${activePillar}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.28 }}
+                className="mt-4 font-mono text-[9px] font-bold tracking-[0.18em] text-white/40"
+              >
+                EVIDENCE · DELIVERY · OWNERSHIP
+              </motion.p>
+            </div>
+
+            {/* Mobile: image strip */}
+            <div className="mt-8 block overflow-hidden rounded-sm lg:hidden">
+              <img src={ASSETS.aboutTrace} alt="" className="h-40 w-full object-cover" />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function TracePositioningSection() {
+  return (
+    <section className="relative overflow-hidden border-y border-[#D5E4EB] bg-trace-paper" aria-labelledby="trace-positioning-title">
+      {/* Section heading — scrolls away before sticky kicks in */}
+      <div className="relative mx-auto max-w-[1380px] px-5 py-16 lg:px-10 sm:py-[4.5rem]">
         <SectionReveal>
           <div className="max-w-3xl">
             <p className="section-label">HOW TRACE WORKS</p>
@@ -57,93 +241,83 @@ export function TracePositioningSection() {
             <p className="mt-6 text-base leading-7 text-trace-muted">TRACE integrates policy expertise, technology, and institutional innovation to help governments, international institutions, and enterprises navigate systemic shifts and achieve sustainable growth.</p>
           </div>
         </SectionReveal>
+      </div>
 
-        <div className="mt-10 sm:mt-12">
-          <SectionReveal>
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch">
-              {/* Left: image */}
-              <motion.figure
-                whileHover={reduceMotion ? undefined : { y: -4 }}
-                transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }}
-                className="relative overflow-hidden border border-trace-ink/10 bg-white shadow-[0_18px_44px_rgba(18,61,103,0.10)] lg:w-[48%] lg:shrink-0"
-              >
-                <img
-                  src={ASSETS.aboutTrace}
-                  alt="Overhead view of the TRACE team meeting around a table shaped like the TRACE logo"
-                  className="block h-full w-full object-cover"
-                />
-              </motion.figure>
+      {/* Sticky scroll — takes up 3 viewport heights */}
+      <HowTraceWorksStickyScroll />
 
-              {/* Divider */}
-              <div className="hidden w-px shrink-0 bg-[#D5E4EB] lg:block" />
-
-              {/* Right: About card + marquee stacked */}
-              <div className="flex flex-1 flex-col gap-5">
-                {/* About card */}
-                <div className="border-l-2 border-t-2 border-trace-teal bg-gradient-to-br from-trace-navy via-[#123D67] to-[#0a2b4a] p-6 text-white shadow-[0_16px_38px_rgba(8,36,64,0.22)] sm:p-8">
-                  <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint">ABOUT TRACE</p>
-                  <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.055em] sm:text-4xl">Where evidence, delivery, and ownership converge.</h3>
-                  <p className="mt-4 text-base leading-7 text-white/85 sm:text-lg sm:leading-8">Evidence-based strategy paired with practical implementation—so reforms move from ambition into working institutional capability.</p>
-                  <p className="mt-6 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint/75">AN INTEGRATED TRACE SYSTEM</p>
-                </div>
-
-                {/* Pillar carousel */}
-                <div className="relative flex-1 overflow-hidden bg-gradient-to-br from-[#0a2b4a] via-trace-navy to-[#0a2b4a] shadow-[0_18px_44px_rgba(8,36,64,0.20)] flex flex-col justify-center items-center py-6">
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-trace-mint/45 to-transparent" />
-                  <PillarCarousel
-                    items={pillarItems}
-                    baseWidth={330}
-                    autoplay={false}
-                    autoplayDelay={3000}
-                    pauseOnHover={false}
-                    loop
-                    round={false}
-                  />
-                </div>
-              </div>
-            </div>
-          </SectionReveal>
-        </div>
-
-        <div className="relative mt-14 sm:mt-20">
+      {/* What Sets TRACE Apart */}
+      <div className="relative bg-trace-paper">
+        <div className="relative mx-auto max-w-[1380px] px-5 pb-20 pt-20 lg:px-10 sm:pb-28 sm:pt-24">
           <SectionReveal>
             <p className="section-label">WHAT SETS TRACE APART</p>
-            <h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-trace-ink sm:text-5xl">Depth that <span className="text-trace-teal">stays connected</span> to delivery.</h2>
+            <h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-trace-ink sm:text-5xl">
+              Depth that <span className="text-trace-teal">stays connected</span> to delivery.
+            </h2>
           </SectionReveal>
-          <ScrollStack className="mt-8 sm:mt-10" stackTopBase={104} stackTopStep={24} enableLenis>
-            {principles.map((principle, index) => (
-              <ScrollStackItem key={principle.number} className="w-full">
-                <motion.article
-                  initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 32 }}
-                  whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.35 }}
-                  transition={{ duration: 0.55, ease: [0.23, 1, 0.32, 1] }}
-                  className="relative overflow-hidden rounded-sm border border-white/12 bg-gradient-to-br from-trace-navy via-[#123D67] to-[#0a2b4a] p-7 text-white shadow-[0_28px_66px_rgba(8,36,64,0.35)] sm:p-10"
-                >
-                  <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#009CA6"]} duration={12} borderWidth={1} />
-                  <div className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-trace-teal" />
-                  <div className="pointer-events-none absolute right-0 top-0 h-1 w-full bg-gradient-to-r from-transparent via-trace-mint/60 to-transparent" />
-                  <div className="pointer-events-none absolute -right-24 -top-20 h-64 w-64 rounded-full border border-white/12" />
-                  <div className="pointer-events-none absolute -right-8 -top-6 h-32 w-32 rounded-full border border-trace-mint/25" />
-                  <div className="relative grid gap-6 sm:grid-cols-[120px_minmax(0,1fr)] sm:items-start sm:gap-10">
-                    <div className="flex items-center gap-4 sm:block">
-                      <span className="font-display text-5xl font-extrabold tracking-[-0.07em] text-trace-mint sm:text-6xl">{principle.number}</span>
-                      <span className="h-px flex-1 bg-trace-mint/55 sm:mt-4 sm:block sm:w-16" />
-                    </div>
-                    <div>
-                      <h3 className="font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-white sm:text-[2.1rem]">{principle.title}</h3>
-                      <p className="mt-5 text-base leading-[1.72] text-white/92 sm:text-lg">{principle.body}</p>
-                      <p className="mt-6 inline-flex items-center gap-2 border-b border-trace-mint/45 pb-1 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint">
-                        DISTINCTION {principle.number}
-                      </p>
-                    </div>
-                  </div>
-                </motion.article>
-              </ScrollStackItem>
-            ))}
-          </ScrollStack>
         </div>
+
+        <ScrollStack className="mx-auto max-w-[1200px] px-5 lg:px-10">
+          {principles.map((principle, index) => {
+            const accent = PILLAR_ACCENTS[index];
+            return (
+              <ScrollStackItem
+                key={principle.number}
+                itemClassName="min-h-[360px] sm:min-h-[400px]"
+              >
+                {/* Aurora background fills the card */}
+                <div className="pointer-events-none absolute inset-0 rounded-[inherit] overflow-hidden opacity-20">
+                  <SoftAurora
+                    speed={0.4}
+                    scale={1.6}
+                    brightness={0.9}
+                    color1={accent.aurora1}
+                    color2={accent.aurora2}
+                    noiseFrequency={2.2}
+                    noiseAmplitude={0.8}
+                    bandHeight={0.45}
+                    bandSpread={1.1}
+                    octaveDecay={0.12}
+                    layerOffset={0.2}
+                    colorSpeed={0.7}
+                    enableMouseInteraction
+                    mouseInfluence={0.15}
+                  />
+                </div>
+
+                {/* Card content */}
+                <div className="relative grid gap-6 sm:grid-cols-[110px_minmax(0,1fr)] sm:items-start sm:gap-10">
+                  <div className="flex items-center gap-4 sm:block">
+                    <span
+                      className="font-display text-6xl font-extrabold tracking-[-0.07em] sm:text-7xl"
+                      style={{ color: accent.color }}
+                    >
+                      {principle.number}
+                    </span>
+                    <span
+                      className="h-px flex-1 sm:mt-4 sm:block sm:w-12"
+                      style={{ backgroundColor: accent.color, opacity: 0.5 }}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-white sm:text-[2.2rem]">
+                      {principle.title}
+                    </h3>
+                    <p className="mt-5 text-base leading-[1.76] text-white/85 sm:text-lg">
+                      {principle.body}
+                    </p>
+                    <p
+                      className="mt-7 inline-flex items-center gap-2 border-b pb-1 font-mono text-[10px] font-bold tracking-[0.18em]"
+                      style={{ borderColor: `${accent.color}55`, color: accent.color }}
+                    >
+                      DISTINCTION {principle.number}
+                    </p>
+                  </div>
+                </div>
+              </ScrollStackItem>
+            );
+          })}
+        </ScrollStack>
       </div>
     </section>
   );
