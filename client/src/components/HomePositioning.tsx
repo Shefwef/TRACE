@@ -214,19 +214,21 @@ export function TracePositioningSection() {
 
         <ScrollStack
           className="mx-auto max-w-[1200px] px-5 lg:px-10"
-          topPercent={12}
-          stackOffset={20}
-          scaleStep={0.035}
-          cardMinHeight={460}
-          itemGap={48}
+          useWindowScroll
+          itemDistance={80}
+          itemStackDistance={26}
+          stackPosition="20%"
+          scaleEndPosition="10%"
+          baseScale={0.88}
+          itemScale={0.03}
         >
           {principles.map((principle, index) => {
             const accent = PILLAR_ACCENTS[index];
             return (
               <ScrollStackItem key={principle.number} itemClassName="overflow-hidden rounded-xl shadow-[0_20px_50px_rgba(8,36,64,0.28)]">
                 <div
-                  className="relative p-12 sm:p-16"
-                  style={{ backgroundColor: accent.cardBg, minHeight: "460px" }}
+                  className="relative p-10 sm:p-14"
+                  style={{ backgroundColor: accent.cardBg, minHeight: "400px" }}
                 >
                   {/* Accent radial wash */}
                   <div
@@ -236,24 +238,24 @@ export function TracePositioningSection() {
                   {/* Left accent bar */}
                   <div className="absolute inset-y-0 left-0 w-[4px]" style={{ backgroundColor: accent.onDark }} />
 
-                  <div className="relative grid gap-8 sm:grid-cols-[150px_minmax(0,1fr)] sm:items-start sm:gap-14">
+                  <div className="relative grid gap-6 sm:grid-cols-[120px_minmax(0,1fr)] sm:items-start sm:gap-12">
                     <div className="flex items-center gap-4 sm:block">
                       <span
-                        className="font-display text-8xl font-extrabold tracking-[-0.07em] sm:text-9xl"
+                        className="font-display text-7xl font-extrabold tracking-[-0.07em] sm:text-8xl"
                         style={{ color: accent.onDark }}
                       >
                         {principle.number}
                       </span>
-                      <div className="h-px flex-1 sm:mt-6 sm:block sm:w-14" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
+                      <div className="h-px flex-1 sm:mt-5 sm:block sm:w-12" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
                     </div>
                     <div>
-                      <p className="font-mono text-[16px] font-bold tracking-[0.22em]" style={{ color: accent.onDark }}>
+                      <p className="font-mono text-[12px] font-bold tracking-[0.22em]" style={{ color: accent.onDark }}>
                         DISTINCTION {principle.number}
                       </p>
-                      <h3 className="mt-5 font-display text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.055em] text-white sm:text-[3.2rem]">
+                      <h3 className="mt-5 font-display text-[2rem] font-extrabold leading-[1.04] tracking-[-0.055em] text-white sm:text-[2.4rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-6 text-[1.55rem] leading-[1.55] text-white/85 sm:text-[1.8rem] sm:leading-[1.5]">
+                      <p className="mt-6 text-[1.15rem] leading-[1.6] text-white/85 sm:text-[1.35rem] sm:leading-[1.55]">
                         {principle.body}
                       </p>
                     </div>
