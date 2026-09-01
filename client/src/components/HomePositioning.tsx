@@ -236,51 +236,77 @@ export function TracePositioningSection() {
       <HowTraceWorksStickyScroll />
 
       {/* What Sets TRACE Apart */}
-      <div className="relative bg-trace-paper">
-        <div className="relative mx-auto max-w-[1380px] px-5 pb-20 pt-20 lg:px-10 sm:pb-28 sm:pt-24">
+      <div className="relative bg-[#06182c]">
+        <div className="relative mx-auto max-w-[1380px] px-5 pb-10 pt-14 lg:px-10 sm:pt-16">
           <SectionReveal>
-            <p className="section-label">WHAT SETS TRACE APART</p>
-            <h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-trace-ink sm:text-5xl">
-              Depth that <span className="text-trace-teal">stays connected</span> to delivery.
+            <p className="section-label" style={{ color: "#009CA6" }}>WHAT SETS TRACE APART</p>
+            <h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-white sm:text-5xl">
+              Depth that <span style={{ color: "#009CA6" }}>stays connected</span> to delivery.
             </h2>
           </SectionReveal>
         </div>
 
-        <ScrollStack className="mx-auto max-w-[1200px] px-5 lg:px-10">
+        <ScrollStack
+          className="mx-auto max-w-[1200px] px-5 lg:px-10"
+          useWindowScroll
+          itemDistance={80}
+          itemStackDistance={24}
+          stackPosition="18%"
+          scaleEndPosition="8%"
+          baseScale={0.88}
+          itemScale={0.03}
+        >
           {principles.map((principle, index) => {
             const accent = PILLAR_ACCENTS[index];
             return (
               <ScrollStackItem
                 key={principle.number}
-                itemClassName="min-h-[360px] sm:min-h-[400px]"
+                itemClassName="overflow-hidden rounded-sm"
               >
-                {/* Card content */}
-                <div className="relative grid gap-6 sm:grid-cols-[110px_minmax(0,1fr)] sm:items-start sm:gap-10">
-                  <div className="flex items-center gap-4 sm:block">
-                    <span
-                      className="font-display text-6xl font-extrabold tracking-[-0.07em] sm:text-7xl"
-                      style={{ color: accent.color }}
-                    >
-                      {principle.number}
-                    </span>
-                    <span
-                      className="h-px flex-1 sm:mt-4 sm:block sm:w-12"
-                      style={{ backgroundColor: accent.color, opacity: 0.5 }}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-white sm:text-[2.2rem]">
-                      {principle.title}
-                    </h3>
-                    <p className="mt-5 text-base leading-[1.76] text-white/85 sm:text-lg">
-                      {principle.body}
-                    </p>
-                    <p
-                      className="mt-7 inline-flex items-center gap-2 border-b pb-1 font-mono text-[10px] font-bold tracking-[0.18em]"
-                      style={{ borderColor: `${accent.color}55`, color: accent.color }}
-                    >
-                      DISTINCTION {principle.number}
-                    </p>
+                {/* Dark tinted card shell */}
+                <div
+                  className="relative p-10 sm:p-14"
+                  style={{ backgroundColor: accent.bg, minHeight: "380px" }}
+                >
+                  {/* Subtle colored radial wash */}
+                  <div
+                    className="pointer-events-none absolute inset-0"
+                    style={{ background: `radial-gradient(ellipse 70% 55% at 90% 50%, ${accent.color}1a 0%, transparent 70%)` }}
+                  />
+                  {/* Left accent bar */}
+                  <div
+                    className="absolute inset-y-0 left-0 w-[3px]"
+                    style={{ backgroundColor: accent.color }}
+                  />
+
+                  {/* Card content */}
+                  <div className="relative grid gap-6 sm:grid-cols-[100px_minmax(0,1fr)] sm:items-start sm:gap-12">
+                    <div className="flex items-center gap-4 sm:block">
+                      <span
+                        className="font-display text-6xl font-extrabold tracking-[-0.07em] sm:text-7xl"
+                        style={{ color: accent.color }}
+                      >
+                        {principle.number}
+                      </span>
+                      <div
+                        className="h-px flex-1 sm:mt-5 sm:block sm:w-10"
+                        style={{ backgroundColor: accent.color, opacity: 0.4 }}
+                      />
+                    </div>
+                    <div>
+                      <p
+                        className="font-mono text-[10px] font-bold tracking-[0.2em]"
+                        style={{ color: accent.color }}
+                      >
+                        DISTINCTION {principle.number}
+                      </p>
+                      <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-white sm:text-[2.2rem]">
+                        {principle.title}
+                      </h3>
+                      <p className="mt-5 text-base leading-[1.76] text-white/80 sm:text-lg">
+                        {principle.body}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </ScrollStackItem>

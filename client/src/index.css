@@ -135,6 +135,10 @@
   @keyframes imc-scroll-horizontal { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   @keyframes imc-scroll-vertical { from { transform: translateY(0); } to { transform: translateY(-50%); } }
 
+  .scroll-stack-scroller { position: relative; width: 100%; }
+  .scroll-stack-inner { padding-top: 5vh; padding-bottom: 40vh; }
+  .scroll-stack-card { position: relative; width: 100%; box-sizing: border-box; transform-origin: top center; will-change: transform, filter; backface-visibility: hidden; }
+  /* legacy aliases */
   .scroll-stack { position: relative; }
   .scroll-stack-item { will-change: transform; }
   .scroll-stack-item[data-sticky] { position: sticky; }
