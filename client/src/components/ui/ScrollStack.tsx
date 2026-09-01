@@ -55,6 +55,9 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
   const cardsRef = useRef<HTMLElement[]>([]);
+  // Cached absolute offsets — recalculated only on resize, not every scroll event.
+  const cardOffsetsRef = useRef<number[]>([]);
+  const endOffsetRef = useRef<number>(0);
   const lastTransformsRef = useRef(new Map<number, { translateY: number; scale: number; rotation: number; blur: number }>());
   const isUpdatingRef = useRef(false);
 
@@ -71,49 +74,52 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     return parseFloat(value as string);
   }, []);
 
-  const getScrollData = useCallback(() => {
-    if (useWindowScroll) {
-      return { scrollTop: window.scrollY, containerHeight: window.innerHeight };
-    }
-    const scroller = scrollerRef.current;
-    return {
-      scrollTop: scroller ? scroller.scrollTop : 0,
-      containerHeight: scroller ? scroller.clientHeight : 0,
-    };
+  const getScrollTop = useCallback(() => {
+    if (useWindowScroll) return window.scrollY;
+    return scrollerRef.current ? scrollerRef.current.scrollTop : 0;
   }, [useWindowScroll]);
 
-  const getElementOffset = useCallback(
-    (element: HTMLElement) => {
-      if (useWindowScroll) {
-        const rect = element.getBoundingClientRect();
-        return rect.top + window.scrollY;
-      }
-      return element.offsetTop;
-    },
-    [useWindowScroll]
-  );
+  const getContainerHeight = useCallback(() => {
+    if (useWindowScroll) return window.innerHeight;
+    return scrollerRef.current ? scrollerRef.current.clientHeight : 0;
+  }, [useWindowScroll]);
 
+  // Recalculate and cache all card offsets — only called on mount and resize.
+  const cacheOffsets = useCallback(() => {
+    const cards = cardsRef.current;
+    if (!cards.length) return;
+
+    if (useWindowScroll) {
+      cardOffsetsRef.current = cards.map((card) => card.getBoundingClientRect().top + window.scrollY);
+      const endEl = document.querySelector(".scroll-stack-end") as HTMLElement | null;
+      endOffsetRef.current = endEl ? endEl.getBoundingClientRect().top + window.scrollY : 0;
+    } else {
+      cardOffsetsRef.current = cards.map((card) => card.offsetTop);
+      const scroller = scrollerRef.current;
+      const endEl = scroller?.querySelector(".scroll-stack-end") as HTMLElement | null;
+      endOffsetRef.current = endEl ? endEl.offsetTop : 0;
+    }
+  }, [useWindowScroll]);
+
+  // Drive transforms from cached offsets — zero reflow per frame.
   const updateCardTransforms = useCallback(() => {
     if (!cardsRef.current.length || isUpdatingRef.current) return;
     isUpdatingRef.current = true;
 
-    const { scrollTop, containerHeight } = getScrollData();
+    const scrollTop = getScrollTop();
+    const containerHeight = getContainerHeight();
     const stackPositionPx = parsePercentage(stackPosition, containerHeight);
     const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
-
-    const endElement = useWindowScroll
-      ? (document.querySelector(".scroll-stack-end") as HTMLElement | null)
-      : (scrollerRef.current?.querySelector(".scroll-stack-end") as HTMLElement | null);
-
-    const endElementTop = endElement ? getElementOffset(endElement) : 0;
+    const endElementTop = endOffsetRef.current;
+    const offsets = cardOffsetsRef.current;
 
     cardsRef.current.forEach((card, i) => {
-      if (!card) return;
+      if (!card || offsets[i] === undefined) return;
 
-      const cardTop = getElementOffset(card);
+      const cardTop = offsets[i];
       const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
       const triggerEnd = cardTop - scaleEndPositionPx;
-      const pinStart = cardTop - stackPositionPx - itemStackDistance * i;
+      const pinStart = triggerStart;
       const pinEnd = endElementTop - containerHeight / 2;
 
       const scaleProgress = calculateProgress(scrollTop, triggerStart, triggerEnd);
@@ -124,20 +130,17 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       let blur = 0;
       if (blurAmount) {
         let topCardIndex = 0;
-        for (let j = 0; j < cardsRef.current.length; j++) {
-          const jCardTop = getElementOffset(cardsRef.current[j]);
-          const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
+        for (let j = 0; j < offsets.length; j++) {
+          const jTriggerStart = offsets[j] - stackPositionPx - itemStackDistance * j;
           if (scrollTop >= jTriggerStart) topCardIndex = j;
         }
         if (i < topCardIndex) {
-          const depthInStack = topCardIndex - i;
-          blur = Math.max(0, depthInStack * blurAmount);
+          blur = Math.max(0, (topCardIndex - i) * blurAmount);
         }
       }
 
       let translateY = 0;
-      const isPinned = scrollTop >= pinStart && scrollTop <= pinEnd;
-      if (isPinned) {
+      if (scrollTop >= pinStart && scrollTop <= pinEnd) {
         translateY = scrollTop - cardTop + stackPositionPx + itemStackDistance * i;
       } else if (scrollTop > pinEnd) {
         translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
@@ -178,7 +181,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   }, [
     itemScale, itemStackDistance, stackPosition, scaleEndPosition, baseScale,
     rotationAmount, blurAmount, useWindowScroll, onStackComplete,
-    calculateProgress, parsePercentage, getScrollData, getElementOffset,
+    calculateProgress, parsePercentage, getScrollTop, getContainerHeight,
   ]);
 
   const handleScroll = useCallback(() => {
@@ -247,28 +250,39 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
     cards.forEach((card, i) => {
       if (i < cards.length - 1) card.style.marginBottom = `${itemDistance}px`;
-      card.style.willChange = "transform, filter";
+      card.style.willChange = "transform";
       card.style.transformOrigin = "top center";
       card.style.backfaceVisibility = "hidden";
       card.style.transform = "translateZ(0)";
       card.style.perspective = "1000px";
     });
 
+    // Initial offset cache — after styles are applied so layout is settled.
+    cacheOffsets();
     setupLenis();
     updateCardTransforms();
 
+    // Recache on resize only (not on scroll).
+    const onResize = () => {
+      cacheOffsets();
+      updateCardTransforms();
+    };
+    window.addEventListener("resize", onResize, { passive: true });
+
     return () => {
+      window.removeEventListener("resize", onResize);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
       if (lenisRef.current) lenisRef.current.destroy();
       stackCompletedRef.current = false;
       cardsRef.current = [];
+      cardOffsetsRef.current = [];
       transformsCache.clear();
       isUpdatingRef.current = false;
     };
   }, [
     itemDistance, itemScale, itemStackDistance, stackPosition, scaleEndPosition,
     baseScale, scaleDuration, rotationAmount, blurAmount, useWindowScroll,
-    onStackComplete, setupLenis, updateCardTransforms,
+    onStackComplete, setupLenis, updateCardTransforms, cacheOffsets,
   ]);
 
   // Window-scroll mode: no inner overflow — cards live in the page flow.
