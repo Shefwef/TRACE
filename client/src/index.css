@@ -140,6 +140,14 @@
   .scroll-stack-item { will-change: transform; }
   .scroll-stack-item[data-sticky] { position: sticky; }
 
+  /* ShineBorder: Magic UI sweeping radial gradient border */
+  .animate-shine { animation: shine var(--duration, 14s) infinite linear; }
+  @keyframes shine {
+    0%   { background-position: 0% 0%; }
+    50%  { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+  }
+
   /* StarBorder: animated teal glow that travels around the card perimeter */
   .star-border-wrapper { display: block; }
   .star-border-rail { pointer-events: none; position: absolute; inset: 0; overflow: hidden; border-radius: inherit; }

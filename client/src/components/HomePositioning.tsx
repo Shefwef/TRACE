@@ -7,6 +7,7 @@ import { ASSETS, services, type Service } from "@/data/traceData";
 import { SectionReveal } from "@/components/SectionReveal";
 import ScrollStack, { ScrollStackItem } from "@/components/ui/ScrollStack";
 import { StarBorder } from "@/components/ui/StarBorder";
+import { ShineBorder } from "@/components/ui/ShineBorder";
 import PillarCarousel from "@/components/ui/PillarCarousel";
 
 const principles = [
@@ -120,6 +121,7 @@ export function TracePositioningSection() {
                   transition={{ duration: 0.55, ease: [0.23, 1, 0.32, 1] }}
                   className="relative overflow-hidden rounded-sm border border-white/12 bg-gradient-to-br from-trace-navy via-[#123D67] to-[#0a2b4a] p-7 text-white shadow-[0_28px_66px_rgba(8,36,64,0.35)] sm:p-10"
                 >
+                  <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#009CA6"]} duration={12} borderWidth={1} />
                   <div className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-trace-teal" />
                   <div className="pointer-events-none absolute right-0 top-0 h-1 w-full bg-gradient-to-r from-transparent via-trace-mint/60 to-transparent" />
                   <div className="pointer-events-none absolute -right-24 -top-20 h-64 w-64 rounded-full border border-white/12" />
@@ -154,7 +156,8 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
   return (
     <SectionReveal delay={Math.min(index * 0.045, 0.2)}>
       <StarBorder color="#009CA6" speed="8s" className="h-full">
-      <article className={`group flex h-full flex-col overflow-hidden bg-white shadow-[0_14px_32px_rgba(18,61,103,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(18,61,103,0.18)]`}>
+      <article className={`group relative flex h-full flex-col overflow-hidden bg-white shadow-[0_14px_32px_rgba(18,61,103,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(18,61,103,0.18)]`}>
+        <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} />
         <Link href={`/services/${service.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-trace-navy" aria-label={`Open ${service.title} briefing`}>
           <img src={serviceImages[service.slug]} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.055]" />
           <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/52 via-transparent to-transparent" />

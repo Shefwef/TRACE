@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { insights, type Insight } from "@/data/traceData";
 import { InsightPreviewDialog } from "@/components/InsightPreviewDialog";
 import { StarBorder } from "@/components/ui/StarBorder";
+import { ShineBorder } from "@/components/ui/ShineBorder";
 
 const fallbackPatterns = ["from-[#0B9FA8] via-[#064a5a] to-[#071B2B]", "from-[#081f35] via-[#175879] to-[#ff7a3d]", "from-[#765542] via-[#1c3947] to-[#0b9fa8]", "from-[#073647] via-[#0b9fa8] to-[#b9f3ec]", "from-[#582941] via-[#101f38] to-[#ff7a3d]"];
 
@@ -193,8 +194,9 @@ function InsightSlide({
             type="button"
             onClick={onFocusOpen}
             aria-label={`Preview ${insight.title}`}
-            className="group block w-full overflow-hidden bg-white text-left shadow-[0_28px_65px_rgba(7,27,43,0.18)]"
+            className="group relative block w-full overflow-hidden bg-white text-left shadow-[0_28px_65px_rgba(7,27,43,0.18)]"
           >
+            <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={9} borderWidth={1} />
             {cardBody}
           </button>
         </StarBorder>
@@ -203,8 +205,9 @@ function InsightSlide({
           type="button"
           onClick={onFocusRequest}
           aria-label={`Bring ${insight.title} to the center`}
-          className="group block w-full overflow-hidden border border-trace-ink/8 bg-white text-left shadow-[0_16px_38px_rgba(7,27,43,0.08)]"
+          className="group relative block w-full overflow-hidden border border-trace-ink/8 bg-white text-left shadow-[0_16px_38px_rgba(7,27,43,0.08)]"
         >
+          <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={13} borderWidth={1} />
           {cardBody}
         </button>
       )}
