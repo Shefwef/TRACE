@@ -71,6 +71,9 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
     const endElementTop = endOffsetRef.current;
     const offsets = cardOffsetsRef.current;
+    // Global pin release: same for every card so no card jumps at a different moment.
+    // Guard: if the end element is too close, keep the current pin baseline (avoids negative range).
+    const pinEnd = Math.max(endElementTop - containerHeight / 2, offsets[cards.length - 1] || 0);
 
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
@@ -78,7 +81,6 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
       const triggerEnd = cardTop - scaleEndPositionPx;
       const pinStart = triggerStart;
-      const pinEnd = endElementTop - containerHeight / 2;
 
       let scaleProgress = 0;
       if (scrollTop >= triggerStart) {
@@ -99,22 +101,26 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         if (i < topCardIndex) blur = Math.max(0, (topCardIndex - i) * blurAmount);
       }
 
+      // Pin translation — clamp between 0 and (pinEnd - cardTop + offset).
       let translateY = 0;
-      if (scrollTop >= pinStart && scrollTop <= pinEnd) {
-        translateY = scrollTop - cardTop + stackPositionPx + itemStackDistance * i;
-      } else if (scrollTop > pinEnd) {
-        translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
+      const pinnedOffset = stackPositionPx + itemStackDistance * i;
+      if (scrollTop >= pinStart) {
+        const desired = scrollTop - cardTop + pinnedOffset;
+        const maxDesired = pinEnd - cardTop + pinnedOffset;
+        translateY = Math.min(desired, maxDesired);
       }
 
       const last = lastTransformsRef.current.get(i);
       const changed = !last ||
-        Math.abs(last.translateY - translateY) > 0.5 ||
-        Math.abs(last.scale - scale) > 0.003 ||
-        Math.abs(last.rotation - rotation) > 0.3 ||
-        Math.abs(last.blur - blur) > 0.3;
+        Math.abs(last.translateY - translateY) > 0.1 ||
+        Math.abs(last.scale - scale) > 0.0015 ||
+        Math.abs(last.rotation - rotation) > 0.1 ||
+        Math.abs(last.blur - blur) > 0.1;
 
       if (changed) {
-        card.style.transform = `translate3d(0,${translateY.toFixed(2)}px,0) scale(${scale.toFixed(3)}) rotate(${rotation.toFixed(2)}deg)`;
+        // Round to whole pixels to eliminate subpixel flicker.
+        const ty = Math.round(translateY);
+        card.style.transform = `translate3d(0,${ty}px,0) scale(${scale.toFixed(4)}) rotate(${rotation.toFixed(2)}deg)`;
         card.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : "";
         lastTransformsRef.current.set(i, { translateY, scale, rotation, blur });
       }
@@ -137,15 +143,8 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
     recomputeOffsets();
 
-    let rafPending = false;
-    const onScroll = () => {
-      if (rafPending) return;
-      rafPending = true;
-      rafRef.current = requestAnimationFrame(() => {
-        rafPending = false;
-        updateTransforms();
-      });
-    };
+    // Direct scroll handler — no rAF gap. scroll events already coalesce with the compositor.
+    const onScroll = () => updateTransforms();
 
     const onResize = () => {
       recomputeOffsets();
@@ -157,12 +156,14 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     window.addEventListener("resize", onResize, { passive: true });
 
     // Recompute offsets after images/fonts load (they can change document height).
-    const t = window.setTimeout(onResize, 300);
+    const t1 = window.setTimeout(onResize, 300);
+    const t2 = window.setTimeout(onResize, 1200);
 
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
-      window.clearTimeout(t);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       cardsRef.current = [];
       cardOffsetsRef.current = [];

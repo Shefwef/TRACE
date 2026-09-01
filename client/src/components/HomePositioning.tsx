@@ -79,14 +79,14 @@ function PillarDisplayCards() {
   const orderOf = (i: number) => (i - front + pillars.length) % pillars.length;
 
   return (
-    <div className="grid h-[280px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[300px]">
+    <div className="grid h-[340px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[360px]">
       {pillars.map((pillar, i) => {
         const accent = PILLAR_ACCENTS[i];
         const depth = orderOf(i);
         const isFront = depth === 0;
 
-        // Compact deck — offsets and rotation stay proportional.
-        const offset = depth * 42;
+        // Cards behind are offset diagonally + scaled — NO rotation (keeps them flat & aligned).
+        const offset = depth * 46;
         const scale = 1 - depth * 0.045;
         const opacity = 1 - depth * 0.18;
 
@@ -96,9 +96,9 @@ function PillarDisplayCards() {
             className="pointer-events-none relative flex flex-col overflow-hidden rounded-xl border-2 bg-white shadow-[0_20px_50px_rgba(8,36,64,0.16)]"
             style={{
               gridArea: "stack",
-              width: "22rem",
-              height: "220px",
-              padding: "1.15rem 1.4rem",
+              width: "26rem",
+              height: "270px",
+              padding: "1.5rem 1.75rem",
               borderColor: isFront ? `${accent.color}55` : "#DCE7EC",
               zIndex: pillars.length - depth,
             }}
@@ -108,7 +108,6 @@ function PillarDisplayCards() {
               y: offset * 0.55,
               scale,
               opacity,
-              rotate: depth * -1.5,
               filter: isFront ? "grayscale(0)" : "grayscale(0.3)",
             }}
             transition={{ duration: 0.75, ease: [0.23, 1, 0.32, 1] }}
@@ -117,25 +116,25 @@ function PillarDisplayCards() {
             <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.color }} />
 
             {/* Top row: number badge + tag */}
-            <div className="relative flex items-center gap-2.5">
+            <div className="relative flex items-center gap-3">
               <span
-                className="grid h-8 w-8 place-items-center rounded-full font-mono text-[11px] font-bold text-white"
+                className="grid h-9 w-9 place-items-center rounded-full font-mono text-[13px] font-bold text-white"
                 style={{ backgroundColor: accent.color }}
               >
                 {pillar.number}
               </span>
-              <p className="font-mono text-[11px] font-bold tracking-[0.2em]" style={{ color: accent.color }}>
+              <p className="font-mono text-[12px] font-bold tracking-[0.2em]" style={{ color: accent.color }}>
                 {pillar.tag}
               </p>
             </div>
 
-            {/* Title — sits close under top row */}
-            <h3 className="relative mt-3 font-display text-2xl font-extrabold leading-[1.05] tracking-[-0.045em] text-trace-ink">
+            {/* Title */}
+            <h3 className="relative mt-3.5 font-display text-[1.75rem] font-extrabold leading-[1.05] tracking-[-0.045em] text-trace-ink">
               {pillar.title}
             </h3>
 
-            {/* Body — no wasted space below */}
-            <p className="relative mt-2.5 text-[13px] leading-[1.55] text-trace-muted line-clamp-3">
+            {/* Body */}
+            <p className="relative mt-3 text-[14px] leading-[1.6] text-trace-muted line-clamp-3">
               {pillar.body}
             </p>
           </motion.article>
@@ -145,25 +144,24 @@ function PillarDisplayCards() {
   );
 }
 
-/** Two-column card: image + deck centered together, minimal gap between them. */
+/** Two-column card: image (uncropped, aspect preserved) + deck centered together. */
 function HowTraceWorksCard() {
   return (
     <div className="mx-auto max-w-[1180px] px-5 pb-16 lg:px-10">
       <div className="overflow-hidden rounded-sm shadow-[0_24px_60px_rgba(8,36,64,0.13)]">
         <div className="flex flex-col items-stretch lg:flex-row lg:items-center">
 
-          {/* Left: image — compact, aligned to card center */}
-          <div className="relative h-56 w-full shrink-0 lg:h-[320px] lg:w-[42%]">
+          {/* Left: image — object-contain so the full square photo is visible; no crop */}
+          <div className="relative w-full shrink-0 bg-white lg:w-[42%]">
             <img
               src={ASSETS.aboutTrace}
               alt="Overhead view of the TRACE team around a table shaped like the TRACE logo"
-              className="absolute inset-0 h-full w-full object-cover"
+              className="block h-auto w-full object-contain"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[rgba(8,36,64,0.14)]" />
           </div>
 
-          {/* Right: deck — starts right after image, centered vertically */}
-          <div className="flex flex-1 items-center justify-center bg-white px-2 py-8 sm:px-4 lg:py-4">
+          {/* Right: deck — sits close to image, vertically centered */}
+          <div className="flex flex-1 items-center justify-center bg-white px-2 py-8 sm:px-4 lg:py-6">
             <PillarDisplayCards />
           </div>
 
@@ -217,35 +215,35 @@ export function TracePositioningSection() {
             return (
               <ScrollStackItem key={principle.number} itemClassName="overflow-hidden rounded-xl shadow-[0_20px_50px_rgba(8,36,64,0.28)]">
                 <div
-                  className="relative p-10 sm:p-14"
-                  style={{ backgroundColor: accent.cardBg, minHeight: "380px" }}
+                  className="relative p-12 sm:p-16"
+                  style={{ backgroundColor: accent.cardBg, minHeight: "420px" }}
                 >
                   {/* Accent radial wash */}
                   <div
                     className="pointer-events-none absolute inset-0"
                     style={{ background: `radial-gradient(ellipse 65% 50% at 95% 50%, ${accent.onDark}25 0%, transparent 70%)` }}
                   />
-                  {/* Left accent bar — uses onDark for visibility on dark bg */}
-                  <div className="absolute inset-y-0 left-0 w-[3px]" style={{ backgroundColor: accent.onDark }} />
+                  {/* Left accent bar */}
+                  <div className="absolute inset-y-0 left-0 w-[4px]" style={{ backgroundColor: accent.onDark }} />
 
-                  <div className="relative grid gap-6 sm:grid-cols-[100px_minmax(0,1fr)] sm:items-start sm:gap-12">
+                  <div className="relative grid gap-8 sm:grid-cols-[150px_minmax(0,1fr)] sm:items-start sm:gap-14">
                     <div className="flex items-center gap-4 sm:block">
                       <span
-                        className="font-display text-6xl font-extrabold tracking-[-0.07em] sm:text-7xl"
+                        className="font-display text-8xl font-extrabold tracking-[-0.07em] sm:text-9xl"
                         style={{ color: accent.onDark }}
                       >
                         {principle.number}
                       </span>
-                      <div className="h-px flex-1 sm:mt-5 sm:block sm:w-10" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
+                      <div className="h-px flex-1 sm:mt-6 sm:block sm:w-14" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
                     </div>
                     <div>
-                      <p className="font-mono text-[10px] font-bold tracking-[0.2em]" style={{ color: accent.onDark }}>
+                      <p className="font-mono text-[14px] font-bold tracking-[0.22em]" style={{ color: accent.onDark }}>
                         DISTINCTION {principle.number}
                       </p>
-                      <h3 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.052em] text-white sm:text-[2.2rem]">
+                      <h3 className="mt-5 font-display text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.055em] text-white sm:text-[3.2rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-5 text-base leading-[1.76] text-white/80 sm:text-lg">
+                      <p className="mt-6 text-[1.05rem] leading-[1.7] text-white/85 sm:text-[1.2rem] sm:leading-[1.7]">
                         {principle.body}
                       </p>
                     </div>
