@@ -203,17 +203,17 @@ export function TracePositioningSection() {
 
       {/* ── WHAT SETS TRACE APART: white bg, dark navy stacking cards ── */}
       <section className="bg-trace-paper" aria-labelledby="trace-apart-title">
-        <div className="mx-auto max-w-[1380px] px-5 pb-10 pt-16 lg:px-10 sm:pt-[4.5rem]">
+        <div className="mx-auto max-w-[1380px] px-3 pb-8 pt-12 sm:px-5 sm:pb-10 sm:pt-16 lg:px-10 lg:pt-[4.5rem]">
           <SectionReveal>
             <p className="section-label">WHAT SETS TRACE APART</p>
-            <h2 id="trace-apart-title" className="mt-4 font-display text-4xl font-extrabold leading-[0.96] tracking-[-0.06em] text-trace-ink sm:text-5xl">
+            <h2 id="trace-apart-title" className="mt-4 font-display text-3xl font-extrabold leading-[0.96] tracking-[-0.06em] text-trace-ink sm:text-4xl lg:text-5xl">
               Depth that <span className="text-trace-teal">stays connected</span> to delivery.
             </h2>
           </SectionReveal>
         </div>
 
         <ScrollStack
-          className="mx-auto max-w-[1200px] px-5 lg:px-10"
+          className="mx-auto max-w-[1200px] px-3 sm:px-5 lg:px-10"
           useWindowScroll
           itemDistance={80}
           itemStackDistance={26}
@@ -227,8 +227,8 @@ export function TracePositioningSection() {
             return (
               <ScrollStackItem key={principle.number} itemClassName="overflow-hidden rounded-xl shadow-[0_20px_50px_rgba(8,36,64,0.28)]">
                 <div
-                  className="relative p-10 sm:p-14"
-                  style={{ backgroundColor: accent.cardBg, minHeight: "400px" }}
+                  className="relative p-6 sm:p-10 lg:p-14"
+                  style={{ backgroundColor: accent.cardBg, minHeight: "clamp(280px, 42vw, 420px)" }}
                 >
                   {/* Accent radial wash */}
                   <div
@@ -238,24 +238,27 @@ export function TracePositioningSection() {
                   {/* Left accent bar */}
                   <div className="absolute inset-y-0 left-0 w-[4px]" style={{ backgroundColor: accent.onDark }} />
 
-                  <div className="relative grid gap-6 sm:grid-cols-[120px_minmax(0,1fr)] sm:items-start sm:gap-12">
-                    <div className="flex items-center gap-4 sm:block">
+                  <div className="relative grid gap-4 sm:grid-cols-[90px_minmax(0,1fr)] sm:items-start sm:gap-8 lg:grid-cols-[120px_minmax(0,1fr)] lg:gap-12">
+                    {/* Number column */}
+                    <div className="flex items-center gap-3 sm:block">
                       <span
-                        className="font-display text-7xl font-extrabold tracking-[-0.07em] sm:text-8xl"
+                        className="font-display text-[3.5rem] font-extrabold leading-none tracking-[-0.07em] sm:text-7xl lg:text-8xl"
                         style={{ color: accent.onDark }}
                       >
                         {principle.number}
                       </span>
-                      <div className="h-px flex-1 sm:mt-5 sm:block sm:w-12" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
+                      <div className="h-px flex-1 sm:mt-4 sm:w-10 lg:mt-5 lg:w-12" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
                     </div>
+
+                    {/* Text column */}
                     <div>
-                      <p className="font-mono text-[12px] font-bold tracking-[0.22em]" style={{ color: accent.onDark }}>
+                      <p className="font-mono text-[10px] font-bold tracking-[0.22em] sm:text-[12px]" style={{ color: accent.onDark }}>
                         DISTINCTION {principle.number}
                       </p>
-                      <h3 className="mt-5 font-display text-[2rem] font-extrabold leading-[1.04] tracking-[-0.055em] text-white sm:text-[2.4rem]">
+                      <h3 className="mt-3 font-display text-[1.45rem] font-extrabold leading-[1.06] tracking-[-0.05em] text-white sm:mt-5 sm:text-[2rem] lg:text-[2.4rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-6 text-[1.265rem] leading-[1.6] text-white/85 sm:text-[1.485rem] sm:leading-[1.55]">
+                      <p className="mt-3 text-[0.95rem] leading-[1.6] text-white/80 sm:mt-5 sm:text-[1.15rem] sm:leading-[1.6] lg:text-[1.265rem] lg:leading-[1.6]">
                         {principle.body}
                       </p>
                     </div>
