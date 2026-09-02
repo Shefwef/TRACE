@@ -31,6 +31,28 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
   const clientRefs = useRef<Array<HTMLParagraphElement | null>>([]);
   const categoryRefs = useRef<Array<HTMLParagraphElement | null>>([]);
   const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const initialised = useRef(false);
+
+  // Set all text elements to their correct initial hidden state via GSAP once —
+  // never via inline styles, so GSAP stays the sole owner of opacity/transform.
+  useEffect(() => {
+    if (initialised.current) return;
+    initialised.current = true;
+    items.forEach((_, index) => {
+      const isActive = index === active;
+      const els = [
+        categoryRefs.current[index],
+        titleRefs.current[index],
+        clientRefs.current[index],
+        detailRefs.current[index],
+      ];
+      els.forEach((el) => {
+        if (!el) return;
+        gsap.set(el, { autoAlpha: isActive ? 1 : 0, y: isActive ? 0 : 14 });
+      });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const animatePanels = useCallback((next: number, shouldAnimate: boolean) => {
     const count = items.length;
@@ -48,6 +70,7 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
         ease,
         overwrite: "auto",
       });
+
       const image = imageRefs.current[index];
       if (image) {
         gsap.to(image, {
@@ -59,39 +82,37 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
         });
       }
 
-      // Category label: fade in quickly, fade out instantly
       const category = categoryRefs.current[index];
       if (category) {
         gsap.to(category, {
           autoAlpha: isActive ? 1 : 0,
           y: isActive ? 0 : 6,
-          duration: isActive ? duration * 0.5 : duration * 0.25,
+          // Exit instantly so the element is never visible while rotated in inactive panels
+          duration: isActive ? duration * 0.5 : 0,
           delay: isActive ? duration * 0.3 : 0,
           ease,
           overwrite: "auto",
         });
       }
 
-      // Title h3: slides up from 18px below, fades in after category
       const title = titleRefs.current[index];
       if (title) {
         gsap.to(title, {
           autoAlpha: isActive ? 1 : 0,
           y: isActive ? 0 : 18,
-          duration: isActive ? duration * 0.65 : duration * 0.25,
+          duration: isActive ? duration * 0.65 : 0,
           delay: isActive ? duration * 0.38 : 0,
           ease,
           overwrite: "auto",
         });
       }
 
-      // Client name: same slide-up, staggers after title
       const client = clientRefs.current[index];
       if (client) {
         gsap.to(client, {
           autoAlpha: isActive ? 1 : 0,
           y: isActive ? 0 : 14,
-          duration: isActive ? duration * 0.6 : duration * 0.2,
+          duration: isActive ? duration * 0.6 : 0,
           delay: isActive ? duration * 0.46 : 0,
           ease,
           overwrite: "auto",
@@ -103,7 +124,7 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
         gsap.to(detail, {
           autoAlpha: isActive ? 1 : 0,
           y: isActive ? 0 : 10,
-          duration: isActive ? duration * 0.7 : duration * 0.4,
+          duration: isActive ? duration * 0.7 : 0,
           delay: isActive ? duration * 0.55 : 0,
           ease,
           overwrite: "auto",
@@ -115,6 +136,7 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
   useEffect(() => {
     animatePanels(active, true);
   }, [active, animatePanels]);
+
   useEffect(() => {
     animatePanels(active, false);
   }, [animatePanels]);
@@ -129,28 +151,69 @@ export function AccordionGallery({ items, defaultIndex = 0 }: AccordionGalleryPr
     setActive((current) => (current === index ? current : index));
     if (manual) setCycleKey((current) => current + 1);
   };
+
   const onKeyDown = (index: number, event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowRight" || event.key === "ArrowDown") { event.preventDefault(); focusPanel((index + 1) % items.length); }
     if (event.key === "ArrowLeft" || event.key === "ArrowUp") { event.preventDefault(); focusPanel((index - 1 + items.length) % items.length); }
   };
 
-  return <div ref={rootRef} className="trace-accordion-gallery" role="list" aria-label="Featured project gallery" onMouseEnter={() => setPaused(true)} onMouseLeave={() => { setPaused(false); setCycleKey((current) => current + 1); }} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!rootRef.current?.contains(event.relatedTarget as Node | null)) { setPaused(false); setCycleKey((current) => current + 1); } }}>
-    {items.map((item, index) => {
-      const isActive = index === active;
-      return <div key={item.href} ref={(element) => { panelRefs.current[index] = element; }} role="listitem" tabIndex={0} aria-current={isActive ? "true" : undefined} onMouseEnter={() => focusPanel(index)} onFocus={() => focusPanel(index)} onClick={() => focusPanel(index)} onKeyDown={(event) => onKeyDown(index, event)} className={`trace-accordion-panel ${isActive ? "is-active" : ""}`}>
-        <img ref={(element) => { imageRefs.current[index] = element; }} src={item.image} alt={item.alt} className="trace-accordion-media" />
-        <div className="trace-accordion-overlay" />
-        <div className="trace-accordion-rail"><span>{String(index + 1).padStart(2, "0")}</span><span className="trace-accordion-dot" /></div>
-        <div className="trace-accordion-caption">
-          <p ref={(element) => { categoryRefs.current[index] = element; }} className="trace-accordion-category" style={{ opacity: isActive ? 1 : 0 }}>{item.category}</p>
-          <h3 ref={(element) => { titleRefs.current[index] = element; }} style={{ opacity: isActive ? 1 : 0, transform: isActive ? "none" : "translateY(18px)" }}>{item.label}</h3>
-          <p ref={(element) => { clientRefs.current[index] = element; }} className="trace-accordion-client" style={{ opacity: isActive ? 1 : 0, transform: isActive ? "none" : "translateY(14px)" }}>{item.client}</p>
-          <div ref={(element) => { detailRefs.current[index] = element; }} className="trace-accordion-detail">
-            <p>{item.summary}</p>
-            <Link href={item.href} onClick={(event) => event.stopPropagation()} className="trace-accordion-action">View project details <ArrowUpRight className="h-4 w-4" /></Link>
+  return (
+    <div
+      ref={rootRef}
+      className="trace-accordion-gallery"
+      role="list"
+      aria-label="Featured project gallery"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => { setPaused(false); setCycleKey((current) => current + 1); }}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={(event) => {
+        if (!rootRef.current?.contains(event.relatedTarget as Node | null)) {
+          setPaused(false);
+          setCycleKey((current) => current + 1);
+        }
+      }}
+    >
+      {items.map((item, index) => {
+        const isActive = index === active;
+        return (
+          <div
+            key={item.href}
+            ref={(element) => { panelRefs.current[index] = element; }}
+            role="listitem"
+            tabIndex={0}
+            aria-current={isActive ? "true" : undefined}
+            onMouseEnter={() => focusPanel(index)}
+            onFocus={() => focusPanel(index)}
+            onClick={() => focusPanel(index)}
+            onKeyDown={(event) => onKeyDown(index, event)}
+            className={`trace-accordion-panel ${isActive ? "is-active" : ""}`}
+          >
+            <img
+              ref={(element) => { imageRefs.current[index] = element; }}
+              src={item.image}
+              alt={item.alt}
+              className="trace-accordion-media"
+            />
+            <div className="trace-accordion-overlay" />
+            <div className="trace-accordion-rail">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <span className="trace-accordion-dot" />
+            </div>
+            <div className="trace-accordion-caption">
+              {/* No inline opacity/transform — GSAP owns these exclusively */}
+              <p ref={(element) => { categoryRefs.current[index] = element; }} className="trace-accordion-category">{item.category}</p>
+              <h3 ref={(element) => { titleRefs.current[index] = element; }}>{item.label}</h3>
+              <p ref={(element) => { clientRefs.current[index] = element; }} className="trace-accordion-client">{item.client}</p>
+              <div ref={(element) => { detailRefs.current[index] = element; }} className="trace-accordion-detail">
+                <p>{item.summary}</p>
+                <Link href={item.href} onClick={(event) => event.stopPropagation()} className="trace-accordion-action">
+                  View project details <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>;
-    })}
-  </div>;
+        );
+      })}
+    </div>
+  );
 }
