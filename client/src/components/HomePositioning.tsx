@@ -217,7 +217,7 @@ export function TracePositioningSection() {
           useWindowScroll
           itemDistance={80}
           itemStackDistance={26}
-          stackPosition="28%"
+          stackPosition="27%"
           scaleEndPosition="10%"
           baseScale={0.88}
           itemScale={0.03}
