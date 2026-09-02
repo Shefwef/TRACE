@@ -262,6 +262,25 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     setupLenis();
     updateCardTransforms();
 
+    // Re-cache after full page load (fonts, images may shift layout after first paint).
+    const onLoad = () => {
+      cacheOffsets();
+      updateCardTransforms();
+    };
+    // Re-cache on next two animation frames to catch late paints on refresh.
+    let rafA: number;
+    let rafB: number;
+    rafA = requestAnimationFrame(() => {
+      rafB = requestAnimationFrame(() => {
+        cacheOffsets();
+        updateCardTransforms();
+      });
+    });
+
+    if (document.readyState !== "complete") {
+      window.addEventListener("load", onLoad, { once: true });
+    }
+
     // Recache on resize only (not on scroll).
     const onResize = () => {
       cacheOffsets();
@@ -271,6 +290,9 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
 
     return () => {
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("load", onLoad);
+      cancelAnimationFrame(rafA);
+      cancelAnimationFrame(rafB);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
       if (lenisRef.current) lenisRef.current.destroy();
       stackCompletedRef.current = false;
