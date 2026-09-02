@@ -253,13 +253,13 @@ export function TracePositioningSection() {
 
                     {/* Text column */}
                     <div>
-                      <p className="font-mono text-[10px] font-bold tracking-[0.22em] sm:text-[12px]" style={{ color: accent.onDark }}>
+                      <p className="font-mono text-[11px] font-bold tracking-[0.22em] sm:text-[13px]" style={{ color: accent.onDark }}>
                         DISTINCTION {principle.number}
                       </p>
-                      <h3 className="mt-3 font-display text-[1.45rem] font-extrabold leading-[1.06] tracking-[-0.05em] text-white sm:mt-5 sm:text-[2rem] lg:text-[2.4rem]">
+                      <h3 className="mt-3 font-display text-[1.81rem] font-extrabold leading-[1.06] tracking-[-0.05em] text-white sm:mt-5 sm:text-[2.5rem] lg:text-[3rem]">
                         {principle.title}
                       </h3>
-                      <p className="mt-3 text-[0.95rem] leading-[1.6] text-white/80 sm:mt-5 sm:text-[1.15rem] sm:leading-[1.6] lg:text-[1.265rem] lg:leading-[1.6]">
+                      <p className="mt-3 text-[1.045rem] leading-[1.6] text-white/80 sm:mt-5 sm:text-[1.265rem] sm:leading-[1.6] lg:text-[1.39rem] lg:leading-[1.6]">
                         {principle.body}
                       </p>
                     </div>
