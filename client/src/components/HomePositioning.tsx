@@ -87,14 +87,15 @@ function PillarDisplayCards() {
   };
 
   return (
-    <div className="grid h-[340px] w-full place-items-center [grid-template-areas:'stack'] sm:h-[360px]">
+    <div className="grid w-full place-items-center [grid-template-areas:'stack']" style={{ height: "clamp(240px, 55vw, 340px)" }}>
       {pillars.map((pillar, i) => {
         const accent = PILLAR_ACCENTS[i];
         const depth = orderOf(i);
         const isFront = depth === 0;
 
-        // Straight cards — offset diagonally, no rotation.
-        const offset = depth * 42;
+        // Offset scales down on narrow screens so back cards don't overflow.
+        const offsetUnit = typeof window !== "undefined" && window.innerWidth < 480 ? 22 : 36;
+        const offset = depth * offsetUnit;
         const scale = 1 - depth * 0.045;
         const opacity = 1 - depth * 0.16;
 
@@ -105,9 +106,9 @@ function PillarDisplayCards() {
             className={`relative flex flex-col overflow-hidden rounded-xl border-2 bg-white shadow-[0_20px_50px_rgba(8,36,64,0.16)] ${isFront ? "" : "cursor-pointer"}`}
             style={{
               gridArea: "stack",
-              width: "26rem",
-              height: "270px",
-              padding: "1.5rem 1.75rem",
+              width: "min(26rem, 88vw)",
+              height: "clamp(200px, 52vw, 270px)",
+              padding: "clamp(1rem, 4vw, 1.75rem)",
               borderColor: isFront ? `${accent.color}55` : "#DCE7EC",
               zIndex: pillars.length - depth,
               rotate: 0,
@@ -172,7 +173,7 @@ function HowTraceWorksCard() {
           </div>
 
           {/* Right: deck — sits close to image, vertically centered */}
-          <div className="flex flex-1 items-center justify-center bg-white px-2 py-8 sm:px-4 lg:py-6">
+          <div className="flex flex-1 items-center justify-center overflow-hidden bg-white px-2 py-8 sm:px-4 lg:py-6">
             <PillarDisplayCards />
           </div>
 
