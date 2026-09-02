@@ -231,35 +231,38 @@ export function TracePositioningSection() {
                   className="relative p-6 sm:p-10 lg:p-14"
                   style={{ backgroundColor: accent.cardBg, minHeight: "clamp(280px, 42vw, 420px)" }}
                 >
-                  {/* Accent radial wash — centered */}
+                  {/* Accent radial wash */}
                   <div
                     className="pointer-events-none absolute inset-0"
-                    style={{ background: `radial-gradient(ellipse 80% 60% at 50% 0%, ${accent.onDark}22 0%, transparent 70%)` }}
+                    style={{ background: `radial-gradient(ellipse 65% 50% at 95% 50%, ${accent.onDark}25 0%, transparent 70%)` }}
                   />
-                  {/* Top accent bar */}
-                  <div className="absolute inset-x-0 top-0 h-[4px]" style={{ backgroundColor: accent.onDark }} />
+                  {/* Left accent bar */}
+                  <div className="absolute inset-y-0 left-0 w-[4px]" style={{ backgroundColor: accent.onDark }} />
 
-                  <div className="relative flex flex-col items-center text-center">
-                    {/* Number */}
-                    <span
-                      className="font-display text-[3.5rem] font-extrabold leading-none tracking-[-0.07em] sm:text-7xl lg:text-8xl"
-                      style={{ color: accent.onDark }}
-                    >
-                      {principle.number}
-                    </span>
-                    {/* Divider */}
-                    <div className="mt-4 h-px w-12" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
+                  <div className="relative grid h-full gap-4 sm:grid-cols-[90px_minmax(0,1fr)] sm:items-center sm:gap-8 lg:grid-cols-[120px_minmax(0,1fr)] lg:gap-12">
+                    {/* Number column */}
+                    <div className="flex items-center gap-3 sm:flex-col sm:items-start sm:gap-0">
+                      <span
+                        className="font-display text-[3.5rem] font-extrabold leading-none tracking-[-0.07em] sm:text-7xl lg:text-8xl"
+                        style={{ color: accent.onDark }}
+                      >
+                        {principle.number}
+                      </span>
+                      <div className="h-px flex-1 sm:mt-4 sm:w-10 lg:mt-5 lg:w-12" style={{ backgroundColor: accent.onDark, opacity: 0.5 }} />
+                    </div>
 
-                    {/* Text */}
-                    <p className="mt-5 font-mono text-[11px] font-bold tracking-[0.22em] sm:text-[13px]" style={{ color: accent.onDark }}>
-                      DISTINCTION {principle.number}
-                    </p>
-                    <h3 className="mt-3 font-display text-[1.81rem] font-extrabold leading-[1.06] tracking-[-0.05em] text-white sm:mt-4 sm:text-[2.5rem] lg:text-[3rem]">
-                      {principle.title}
-                    </h3>
-                    <p className="mt-4 max-w-3xl text-[1.045rem] leading-[1.6] text-white/80 sm:mt-5 sm:text-[1.265rem] sm:leading-[1.6] lg:text-[1.39rem] lg:leading-[1.6]">
-                      {principle.body}
-                    </p>
+                    {/* Text column */}
+                    <div>
+                      <p className="font-mono text-[11px] font-bold tracking-[0.22em] sm:text-[13px]" style={{ color: accent.onDark }}>
+                        DISTINCTION {principle.number}
+                      </p>
+                      <h3 className="mt-3 font-display text-[1.81rem] font-extrabold leading-[1.06] tracking-[-0.05em] text-white sm:mt-5 sm:text-[2.5rem] lg:text-[3rem]">
+                        {principle.title}
+                      </h3>
+                      <p className="mt-3 text-[1.045rem] leading-[1.6] text-white/80 sm:mt-5 sm:text-[1.265rem] sm:leading-[1.6] lg:text-[1.39rem] lg:leading-[1.6]">
+                        {principle.body}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </ScrollStackItem>
