@@ -77,6 +77,7 @@ export function DepthCarousel() {
 
         <div
           className="relative mt-16 h-[455px] sm:h-[510px]"
+          style={{ perspective: "1200px" }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           onFocus={() => setPaused(true)}
@@ -92,6 +93,7 @@ export function DepthCarousel() {
               patternIndex={index}
               total={insights.length}
               position={smoothPosition}
+              smoothPosition={smoothPosition}
               isFocus={index === displayIndex}
               onFocusOpen={() => setPreview(insight)}
               onFocusRequest={() => jumpTo(index)}
@@ -123,6 +125,7 @@ function InsightSlide({
   patternIndex,
   total,
   position,
+  smoothPosition,
   isFocus,
   onFocusOpen,
   onFocusRequest,
@@ -132,6 +135,7 @@ function InsightSlide({
   patternIndex: number;
   total: number;
   position: import("framer-motion").MotionValue<number>;
+  smoothPosition: import("framer-motion").MotionValue<number>;
   isFocus: boolean;
   onFocusOpen: () => void;
   onFocusRequest: () => void;
@@ -151,10 +155,12 @@ function InsightSlide({
   const opacity = useTransform(offset, (o) => {
     const abs = Math.abs(o);
     if (abs < 1) return 1 - abs * 0.35;
-    return Math.max(0, 0.62 - abs * 0.12);
+    // Clamp minimum to 0.08 — prevents sub-pixel shimmer at near-invisible opacity
+    return Math.max(0.08, 0.62 - abs * 0.12);
   });
   const rotateY = useTransform(offset, (o) => o * -8);
-  const zIndex = useTransform(offset, (o) => Math.round(10 - Math.abs(o)));
+  // Plain integer derived each render — avoids per-frame z-index repaints
+  const zIndex = Math.round(10 - Math.abs(index - Math.round(smoothPosition.get())));
 
   const image = insight.image;
   const cardBody = (
@@ -185,7 +191,7 @@ function InsightSlide({
 
   return (
     <motion.article
-      style={{ x, scale, opacity, rotateY, zIndex, perspective: 1200 }}
+      style={{ x, scale, opacity, rotateY, zIndex }}
       className="absolute left-1/2 top-0 w-[min(78vw,590px)] -translate-x-1/2 origin-center"
     >
       {isFocus ? (
