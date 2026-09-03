@@ -463,7 +463,7 @@ function CareerRoleCard({ role, expired }: { role: CareerRole; expired: boolean 
       aria-label={`${expired ? "View closed role" : "View and apply for"}: ${role.title}`}
       className={`group relative block overflow-hidden border bg-white transition-all ${expired ? "border-trace-ink/12 hover:border-trace-ink/25" : "border-trace-ink/10 hover:-translate-y-0.5 hover:border-trace-teal/55 hover:shadow-[0_18px_38px_rgba(18,61,103,0.12)]"}`}
     >
-      {!expired && <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} />
+      {!expired && <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} />}
       {expired && (
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1] bg-[repeating-linear-gradient(135deg,_rgba(8,36,64,0.035)_0_10px,_transparent_10px_22px)]" />
       )}
