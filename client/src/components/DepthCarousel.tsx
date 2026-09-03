@@ -149,16 +149,17 @@ function InsightSlide({
   const x = useTransform(offset, (o) => `${o * 52}%`);
   const scale = useTransform(offset, (o) => {
     const abs = Math.abs(o);
-    if (abs < 1) return 1 - abs * 0.1;
-    return Math.max(0.72, 0.9 - abs * 0.08);
+    if (abs < 1) return 1 - abs * 0.12;
+    return Math.max(0.68, 0.88 - abs * 0.1);
   });
   const opacity = useTransform(offset, (o) => {
     const abs = Math.abs(o);
-    if (abs < 1) return 1 - abs * 0.35;
-    // Clamp minimum to 0.08 — prevents sub-pixel shimmer at near-invisible opacity
-    return Math.max(0.08, 0.62 - abs * 0.12);
+    // Centre card: full opacity. Adjacent (abs≈1): 0.35. Beyond that: fade fast to 0.
+    if (abs < 1) return 1 - abs * 0.65;
+    return Math.max(0, 0.35 - (abs - 1) * 0.28);
   });
-  const rotateY = useTransform(offset, (o) => o * -8);
+  const visibility = useTransform(offset, (o) => Math.abs(o) > 2.8 ? "hidden" : "visible");
+  const rotateY = useTransform(offset, (o) => o * -6);
   // Plain integer derived each render — avoids per-frame z-index repaints
   const zIndex = Math.round(10 - Math.abs(index - Math.round(smoothPosition.get())));
 
@@ -191,7 +192,7 @@ function InsightSlide({
 
   return (
     <motion.article
-      style={{ x, scale, opacity, rotateY, zIndex }}
+      style={{ x, scale, opacity, rotateY, zIndex, visibility }}
       className="absolute left-1/2 top-0 w-[min(78vw,590px)] -translate-x-1/2 origin-center"
     >
       {isFocus ? (
