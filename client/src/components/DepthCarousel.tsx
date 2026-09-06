@@ -4,7 +4,6 @@ import { FileText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { insights, type Insight } from "@/data/traceData";
 import { InsightPreviewDialog } from "@/components/InsightPreviewDialog";
-import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
 
 const fallbackPatterns = ["from-[#0B9FA8] via-[#064a5a] to-[#071B2B]", "from-[#081f35] via-[#175879] to-[#ff7a3d]", "from-[#765542] via-[#1c3947] to-[#0b9fa8]", "from-[#073647] via-[#0b9fa8] to-[#b9f3ec]", "from-[#582941] via-[#101f38] to-[#ff7a3d]"];
@@ -36,13 +35,14 @@ export function DepthCarousel() {
     }
     const dt = (time - lastTimeRef.current) / 1000;
     lastTimeRef.current = time;
-    positionRef.current = (positionRef.current + dt / SECONDS_PER_CARD) % insights.length;
+    positionRef.current = positionRef.current + dt / SECONDS_PER_CARD;
     position.set(positionRef.current);
   });
 
   useEffect(() => {
     const unsubscribe = smoothPosition.on("change", (latest) => {
-      const nearest = Math.round(latest) % insights.length;
+      // Wrap unbounded position into [0, total) before rounding.
+      const nearest = ((Math.round(latest) % insights.length) + insights.length) % insights.length;
       setDisplayIndex((current) => (current === nearest ? current : nearest));
     });
     return unsubscribe;
@@ -51,18 +51,13 @@ export function DepthCarousel() {
   const jumpTo = useCallback((index: number) => {
     const target = ((index % insights.length) + insights.length) % insights.length;
     const current = positionRef.current;
-    // Shortest wrap-around path.
-    const forward = (target - current + insights.length) % insights.length;
+    // Find the nearest equivalent of target relative to current (handles unbounded growth).
+    const currentMod = ((current % insights.length) + insights.length) % insights.length;
+    const forward = ((target - currentMod) + insights.length) % insights.length;
     const backward = forward - insights.length;
     const delta = Math.abs(forward) <= Math.abs(backward) ? forward : backward;
     positionRef.current = current + delta;
     position.set(positionRef.current);
-    // Normalise once the spring catches up to avoid unbounded growth.
-    window.setTimeout(() => {
-      const normalised = ((positionRef.current % insights.length) + insights.length) % insights.length;
-      positionRef.current = normalised;
-      position.jump(normalised);
-    }, 700);
   }, [position]);
 
   return (
@@ -160,13 +155,15 @@ function InsightSlide({
   });
   const visibility = useTransform(offset, (o) => Math.abs(o) > 2.8 ? "hidden" : "visible");
   const rotateY = useTransform(offset, (o) => o * -6);
-  // Plain integer derived each render — avoids per-frame z-index repaints
-  const zIndex = Math.round(10 - Math.abs(index - Math.round(smoothPosition.get())));
+  // Plain integer derived each render — avoids per-frame z-index repaints.
+  // Use wrapped position so zIndex stays correct as positionRef grows unbounded.
+  const smoothMod = ((smoothPosition.get() % total) + total) % total;
+  const zIndex = Math.round(10 - Math.min(Math.abs(index - smoothMod), total - Math.abs(index - smoothMod)));
 
   const image = insight.image;
   const cardBody = (
     <>
-      <div className={`relative aspect-[16/8.7] overflow-hidden bg-gradient-to-br ${fallbackPatterns[patternIndex % fallbackPatterns.length]}`}>
+      <div className={`relative aspect-[16/8.7] overflow-hidden rounded-t-2xl bg-gradient-to-br ${fallbackPatterns[patternIndex % fallbackPatterns.length]}`}>
         {image && (
           <img
             src={image}
@@ -196,25 +193,23 @@ function InsightSlide({
       className="absolute left-1/2 top-0 w-[min(78vw,590px)] -translate-x-1/2 origin-center"
     >
       {isFocus ? (
-        <StarBorder color="#009CA6" speed="6s">
-          <button
-            type="button"
-            onClick={onFocusOpen}
-            aria-label={`Preview ${insight.title}`}
-            className="group relative block w-full overflow-hidden bg-white text-left shadow-[0_28px_65px_rgba(7,27,43,0.18)]"
-          >
-            <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={9} borderWidth={1} />
-            {cardBody}
-          </button>
-        </StarBorder>
+        <button
+          type="button"
+          onClick={onFocusOpen}
+          aria-label={`Preview ${insight.title}`}
+          className="group relative block w-full overflow-hidden rounded-2xl bg-white text-left shadow-[0_28px_65px_rgba(7,27,43,0.22)]"
+        >
+          <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={9} borderWidth={1.5} />
+          {cardBody}
+        </button>
       ) : (
         <button
           type="button"
           onClick={onFocusRequest}
           aria-label={`Bring ${insight.title} to the center`}
-          className="group relative block w-full overflow-hidden border border-trace-ink/8 bg-white text-left shadow-[0_16px_38px_rgba(7,27,43,0.08)]"
+          className="group relative block w-full overflow-hidden rounded-2xl border border-trace-ink/8 bg-white text-left shadow-[0_16px_38px_rgba(7,27,43,0.08)]"
         >
-          <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={13} borderWidth={1} />
+          <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={13} borderWidth={1.5} />
           {cardBody}
         </button>
       )}
