@@ -1,5 +1,5 @@
 /** Civic Signal Field route system: image-led institutional briefings that connect services, projects, experts, and verified insight sources. */
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Briefcase, CalendarDays, CheckCircle2, ChevronDown, Clock, ExternalLink, FileText, Mail, MapPin, Phone, PlayCircle, Search, Send, Upload, XCircle } from "lucide-react";
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
@@ -10,7 +10,8 @@ import { TeamPortrait } from "@/components/TeamPortrait";
 import SpecularButton from "@/components/ui/SpecularButton";
 import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
-import { ASSETS, contact, innovations, insights, metrics, projects, services, team, type Insight, type Project, type Service, type TeamMember } from "@/data/traceData";
+import { ASSETS, contact, innovations, insights, metrics, projects, services, team, type Insight, type Project, type Service, type ServiceProduct, type TeamMember } from "@/data/traceData";
+import { ProjectCard } from "@/components/ui/glass-blog-card-shadcnui";
 
 const serviceMedia: Record<string, string> = {
   "trade-facilitation": ASSETS.heroTrade,
@@ -19,6 +20,9 @@ const serviceMedia: Record<string, string> = {
   "market-access-sps": ASSETS.heroColdChain,
   "technology-solutions": ASSETS.heroInteroperability,
   "research-innovation": ASSETS.heroResearch,
+  "training-capacity-building": ASSETS.heroPolicy,
+  "technical-assistance-project-management": ASSETS.heroInteroperability,
+  "temperature-controlled-logistics": ASSETS.heroColdChain,
 };
 
 const projectMedia: Record<string, string> = {
@@ -57,19 +61,81 @@ function EntityTag({ children }: { children: ReactNode }) {
 }
 
 function RelationshipRail({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
-  return <section className="border-t border-trace-ink/10 py-12 sm:py-16"><div className="flex items-center justify-between gap-5"><div><p className="section-label">CONNECTED RECORDS</p><h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">{title}</h2></div>{action}</div><div className="mt-7 flex snap-x gap-4 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{children}</div></section>;
+  return (
+    <section className="border-t border-trace-ink/10 py-12 sm:py-16">
+      <div className="flex items-center justify-between gap-5">
+        <div><p className="section-label">CONNECTED RECORDS</p><h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">{title}</h2></div>
+        {action}
+      </div>
+      {/* pr-5 prevents last card clipping; items-stretch keeps cards same height per row */}
+      <div className="mt-7 flex snap-x items-stretch gap-4 overflow-x-auto pb-4 pr-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {children}
+      </div>
+    </section>
+  );
 }
 
 function MiniProject({ project }: { project: Project }) {
-  return <StarBorder color="#009CA6" speed="8s" className="min-w-[292px] snap-start"><Link href={`/projects/${project.slug}`} className="group relative block overflow-hidden bg-white transition-transform duration-300 hover:-translate-y-1"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} /><div className="relative h-32 overflow-hidden bg-trace-paper"><img src={projectImage(project)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/42 to-transparent" /><p className="absolute bottom-3 left-4 font-mono text-[8px] font-bold tracking-[0.12em] text-trace-mint">{project.client.toUpperCase()}</p></div><div className="p-5"><h3 className="font-display text-xl font-extrabold leading-[1.05] tracking-[-0.045em] text-trace-ink">{project.title}</h3><div className="mt-5 flex justify-between border-t border-trace-ink/8 pt-4 text-xs font-bold text-trace-muted"><span>{project.period}</span><ArrowUpRight className="h-4 w-4 text-trace-orange" /></div></div></Link></StarBorder>;
+  return (
+    <div className="w-[280px] shrink-0 snap-start">
+      <Link href={`/projects/${project.slug}`} className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.09)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(7,27,43,0.14)]">
+        <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
+        <div className="relative h-36 overflow-hidden rounded-t-2xl bg-trace-paper">
+          <img src={projectImage(project)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/50 to-transparent" />
+          <p className="absolute bottom-3 left-4 font-mono text-[8px] font-bold tracking-[0.12em] text-trace-mint">{project.client.toUpperCase()}</p>
+        </div>
+        <div className="flex flex-1 flex-col p-5">
+          <h3 className="font-display text-lg font-extrabold leading-[1.08] tracking-[-0.04em] text-trace-ink group-hover:text-trace-teal transition-colors">{project.title}</h3>
+          <div className="mt-auto flex justify-between border-t border-trace-ink/8 pt-4 text-xs font-bold text-trace-muted">
+            <span>{project.period}</span>
+            <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
 }
 
 function MiniMember({ member }: { member: TeamMember }) {
-  return <StarBorder color="#009CA6" speed="9s" className="min-w-[270px] snap-start"><Link href={`/team/${member.slug}`} className="relative block bg-white p-5 transition-transform duration-300 hover:-translate-y-1"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={11} borderWidth={1} /><div className="flex items-center gap-4"><TeamPortrait member={member} className="h-12 w-12 rounded-full" imageClassName="scale-[1.12]" /><div><h3 className="font-display text-lg font-extrabold tracking-[-0.045em] text-trace-ink">{member.name}</h3><p className="mt-1 text-xs leading-4 text-trace-muted">{member.role}</p></div></div><p className="mt-5 font-mono text-[10px] font-bold tracking-[0.13em] text-trace-teal">{member.specialty.toUpperCase()}</p></Link></StarBorder>;
+  return (
+    <div className="w-[260px] shrink-0 snap-start">
+      <Link href={`/team/${member.slug}`} className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white p-5 shadow-[0_8px_24px_rgba(7,27,43,0.09)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(7,27,43,0.14)]">
+        <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={11} borderWidth={1.5} />
+        <div className="flex items-center gap-4">
+          <TeamPortrait member={member} className="h-12 w-12 rounded-full" imageClassName="scale-[1.12]" />
+          <div>
+            <h3 className="font-display text-base font-extrabold tracking-[-0.04em] text-trace-ink group-hover:text-trace-teal transition-colors">{member.name}</h3>
+            <p className="mt-1 text-xs leading-4 text-trace-muted">{member.role}</p>
+          </div>
+        </div>
+        <p className="mt-5 font-mono text-[10px] font-bold tracking-[0.13em] text-trace-teal">{member.specialty.toUpperCase()}</p>
+      </Link>
+    </div>
+  );
 }
 
 function MiniInsight({ insight }: { insight: Insight }) {
-  return <StarBorder color="#009CA6" speed="8s" className="min-w-[292px] snap-start"><Link href={`/insights/${insight.slug}`} className="group relative block overflow-hidden bg-white transition-transform duration-300 hover:-translate-y-1"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} /><div className="relative h-32 overflow-hidden bg-trace-paper"><img src={insightImage(insight)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/42 to-transparent" /><p className="absolute bottom-3 left-4 flex items-center gap-2 font-mono text-[8px] font-bold tracking-[0.12em] text-trace-mint">{insight.type === "Video" ? <PlayCircle className="h-3 w-3" /> : <FileText className="h-3 w-3" />}{insight.type.toUpperCase()}</p></div><div className="p-5"><h3 className="font-display text-xl font-extrabold leading-[1.08] tracking-[-0.045em] text-trace-ink">{insight.title}</h3><p className="mt-4 line-clamp-2 text-sm leading-6 text-trace-muted">{insight.summary}</p></div></Link></StarBorder>;
+  return (
+    <div className="w-[280px] shrink-0 snap-start">
+      <Link href={`/insights/${insight.slug}`} className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.09)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(7,27,43,0.14)]">
+        <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
+        <div className="relative h-36 overflow-hidden rounded-t-2xl bg-trace-paper">
+          <img src={insightImage(insight)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/50 to-transparent" />
+          <p className="absolute bottom-3 left-4 flex items-center gap-2 font-mono text-[8px] font-bold tracking-[0.12em] text-trace-mint">
+            {insight.type === "Video" ? <PlayCircle className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
+            {insight.type.toUpperCase()}
+          </p>
+        </div>
+        <div className="flex flex-1 flex-col p-5">
+          <h3 className="font-display text-lg font-extrabold leading-[1.08] tracking-[-0.04em] text-trace-ink group-hover:text-trace-teal transition-colors">{insight.title}</h3>
+          <p className="mt-3 line-clamp-2 text-sm leading-6 text-trace-muted">{insight.summary}</p>
+          <p className="mt-auto pt-4 font-mono text-[9px] font-bold tracking-[0.12em] text-trace-muted">{insight.date.toUpperCase()}</p>
+        </div>
+      </Link>
+    </div>
+  );
 }
 
 function SourceAction({ insight }: { insight: Insight }) {
@@ -166,24 +232,219 @@ export function ServicesPage() {
   );
 }
 
-function ServiceStoryChapter({ chapter, index, isActive, registerRef }: {
-  chapter: { label: string; title: string; body: ReactNode };
-  index: number;
-  isActive: boolean;
-  registerRef: (element: HTMLElement | null, index: number) => void;
-}) {
+type ServiceChapter = {
+  id: string;
+  label: string;
+  eyebrow: string;
+  title: string;
+  body: ReactNode;
+};
+
+function useSafeMotion() {
+  const systemReduceMotion = useReducedMotion();
+  const captureMode = typeof navigator !== "undefined" && navigator.webdriver;
+  return Boolean(systemReduceMotion || captureMode);
+}
+
+/** Word-by-word reveal with blur, inspired by Aceternity text animations. */
+function AnimatedHeading({ text, className = "", delay = 0 }: { text: string; className?: string; delay?: number }) {
+  const reduceMotion = useSafeMotion();
+  const words = text.split(" ");
+  if (reduceMotion) {
+    return <h2 className={className}>{text}</h2>;
+  }
   return (
-    <article
-      ref={(element) => registerRef(element, index)}
-      data-service-chapter
-      className={`relative border-l-2 pl-7 transition-colors duration-500 sm:pl-9 ${isActive ? "border-trace-teal" : "border-trace-ink/12"}`}
-    >
-      <span className={`absolute -left-[9px] top-1 h-4 w-4 border-2 bg-white transition-colors duration-500 ${isActive ? "border-trace-teal" : "border-trace-ink/25"}`} aria-hidden="true" />
-      <p className={`font-mono text-[10px] font-bold tracking-[0.16em] transition-colors duration-500 ${isActive ? "text-trace-teal" : "text-trace-muted"}`}>{String(index + 1).padStart(2, "0")} · {chapter.label}</p>
-      <h3 className="mt-3 font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl">{chapter.title}</h3>
-      <div className="mt-5 space-y-4 text-base leading-7 text-trace-muted">{chapter.body}</div>
-    </article>
+    <h2 className={className} aria-label={text}>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true" className="inline-block">
+        {words.map((word, i) => (
+          <span key={`${word}-${i}`} className="inline-block overflow-hidden pb-1 align-bottom">
+            <motion.span
+              initial={{ y: "100%", opacity: 0, filter: "blur(8px)" }}
+              whileInView={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.6, delay: delay + i * 0.055, ease: [0.23, 1, 0.32, 1] }}
+              className="inline-block"
+            >
+              {word}
+              {i < words.length - 1 && <span>&nbsp;</span>}
+            </motion.span>
+          </span>
+        ))}
+      </span>
+    </h2>
   );
+}
+
+/** Animated eyebrow with a line that draws in on view. */
+function AnimatedEyebrow({ number, text }: { number: string; text: string }) {
+  const reduceMotion = useSafeMotion();
+  return (
+    <div className="flex items-center gap-3">
+      <motion.span
+        initial={reduceMotion ? {} : { scaleX: 0 }}
+        whileInView={reduceMotion ? {} : { scaleX: 1 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+        style={{ transformOrigin: "left" }}
+        className="h-px w-10 bg-gradient-to-r from-trace-teal to-trace-mint"
+        aria-hidden="true"
+      />
+      <p className="font-mono text-[10px] font-bold tracking-[0.18em]">
+        <span className="text-trace-teal">{number}</span>
+        <span className="mx-2 text-trace-ink/25">·</span>
+        <span className="bg-gradient-to-r from-trace-teal via-trace-navy to-trace-teal bg-clip-text text-transparent">
+          {text}
+        </span>
+      </p>
+    </div>
+  );
+}
+
+function ServiceChapterSection({ chapter, registerRef, index }: {
+  chapter: ServiceChapter;
+  registerRef: (element: HTMLElement | null, index: number) => void;
+  index: number;
+}) {
+  const reduceMotion = useSafeMotion();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const ghostY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const ghostOpacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0, 0.045, 0.045, 0]);
+
+  return (
+    <section
+      ref={(element) => {
+        sectionRef.current = element;
+        registerRef(element, index);
+      }}
+      id={chapter.id}
+      data-chapter-id={chapter.id}
+      className="relative scroll-mt-32 pt-6 first:pt-0"
+    >
+      {/* Giant ghost chapter number — parallax faded */}
+      {!reduceMotion && (
+        <motion.span
+          aria-hidden="true"
+          style={{ y: ghostY, opacity: ghostOpacity }}
+          className="pointer-events-none absolute -right-6 -top-4 select-none font-display text-[200px] font-black leading-none tracking-[-0.08em] text-trace-ink sm:text-[280px]"
+        >
+          {String(index + 1).padStart(2, "0")}
+        </motion.span>
+      )}
+
+      <div className="relative">
+        <AnimatedEyebrow number={String(index + 1).padStart(2, "0")} text={chapter.eyebrow} />
+        <div className="mt-4">
+          <AnimatedHeading
+            text={chapter.title}
+            className="font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl"
+          />
+        </div>
+        <motion.div
+          initial={reduceMotion ? {} : { opacity: 0, y: 16 }}
+          whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.55, delay: 0.15, ease: [0.23, 1, 0.32, 1] }}
+          className="mt-6"
+        >
+          {chapter.body}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function ServiceProductTile({ product, index }: { product: ServiceProduct; index: number }) {
+  const reduceMotion = useSafeMotion();
+  const innovation = product.innovationSlug
+    ? innovations.find((item) => item.slug === product.innovationSlug)
+    : undefined;
+
+  const tileRef = useRef<HTMLDivElement | null>(null);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, mx: 50, my: 50 });
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion || !tileRef.current) return;
+    const rect = tileRef.current.getBoundingClientRect();
+    const relX = (event.clientX - rect.left) / rect.width;
+    const relY = (event.clientY - rect.top) / rect.height;
+    setTilt({
+      rx: (relY - 0.5) * -6,
+      ry: (relX - 0.5) * 6,
+      mx: relX * 100,
+      my: relY * 100,
+    });
+  };
+  const resetTilt = () => setTilt({ rx: 0, ry: 0, mx: 50, my: 50 });
+
+  const inner = (
+    <motion.div
+      ref={tileRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={resetTilt}
+      initial={reduceMotion ? {} : { opacity: 0, y: 16, scale: 0.98 }}
+      whileInView={reduceMotion ? {} : { opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.45, delay: index * 0.05, ease: [0.23, 1, 0.32, 1] }}
+      style={{
+        transform: reduceMotion ? undefined : `perspective(900px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+        transformStyle: "preserve-3d",
+        transition: "transform 0.18s ease-out",
+      }}
+      className={`group relative flex h-full flex-col items-start gap-4 overflow-hidden rounded-2xl border border-trace-ink/10 bg-white p-5 ${innovation ? "hover:border-trace-teal/40 hover:shadow-[0_22px_44px_rgba(7,27,43,0.14)]" : "hover:shadow-[0_12px_30px_rgba(7,27,43,0.08)]"}`}
+    >
+      {/* Cursor-following radial glow */}
+      {!reduceMotion && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{
+            background: `radial-gradient(400px circle at ${tilt.mx}% ${tilt.my}%, rgba(0,156,166,0.10), transparent 45%)`,
+          }}
+        />
+      )}
+      {/* Corner accent */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-trace-mint/30 to-transparent opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+      />
+
+      <motion.div
+        whileHover={reduceMotion ? {} : { y: -3, rotate: -4 }}
+        transition={{ type: "spring", stiffness: 260, damping: 18 }}
+        className="relative grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-trace-teal/12 to-trace-mint/30 text-trace-teal"
+      >
+        <Briefcase className="h-5 w-5" />
+      </motion.div>
+      <p className="relative font-display text-sm font-extrabold leading-[1.25] tracking-[-0.02em] text-trace-ink">
+        {product.name}
+      </p>
+      {innovation && (
+        <span className="relative mt-auto inline-flex items-center gap-1.5 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">
+          VIEW INNOVATION
+          <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </span>
+      )}
+      {/* Bottom shine border on hover */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-4 bottom-0 h-px origin-left scale-x-0 bg-gradient-to-r from-transparent via-trace-teal to-transparent transition-transform duration-500 group-hover:scale-x-100"
+      />
+    </motion.div>
+  );
+
+  if (innovation) {
+    return (
+      <Link href="/innovations" className="block h-full">
+        {inner}
+      </Link>
+    );
+  }
+  return <div className="h-full">{inner}</div>;
 }
 
 export function ServiceDetailPage() {
@@ -194,9 +455,106 @@ export function ServiceDetailPage() {
   const registerRef = useCallback((element: HTMLElement | null, index: number) => {
     chapterRefs.current[index] = element;
   }, []);
+  const reduceMotion = useSafeMotion();
+  const heroRef = useRef<HTMLElement | null>(null);
+  const readingRef = useRef<HTMLDivElement | null>(null);
+
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroImageY = useTransform(heroProgress, [0, 1], ["0%", "22%"]);
+  const heroImageScale = useTransform(heroProgress, [0, 1], [1.05, 1.18]);
+  const heroOverlay = useTransform(heroProgress, [0, 1], [0.4, 0.75]);
+
+  const { scrollYProgress: readingProgress } = useScroll({
+    target: readingRef,
+    offset: ["start center", "end end"],
+  });
+  const railScale = useSpring(readingProgress, { stiffness: 90, damping: 22 });
+
+  const chapters = useMemo<ServiceChapter[]>(() => {
+    if (!service) return [];
+    const overviewParagraphs = service.overview ?? [service.description];
+    const items = service.serviceItems ?? service.disciplines.map((d) => d);
+    const products = service.products ?? [];
+
+    const list: ServiceChapter[] = [
+      {
+        id: "overview",
+        label: "Overview",
+        eyebrow: "OVERVIEW",
+        title: "What this service does.",
+        body: (
+          <div className="space-y-5 text-base leading-8 text-trace-muted">
+            {overviewParagraphs.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))}
+          </div>
+        ),
+      },
+      {
+        id: "services",
+        label: "Our Services",
+        eyebrow: "OUR SERVICES INCLUDE",
+        title: "The offerings inside this service.",
+        body: (
+          <ul className="mt-2 divide-y divide-trace-ink/8 overflow-hidden rounded-2xl border border-trace-ink/10 bg-white">
+            {items.map((item, i) => (
+              <motion.li
+                key={item}
+                initial={{ opacity: 0, x: -8 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.3, delay: i * 0.02 }}
+                className="flex items-start gap-4 px-5 py-4 transition-colors hover:bg-trace-paper sm:px-6"
+              >
+                <span className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-trace-teal/10 text-trace-teal">
+                  <CheckCircle2 className="h-4 w-4" />
+                </span>
+                <span className="text-sm leading-6 text-trace-ink sm:text-base sm:leading-7">
+                  {item}
+                </span>
+              </motion.li>
+            ))}
+          </ul>
+        ),
+      },
+    ];
+
+    if (products.length > 0) {
+      list.push({
+        id: "products",
+        label: "Products",
+        eyebrow: "PRODUCTS & SOLUTIONS",
+        title: "Tools built to support this service.",
+        body: (
+          <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((product, i) => (
+              <ServiceProductTile key={product.name} product={product} index={i} />
+            ))}
+          </div>
+        ),
+      });
+    }
+
+    list.push({
+      id: "connected",
+      label: "Connected Work",
+      eyebrow: "CONNECTED WORK",
+      title: "See the record behind the recommendation.",
+      body: (
+        <p className="text-base leading-8 text-trace-muted">
+          Every TRACE service links to the projects, experts, and knowledge outputs that put it into practice. The rails below list the delivery records, subject-matter leads, and published insights currently connected to {service.title}.
+        </p>
+      ),
+    });
+
+    return list;
+  }, [service]);
 
   useEffect(() => {
-    if (!service) return;
+    if (!service || chapters.length === 0) return;
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
@@ -205,7 +563,7 @@ export function ServiceDetailPage() {
           if (!Number.isNaN(index)) setActiveChapter(index);
         }
       },
-      { rootMargin: "-35% 0px -45% 0px", threshold: [0.15, 0.35, 0.6, 0.9] }
+      { rootMargin: "-30% 0px -55% 0px", threshold: [0.1, 0.3, 0.6, 0.9] }
     );
     chapterRefs.current.forEach((element, index) => {
       if (element) {
@@ -214,127 +572,210 @@ export function ServiceDetailPage() {
       }
     });
     return () => observer.disconnect();
-  }, [service]);
+  }, [service, chapters.length]);
 
   if (!service) return <NotFoundEntity />;
   const relatedProjects = projects.filter((project) => project.serviceSlugs.includes(service.slug));
   const relatedTeam = team.filter((member) => member.serviceSlugs.includes(service.slug));
   const relatedInsights = insights.filter((insight) => insight.serviceSlugs.includes(service.slug));
 
-  const chapters = [
-    {
-      label: "OVERVIEW",
-      title: "A service designed to move across the system.",
-      body: (
-        <>
-          <p>{service.description}</p>
-          <p>TRACE combines strategic advice with practical implementation, connecting the disciplines required to move an institutional need into a working capability.</p>
-        </>
-      ),
-    },
-    {
-      label: "WHAT WE COVER",
-      title: "The disciplines connected inside this service.",
-      body: (
-        <>
-          <p>Each engagement blends the disciplines below into a single delivery track, tailored to the mandate, institutional setting, and related project record.</p>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {service.disciplines.map((discipline) => (
-              <li key={discipline} className="flex items-start gap-3 border border-trace-ink/10 bg-white p-4">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-trace-teal" />
-                <span className="text-sm font-extrabold text-trace-ink">{discipline}</span>
-              </li>
-            ))}
-          </ul>
-        </>
-      ),
-    },
-    {
-      label: "HOW WE DELIVER",
-      title: "Evidence, delivery, and ownership—together.",
-      body: (
-        <>
-          <p>TRACE anchors every mandate in a three-stage rhythm: evidence-based diagnosis, technology-supported delivery, and institutional handover for lasting capability.</p>
-          <p>Across {service.solutions} integrated solutions, this service ships with the tooling, documentation, and capacity-building needed for the receiving institution to sustain the change beyond the engagement.</p>
-        </>
-      ),
-    },
-    {
-      label: "CONNECTED WORK",
-      title: "See the record behind the recommendation.",
-      body: (
-        <>
-          <p>Every TRACE service links to the projects, experts, and knowledge outputs that put it into practice. The rails below list the delivery records, subject-matter leads, and published insights currently connected to {service.title}.</p>
-        </>
-      ),
-    },
-  ];
+  const scrollToChapter = (index: number) => {
+    chapterRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <Shell>
       <main>
-        <DetailMediaHero label="SERVICE" title={<>{service.title}</>} description={service.description} kicker={`${service.solutions} INTEGRATED SOLUTIONS · ${service.strapline.toUpperCase()}`} image={serviceImage(service)} />
-        <section className="bg-trace-paper py-16 sm:py-20">
-          <div className="mx-auto max-w-[1300px] px-5 lg:px-10">
-            <BackLink href="/services" label="services" />
-            <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-              <div className="lg:sticky lg:top-28 lg:h-fit">
-                <SectionReveal>
-                  <figure className="relative overflow-hidden border border-trace-ink/10 bg-trace-navy shadow-[0_18px_44px_rgba(18,61,103,0.12)]">
-                    <img src={serviceImage(service)} alt="" className="aspect-[5/4] w-full object-cover opacity-90" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/72 via-trace-ink/10 to-transparent" />
-                    <figcaption className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-                      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-mint">TRACE SERVICE</p>
-                      <h2 className="mt-3 font-display text-3xl font-extrabold leading-[1.02] tracking-[-0.055em] sm:text-4xl">{service.title}</h2>
-                      <p className="mt-3 text-sm leading-6 text-white/85">{service.strapline}</p>
-                    </figcaption>
-                  </figure>
-                  <div className="mt-6 grid grid-cols-2 gap-3">
-                    <div className="border-l-2 border-t-2 border-trace-teal bg-white p-4">
-                      <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">SOLUTIONS</p>
-                      <p className="mt-2 font-display text-3xl font-extrabold text-trace-ink">{service.solutions}</p>
-                    </div>
-                    <div className="border-l-2 border-t-2 border-trace-teal bg-white p-4">
-                      <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">DISCIPLINES</p>
-                      <p className="mt-2 font-display text-3xl font-extrabold text-trace-ink">{service.disciplines.length}</p>
-                    </div>
-                  </div>
-                  <nav aria-label="Service chapters" className="mt-6 hidden lg:block">
-                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted">CHAPTERS</p>
-                    <ol className="mt-3 space-y-2">
-                      {chapters.map((chapter, index) => (
-                        <li key={chapter.label}>
-                          <button
-                            type="button"
-                            onClick={() => chapterRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                            className={`flex w-full items-center gap-3 border-l-2 py-1.5 pl-3 text-left text-xs font-extrabold transition-colors ${index === activeChapter ? "border-trace-teal text-trace-navy" : "border-trace-ink/12 text-trace-muted hover:text-trace-navy"}`}
-                          >
-                            <span className="font-mono">{String(index + 1).padStart(2, "0")}</span>
-                            <span>{chapter.label}</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ol>
-                  </nav>
-                </SectionReveal>
-              </div>
+        {/* ── Parallax hero ── */}
+        <section
+          ref={heroRef}
+          className="relative isolate min-h-[560px] overflow-hidden bg-trace-ink pt-36 text-white sm:min-h-[620px] sm:pt-44"
+        >
+          <motion.img
+            src={serviceImage(service)}
+            alt=""
+            style={reduceMotion ? undefined : { y: heroImageY, scale: heroImageScale }}
+            className="absolute inset-0 -z-20 h-[120%] w-full object-cover"
+          />
+          <motion.div
+            style={reduceMotion ? undefined : { opacity: heroOverlay }}
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-trace-ink via-trace-ink/78 to-trace-ink/28"
+          />
+          <div className="pointer-events-none absolute inset-0 -z-10 opacity-25 hero-grid" />
+          <div className="relative mx-auto flex min-h-[350px] max-w-[1480px] flex-col justify-end px-5 pb-16 lg:px-10 sm:pb-20">
+            <motion.p
+              initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+              animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+              className="section-label !text-trace-mint"
+            >
+              SERVICE
+            </motion.p>
+            <motion.p
+              initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+              animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.08, ease: [0.23, 1, 0.32, 1] }}
+              className="mt-6 font-mono text-[10px] font-bold tracking-[0.16em] text-white/72"
+            >
+              {service.solutions} INTEGRATED SOLUTIONS · {service.strapline.toUpperCase()}
+            </motion.p>
+            <div className="mt-5">
+              <AnimatedHeading
+                text={service.title}
+                delay={0.15}
+                className="max-w-5xl font-display text-5xl font-extrabold leading-[0.92] tracking-[-0.07em] sm:text-7xl"
+              />
+            </div>
+            <motion.p
+              initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+              whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.35, ease: [0.23, 1, 0.32, 1] }}
+              className="mt-7 max-w-3xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8"
+            >
+              {service.description}
+            </motion.p>
+            {/* Scroll hint */}
+            {!reduceMotion && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.9, duration: 0.6 }}
+                className="mt-10 flex items-center gap-3 text-white/50"
+              >
+                <motion.span
+                  animate={{ y: [0, 4, 0] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                  className="text-xl"
+                  aria-hidden="true"
+                >
+                  ↓
+                </motion.span>
+                <span className="font-mono text-[10px] font-bold tracking-[0.18em]">SCROLL TO EXPLORE</span>
+              </motion.div>
+            )}
+          </div>
+        </section>
 
-              <div className="space-y-14 sm:space-y-20">
+        <section className="relative bg-white py-14 sm:py-20">
+          <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
+            <BackLink href="/services" label="services" />
+
+            <div ref={readingRef} className="mt-10 grid gap-12 lg:grid-cols-[220px_1fr] lg:gap-16">
+              {/* Sticky side nav — thin, minimal, with scroll progress rail */}
+              <aside className="hidden lg:block">
+                <div className="sticky top-28">
+                  <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">
+                    ON THIS PAGE
+                  </p>
+                  <div className="relative mt-5">
+                    {/* Vertical rail track */}
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute bottom-0 left-[3px] top-0 w-px bg-trace-ink/10"
+                    />
+                    {/* Filled progress */}
+                    <motion.span
+                      aria-hidden="true"
+                      style={reduceMotion ? undefined : { scaleY: railScale, transformOrigin: "top" }}
+                      className="pointer-events-none absolute bottom-0 left-[3px] top-0 w-px bg-gradient-to-b from-trace-teal via-trace-teal to-trace-mint"
+                    />
+                    <ol className="relative space-y-1">
+                      {chapters.map((chapter, index) => {
+                        const isActive = index === activeChapter;
+                        return (
+                          <li key={chapter.id} className="relative">
+                            <button
+                              type="button"
+                              onClick={() => scrollToChapter(index)}
+                              className={`group relative flex w-full items-center gap-4 py-2 pl-4 text-left text-sm font-semibold transition-colors ${isActive ? "text-trace-ink" : "text-trace-muted hover:text-trace-ink"}`}
+                            >
+                              {/* Active pill highlight */}
+                              {isActive && !reduceMotion && (
+                                <motion.span
+                                  layoutId="service-nav-active"
+                                  className="absolute inset-y-0 -left-2 -right-2 rounded-lg bg-trace-teal/6"
+                                  transition={{ type: "spring", stiffness: 280, damping: 30 }}
+                                  aria-hidden="true"
+                                />
+                              )}
+                              <span
+                                className={`relative z-10 h-2 w-2 -translate-x-[7px] rounded-full ring-2 ring-white transition-all duration-300 ${isActive ? "scale-125 bg-trace-teal shadow-[0_0_0_4px_rgba(0,156,166,0.15)]" : "bg-trace-ink/30 group-hover:bg-trace-ink/50"}`}
+                                aria-hidden="true"
+                              />
+                              <span className="relative z-10 flex-1">{chapter.label}</span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </div>
+                  <motion.div
+                    initial={reduceMotion ? {} : { opacity: 0, y: 8 }}
+                    animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                    className="mt-8 border-t border-trace-ink/10 pt-6"
+                  >
+                    <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">
+                      {service.strapline.toUpperCase()}
+                    </p>
+                    <p className="mt-3 text-xs leading-5 text-trace-muted">
+                      {service.solutions} integrated solutions across {service.disciplines.length} disciplines.
+                    </p>
+                  </motion.div>
+                </div>
+              </aside>
+
+              {/* Mobile chip nav — horizontal scroll */}
+              <nav aria-label="Sections" className="sticky top-[68px] z-20 -mx-5 flex snap-x snap-mandatory gap-2 overflow-x-auto bg-white/95 px-5 py-3 backdrop-blur lg:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {chapters.map((chapter, index) => (
-                  <ServiceStoryChapter
-                    key={chapter.label}
+                  <button
+                    key={chapter.id}
+                    type="button"
+                    onClick={() => scrollToChapter(index)}
+                    className={`shrink-0 snap-start whitespace-nowrap rounded-full px-4 py-2 text-xs font-extrabold transition-colors ${index === activeChapter ? "bg-trace-ink text-white" : "border border-trace-ink/12 bg-white text-trace-muted"}`}
+                  >
+                    {chapter.label}
+                  </button>
+                ))}
+              </nav>
+
+              {/* Main reading column */}
+              <div className="space-y-20 sm:space-y-24">
+                {chapters.map((chapter, index) => (
+                  <ServiceChapterSection
+                    key={chapter.id}
                     chapter={chapter}
-                    index={index}
-                    isActive={index === activeChapter}
                     registerRef={registerRef}
+                    index={index}
                   />
                 ))}
               </div>
             </div>
 
-            <RelationshipRail title="Work we have delivered" action={<Link href="/projects" className="text-sm font-extrabold text-trace-teal">All projects <ArrowRight className="inline h-4 w-4" /></Link>}>{relatedProjects.length ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Project records will be connected here as they are published.</p>}</RelationshipRail>
-            <RelationshipRail title="Experts in this area" action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}>{relatedTeam.length ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Associated experts will be published here.</p>}</RelationshipRail>
-            <RelationshipRail title="Relevant insights">{relatedInsights.length ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related insights will be published here.</p>}</RelationshipRail>
+            <div className="mt-4">
+              <RelationshipRail
+                title="Work we have delivered"
+                action={<Link href="/projects" className="text-sm font-extrabold text-trace-teal">All projects <ArrowRight className="inline h-4 w-4" /></Link>}
+              >
+                {relatedProjects.length
+                  ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />)
+                  : <p className="text-sm text-trace-muted">Project records will be connected here as they are published.</p>}
+              </RelationshipRail>
+              <RelationshipRail
+                title="Experts in this area"
+                action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}
+              >
+                {relatedTeam.length
+                  ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />)
+                  : <p className="text-sm text-trace-muted">Associated experts will be published here.</p>}
+              </RelationshipRail>
+              <RelationshipRail title="Relevant insights">
+                {relatedInsights.length
+                  ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />)
+                  : <p className="text-sm text-trace-muted">Related insights will be published here.</p>}
+              </RelationshipRail>
+            </div>
           </div>
         </section>
       </main>
@@ -351,7 +792,7 @@ export function ProjectsPage() {
     const q = query.toLowerCase();
     return serviceMatch && (!q || `${project.title} ${project.client} ${project.summary}`.toLowerCase().includes(q));
   });
-  return <Shell><main><PageHero label="PROJECTS" title={<>Work that <span className="text-trace-mint">changes systems.</span></>} description="Trade facilitation, laboratory strengthening, digital transformation, policy advisory, and capacity-building work across connected institutions." tone="navy" /><section className="py-16 sm:py-20"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-2">{filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "bg-trace-navy text-white" : "border border-trace-ink/12 bg-white text-trace-muted hover:border-trace-teal"}`}>{item}</button>)}</div><label className="flex w-full max-w-md items-center gap-3 border-b border-trace-ink/20 bg-white px-3 py-3"><Search className="h-4 w-4 text-trace-teal" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search projects" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" /></label></div><div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.04}><StarBorder color="#009CA6" speed="8s" className="h-full"><Link href={`/projects/${project.slug}`} className="group flex min-h-[445px] flex-col overflow-hidden bg-white transition-transform duration-300 hover:-translate-y-1"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} /><div className="relative h-52 overflow-hidden bg-trace-paper"><img src={projectImage(project)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/64 to-transparent" /><div className="absolute bottom-4 left-5 right-5 flex items-center justify-between gap-4"><span className="font-mono text-[9px] font-bold tracking-[0.13em] text-trace-mint">{project.client.toUpperCase()}</span><span className="bg-white/90 px-2 py-1 text-[9px] font-bold text-trace-navy">{project.status}</span></div></div><div className="flex flex-1 flex-col p-7"><h2 className="font-display text-3xl font-extrabold leading-[1.02] tracking-[-0.055em] text-trace-ink">{project.title}</h2><p className="mt-5 text-sm leading-6 text-trace-muted">{project.summary}</p><div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-5"><span className="text-xs font-bold text-trace-muted">{project.period}</span><span className="inline-flex items-center gap-2 text-xs font-extrabold text-trace-ink">View project <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" /></span></div></div></Link></StarBorder></SectionReveal>)}</div>{filtered.length === 0 && <p className="py-16 text-center text-trace-muted">No project records match this search.</p>}</div></section></main></Shell>;
+  return <Shell><main><PageHero label="PROJECTS" title={<>Work that <span className="text-trace-mint">changes systems.</span></>} description="Trade facilitation, laboratory strengthening, digital transformation, policy advisory, and capacity-building work across connected institutions." tone="navy" /><section className="py-16 sm:py-20"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-2">{filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "bg-trace-navy text-white" : "border border-trace-ink/12 bg-white text-trace-muted hover:border-trace-teal"}`}>{item}</button>)}</div><label className="flex w-full max-w-md items-center gap-3 border-b border-trace-ink/20 bg-white px-3 py-3"><Search className="h-4 w-4 text-trace-teal" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search projects" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" /></label></div><div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.04} className="h-full"><ProjectCard project={project} image={projectImage(project)} /></SectionReveal>)}</div>{filtered.length === 0 && <p className="py-16 text-center text-trace-muted">No project records match this search.</p>}</div></section></main></Shell>;
 }
 
 export function ProjectDetailPage() {
@@ -361,7 +802,172 @@ export function ProjectDetailPage() {
   const relatedServices = services.filter((service) => project.serviceSlugs.includes(service.slug));
   const contributors = team.filter((member) => project.teamSlugs.includes(member.slug));
   const relatedInsights = insights.filter((insight) => insight.projectSlugs.includes(project.slug));
-  return <Shell><main><DetailMediaHero label="PROJECT" title={<>{project.title}</>} description={project.summary} kicker={`${project.client.toUpperCase()} · ${project.period} · ${project.status.toUpperCase()}`} image={projectImage(project)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/projects" label="projects" /><div className="mt-12 grid gap-12 lg:grid-cols-[1.2fr_0.8fr]"><SectionReveal><p className="section-label">PROJECT OVERVIEW</p><h2 className="mt-4 font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] text-trace-ink">A practical intervention with an institutional line of sight.</h2><div className="mt-7 grid gap-5 text-base leading-8 text-trace-muted"><p>{project.summary}</p><p>This TRACE record links the mandate with its named client, connected service areas, delivery team, and published knowledge content—so the work remains visible in context.</p></div><div className="mt-10 border-l-2 border-trace-teal bg-white p-6"><p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">DELIVERY RECORD</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><div><p className="text-xs font-bold text-trace-muted">CONNECTED SERVICES</p><p className="mt-1 font-display text-2xl font-extrabold text-trace-ink">{relatedServices.length}</p></div><div><p className="text-xs font-bold text-trace-muted">PUBLISHED CONTRIBUTORS</p><p className="mt-1 font-display text-2xl font-extrabold text-trace-ink">{contributors.length}</p></div></div></div></SectionReveal><SectionReveal delay={0.08}><aside className="relative overflow-hidden border border-trace-ink/10 bg-white p-7"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><p className="section-label">PROJECT FACTS</p><dl className="mt-6 divide-y divide-trace-ink/8"><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Client</dt><dd className="max-w-[60%] text-right text-xs font-extrabold text-trace-ink">{project.client}</dd></div><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Period</dt><dd className="text-right text-xs font-extrabold text-trace-ink">{project.period}</dd></div><div className="flex justify-between gap-5 py-4"><dt className="text-xs font-bold text-trace-muted">Status</dt><dd className="text-right text-xs font-extrabold text-trace-teal">{project.status}</dd></div><div className="py-4"><dt className="text-xs font-bold text-trace-muted">Service areas</dt><dd className="mt-3 flex flex-wrap gap-2">{relatedServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</dd></div></dl></aside></SectionReveal></div><RelationshipRail title="Experts on this mandate" action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}>{contributors.length ? contributors.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Contributors will be connected here as they are verified.</p>}</RelationshipRail><RelationshipRail title="Related insights">{relatedInsights.length ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related knowledge content will be added as it is published.</p>}</RelationshipRail></div></section></main></Shell>;
+  const moreProjects = projects.filter((p) => p.slug !== project.slug).slice(0, 3);
+
+  return (
+    <Shell>
+      <main>
+        {/* ── Hero ── */}
+        <DetailMediaHero
+          label="PROJECT"
+          title={<>{project.title}</>}
+          description={project.summary}
+          kicker={`${project.client.toUpperCase()} · ${project.period} · ${project.status.toUpperCase()}`}
+          image={projectImage(project)}
+        />
+
+        {/* ── Main content ── */}
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
+            <BackLink href="/projects" label="projects" />
+
+            {/* Two-column: overview left, facts sidebar right */}
+            <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_340px] lg:gap-16">
+
+              {/* LEFT — Overview */}
+              <div>
+                <SectionReveal>
+                  <p className="section-label">PROJECT OVERVIEW</p>
+                  <h2 className="mt-4 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.06em] text-trace-ink sm:text-5xl">
+                    A practical intervention with an institutional line of sight.
+                  </h2>
+                  <p className="mt-6 text-base leading-8 text-trace-muted">{project.summary}</p>
+                  <p className="mt-4 text-base leading-8 text-trace-muted">
+                    This TRACE record links the mandate with its named client, connected service areas, delivery team, and published knowledge content—so the work remains visible in context.
+                  </p>
+                </SectionReveal>
+
+                {/* Delivery metrics */}
+                <SectionReveal delay={0.08}>
+                  <div className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-trace-ink/10 bg-trace-ink/10">
+                    <div className="bg-white p-6">
+                      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted">CONNECTED SERVICES</p>
+                      <p className="mt-3 font-display text-5xl font-extrabold tracking-[-0.07em] text-trace-ink">{relatedServices.length}</p>
+                    </div>
+                    <div className="bg-white p-6">
+                      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted">TEAM CONTRIBUTORS</p>
+                      <p className="mt-3 font-display text-5xl font-extrabold tracking-[-0.07em] text-trace-ink">{contributors.length}</p>
+                    </div>
+                  </div>
+                </SectionReveal>
+
+                {/* Service areas */}
+                <SectionReveal delay={0.12}>
+                  <div className="mt-10">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">SERVICE AREAS</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {relatedServices.map((service) => (
+                        <Link key={service.slug} href={`/services/${service.slug}`}>
+                          <span className="inline-flex items-center gap-2 rounded-full border border-trace-teal/25 bg-trace-teal/6 px-4 py-2 font-mono text-[10px] font-bold tracking-[0.1em] text-trace-teal transition-colors hover:bg-trace-teal/12">
+                            {service.title}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </SectionReveal>
+              </div>
+
+              {/* RIGHT — Facts sidebar */}
+              <SectionReveal delay={0.1}>
+                <aside className="sticky top-28 overflow-hidden rounded-2xl border border-trace-ink/10 bg-[#F7FBFC] shadow-[0_8px_32px_rgba(7,27,43,0.07)]">
+                  <div className="h-1 w-full bg-trace-teal" />
+                  <div className="p-6 sm:p-7">
+                    <p className="section-label">PROJECT FACTS</p>
+                    <dl className="mt-5 divide-y divide-trace-ink/8">
+                      <div className="flex justify-between gap-4 py-3.5">
+                        <dt className="text-xs font-bold text-trace-muted">Client</dt>
+                        <dd className="max-w-[58%] text-right text-xs font-extrabold text-trace-ink">{project.client}</dd>
+                      </div>
+                      <div className="flex justify-between gap-4 py-3.5">
+                        <dt className="text-xs font-bold text-trace-muted">Period</dt>
+                        <dd className="text-right text-xs font-extrabold text-trace-ink">{project.period}</dd>
+                      </div>
+                      <div className="flex justify-between gap-4 py-3.5">
+                        <dt className="text-xs font-bold text-trace-muted">Status</dt>
+                        <dd>
+                          <span className={`rounded-full px-3 py-1 font-mono text-[9px] font-bold tracking-[0.1em] ${project.status === "Ongoing" ? "bg-trace-teal/12 text-trace-teal" : "bg-trace-ink/8 text-trace-muted"}`}>
+                            {project.status.toUpperCase()}
+                          </span>
+                        </dd>
+                      </div>
+                      <div className="py-3.5">
+                        <dt className="text-xs font-bold text-trace-muted">Services</dt>
+                        <dd className="mt-3 flex flex-wrap gap-1.5">
+                          {relatedServices.map((service) => (
+                            <Link key={service.slug} href={`/services/${service.slug}`}>
+                              <EntityTag>{service.title.toUpperCase()}</EntityTag>
+                            </Link>
+                          ))}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                </aside>
+              </SectionReveal>
+            </div>
+
+            {/* ── Experts rail ── */}
+            <RelationshipRail
+              title="Experts on this mandate"
+              action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}
+            >
+              {contributors.length
+                ? contributors.map((member) => <MiniMember key={member.slug} member={member} />)
+                : <p className="text-sm text-trace-muted">Contributors will be connected here as they are verified.</p>}
+            </RelationshipRail>
+
+            {/* ── Related insights rail ── */}
+            <RelationshipRail title="Related insights">
+              {relatedInsights.length
+                ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />)
+                : <p className="text-sm text-trace-muted">Related knowledge content will be added as it is published.</p>}
+            </RelationshipRail>
+          </div>
+        </section>
+
+        {/* ── More projects ── */}
+        {moreProjects.length > 0 && (
+          <section className="bg-[#F6FAFC] py-14 sm:py-20">
+            <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
+              <div className="flex items-end justify-between gap-5">
+                <SectionReveal>
+                  <p className="section-label">MORE PROJECTS</p>
+                  <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">More from TRACE.</h2>
+                </SectionReveal>
+                <SectionReveal delay={0.06}>
+                  <Link href="/projects" className="inline-flex items-center gap-2 border-b border-trace-teal pb-2 text-sm font-extrabold text-trace-ink">
+                    View all <ArrowUpRight className="h-4 w-4 text-trace-teal" />
+                  </Link>
+                </SectionReveal>
+              </div>
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {moreProjects.map((p, index) => (
+                  <SectionReveal key={p.slug} delay={index * 0.06} className="h-full">
+                    <Link href={`/projects/${p.slug}`} className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.09)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(7,27,43,0.13)]">
+                      <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={11} borderWidth={1.5} />
+                      <div className="relative h-40 overflow-hidden rounded-t-2xl bg-trace-paper">
+                        <img src={projectImage(p)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/52 to-transparent" />
+                        <span className="absolute bottom-3 left-4 font-mono text-[8px] font-bold tracking-[0.12em] text-trace-mint">{p.client.toUpperCase()}</span>
+                      </div>
+                      <div className="flex flex-1 flex-col p-5">
+                        <h3 className="font-display text-xl font-extrabold leading-[1.06] tracking-[-0.04em] text-trace-ink group-hover:text-trace-teal transition-colors">{p.title}</h3>
+                        <div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-4 text-xs font-bold text-trace-muted">
+                          <span>{p.period}</span>
+                          <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                        </div>
+                      </div>
+                    </Link>
+                  </SectionReveal>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+      </main>
+    </Shell>
+  );
 }
 
 export function TeamPage() {
