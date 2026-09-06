@@ -42,14 +42,128 @@ function Shell({ children }: { children: ReactNode }) {
   return <div className="min-h-screen overflow-x-hidden bg-trace-paper"><SiteHeader />{children}<SiteFooter /></div>;
 }
 
-function PageHero({ label, title, description, tone = "light", kicker }: { label: string; title: ReactNode; description: string; tone?: "light" | "dark" | "navy"; kicker?: string }) {
+function PageHero({ label, title, description, tone = "light", kicker, titleText }: { label: string; title: ReactNode; description: string; tone?: "light" | "dark" | "navy"; kicker?: string; titleText?: string }) {
   const dark = tone !== "light";
   const field = tone === "dark" ? "bg-trace-ink" : tone === "navy" ? "bg-trace-navy" : "bg-white";
-  return <section className={`relative overflow-hidden pt-36 sm:pt-44 ${field} ${dark ? "text-white" : "text-trace-ink"}`}><div className="pointer-events-none absolute inset-0 opacity-50 hero-grid" /><div className={`pointer-events-none absolute right-[10%] top-[-18%] h-[380px] w-[380px] rounded-full blur-[90px] ${dark ? "bg-trace-teal/20" : "bg-trace-mint/70"}`} /><div className="relative mx-auto max-w-[1480px] px-5 pb-20 lg:px-10 sm:pb-28"><SectionReveal><p className={`section-label ${dark ? "!text-trace-mint" : ""}`}>{label}</p>{kicker && <p className={`mt-7 font-mono text-[10px] font-bold tracking-[0.18em] ${dark ? "text-white/55" : "text-trace-muted"}`}>{kicker}</p>}<h1 className="mt-5 max-w-5xl font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.07em] sm:text-7xl">{title}</h1><p className={`mt-7 max-w-2xl text-base leading-7 sm:text-lg sm:leading-8 ${dark ? "text-white/74" : "text-trace-muted"}`}>{description}</p></SectionReveal></div></section>;
+  const reduceMotion = useSafeMotion();
+  return (
+    <section className={`relative overflow-hidden pt-36 sm:pt-44 ${field} ${dark ? "text-white" : "text-trace-ink"}`}>
+      <div className="pointer-events-none absolute inset-0 opacity-50 hero-grid" />
+      <div className={`pointer-events-none absolute right-[10%] top-[-18%] h-[380px] w-[380px] rounded-full blur-[90px] ${dark ? "bg-trace-teal/20" : "bg-trace-mint/70"}`} />
+      <div className="relative mx-auto max-w-[1480px] px-5 pb-20 lg:px-10 sm:pb-28">
+        <motion.p
+          initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+          animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+          className={`section-label ${dark ? "!text-trace-mint" : ""}`}
+        >
+          {label}
+        </motion.p>
+        {kicker && (
+          <motion.p
+            initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+            animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.08, ease: [0.23, 1, 0.32, 1] }}
+            className={`mt-7 font-mono text-[10px] font-bold tracking-[0.18em] ${dark ? "text-white/55" : "text-trace-muted"}`}
+          >
+            {kicker}
+          </motion.p>
+        )}
+        {titleText ? (
+          <div className="mt-5">
+            <AnimatedHeading
+              text={titleText}
+              delay={0.15}
+              className="max-w-5xl font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.07em] sm:text-7xl"
+            />
+          </div>
+        ) : (
+          <motion.h1
+            initial={reduceMotion ? {} : { opacity: 0, y: 14 }}
+            animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15, ease: [0.23, 1, 0.32, 1] }}
+            className="mt-5 max-w-5xl font-display text-5xl font-extrabold leading-[0.9] tracking-[-0.07em] sm:text-7xl"
+          >
+            {title}
+          </motion.h1>
+        )}
+        <motion.p
+          initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+          animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35, ease: [0.23, 1, 0.32, 1] }}
+          className={`mt-7 max-w-2xl text-base leading-7 sm:text-lg sm:leading-8 ${dark ? "text-white/74" : "text-trace-muted"}`}
+        >
+          {description}
+        </motion.p>
+      </div>
+    </section>
+  );
 }
 
-function DetailMediaHero({ label, title, description, kicker, image }: { label: string; title: ReactNode; description: string; kicker: string; image: string }) {
-  return <section className="relative isolate min-h-[530px] overflow-hidden bg-trace-ink pt-36 text-white sm:min-h-[590px] sm:pt-44"><img src={image} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" /><div className="absolute inset-0 -z-10 bg-gradient-to-r from-trace-ink via-trace-ink/75 to-trace-ink/24" /><div className="pointer-events-none absolute inset-0 -z-10 opacity-25 hero-grid" /><div className="relative mx-auto flex min-h-[350px] max-w-[1480px] flex-col justify-end px-5 pb-16 lg:px-10 sm:pb-20"><SectionReveal><p className="section-label !text-trace-mint">{label}</p><p className="mt-6 font-mono text-[10px] font-bold tracking-[0.16em] text-white/72">{kicker}</p><h1 className="mt-5 max-w-5xl font-display text-5xl font-extrabold leading-[0.92] tracking-[-0.07em] sm:text-7xl">{title}</h1><p className="mt-7 max-w-3xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">{description}</p></SectionReveal></div></section>;
+function DetailMediaHero({ label, title, description, kicker, image }: { label: string; title: string; description: string; kicker: string; image: string }) {
+  return <AnimatedDetailHero label={label} title={title} description={description} kicker={kicker} image={image} />;
+}
+
+function AnimatedDetailHero({ label, title, description, kicker, image }: { label: string; title: string; description: string; kicker: string; image: string }) {
+  const reduceMotion = useSafeMotion();
+  const heroRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.18]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 1], [0.4, 0.75]);
+
+  return (
+    <section
+      ref={heroRef}
+      className="relative isolate min-h-[530px] overflow-hidden bg-trace-ink pt-36 text-white sm:min-h-[590px] sm:pt-44"
+    >
+      <motion.img
+        src={image}
+        alt=""
+        style={reduceMotion ? undefined : { y: imageY, scale: imageScale }}
+        className="absolute inset-0 -z-20 h-[120%] w-full object-cover"
+      />
+      <motion.div
+        style={reduceMotion ? undefined : { opacity: overlayOpacity }}
+        className="absolute inset-0 -z-10 bg-gradient-to-r from-trace-ink via-trace-ink/75 to-trace-ink/24"
+      />
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-25 hero-grid" />
+      <div className="relative mx-auto flex min-h-[350px] max-w-[1480px] flex-col justify-end px-5 pb-16 lg:px-10 sm:pb-20">
+        <motion.p
+          initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+          animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+          className="section-label !text-trace-mint"
+        >
+          {label}
+        </motion.p>
+        <motion.p
+          initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+          animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.08, ease: [0.23, 1, 0.32, 1] }}
+          className="mt-6 font-mono text-[10px] font-bold tracking-[0.16em] text-white/72"
+        >
+          {kicker}
+        </motion.p>
+        <div className="mt-5">
+          <AnimatedHeading
+            text={title}
+            delay={0.15}
+            className="max-w-5xl font-display text-5xl font-extrabold leading-[0.92] tracking-[-0.07em] sm:text-7xl"
+          />
+        </div>
+        <motion.p
+          initial={reduceMotion ? {} : { opacity: 0, y: 10 }}
+          whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.35, ease: [0.23, 1, 0.32, 1] }}
+          className="mt-7 max-w-3xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8"
+        >
+          {description}
+        </motion.p>
+      </div>
+    </section>
+  );
 }
 
 function BackLink({ href, label }: { href: string; label: string }) {
@@ -64,7 +178,15 @@ function RelationshipRail({ title, children, action }: { title: string; children
   return (
     <section className="border-t border-trace-ink/10 py-12 sm:py-16">
       <div className="flex items-center justify-between gap-5">
-        <div><p className="section-label">CONNECTED RECORDS</p><h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">{title}</h2></div>
+        <div>
+          <AnimatedEyebrow text="CONNECTED RECORDS" />
+          <div className="mt-3">
+            <AnimatedHeading
+              text={title}
+              className="font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink"
+            />
+          </div>
+        </div>
         {action}
       </div>
       {/* pr-5 prevents last card clipping; items-stretch keeps cards same height per row */}
@@ -277,7 +399,7 @@ function AnimatedHeading({ text, className = "", delay = 0 }: { text: string; cl
 }
 
 /** Animated eyebrow with a line that draws in on view. */
-function AnimatedEyebrow({ number, text }: { number: string; text: string }) {
+function AnimatedEyebrow({ number, text }: { number?: string; text: string }) {
   const reduceMotion = useSafeMotion();
   return (
     <div className="flex items-center gap-3">
@@ -291,13 +413,40 @@ function AnimatedEyebrow({ number, text }: { number: string; text: string }) {
         aria-hidden="true"
       />
       <p className="font-mono text-[10px] font-bold tracking-[0.18em]">
-        <span className="text-trace-teal">{number}</span>
-        <span className="mx-2 text-trace-ink/25">·</span>
+        {number && (
+          <>
+            <span className="text-trace-teal">{number}</span>
+            <span className="mx-2 text-trace-ink/25">·</span>
+          </>
+        )}
         <span className="bg-gradient-to-r from-trace-teal via-trace-navy to-trace-teal bg-clip-text text-transparent">
           {text}
         </span>
       </p>
     </div>
+  );
+}
+
+/** Giant faded chapter/section number that drifts in parallax as the section enters and leaves the viewport. Anchor by wrapping in a `relative` parent. */
+function GhostNumber({ value }: { value: string }) {
+  const reduceMotion = useSafeMotion();
+  const ref = useRef<HTMLSpanElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const opacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0, 0.045, 0.045, 0]);
+  if (reduceMotion) return null;
+  return (
+    <motion.span
+      ref={ref}
+      aria-hidden="true"
+      style={{ y, opacity }}
+      className="pointer-events-none absolute -right-6 -top-4 select-none font-display text-[200px] font-black leading-none tracking-[-0.08em] text-trace-ink sm:text-[280px]"
+    >
+      {value}
+    </motion.span>
   );
 }
 
@@ -307,34 +456,15 @@ function ServiceChapterSection({ chapter, registerRef, index }: {
   index: number;
 }) {
   const reduceMotion = useSafeMotion();
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-  const ghostY = useTransform(scrollYProgress, [0, 1], [40, -40]);
-  const ghostOpacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0, 0.045, 0.045, 0]);
 
   return (
     <section
-      ref={(element) => {
-        sectionRef.current = element;
-        registerRef(element, index);
-      }}
+      ref={(element) => registerRef(element, index)}
       id={chapter.id}
       data-chapter-id={chapter.id}
       className="relative scroll-mt-32 pt-6 first:pt-0"
     >
-      {/* Giant ghost chapter number — parallax faded */}
-      {!reduceMotion && (
-        <motion.span
-          aria-hidden="true"
-          style={{ y: ghostY, opacity: ghostOpacity }}
-          className="pointer-events-none absolute -right-6 -top-4 select-none font-display text-[200px] font-black leading-none tracking-[-0.08em] text-trace-ink sm:text-[280px]"
-        >
-          {String(index + 1).padStart(2, "0")}
-        </motion.span>
-      )}
+      <GhostNumber value={String(index + 1).padStart(2, "0")} />
 
       <div className="relative">
         <AnimatedEyebrow number={String(index + 1).padStart(2, "0")} text={chapter.eyebrow} />
@@ -810,7 +940,7 @@ export function ProjectDetailPage() {
         {/* ── Hero ── */}
         <DetailMediaHero
           label="PROJECT"
-          title={<>{project.title}</>}
+          title={project.title}
           description={project.summary}
           kicker={`${project.client.toUpperCase()} · ${project.period} · ${project.status.toUpperCase()}`}
           image={projectImage(project)}
@@ -827,14 +957,22 @@ export function ProjectDetailPage() {
               {/* LEFT — Overview */}
               <div>
                 <SectionReveal>
-                  <p className="section-label">PROJECT OVERVIEW</p>
-                  <h2 className="mt-4 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.06em] text-trace-ink sm:text-5xl">
-                    A practical intervention with an institutional line of sight.
-                  </h2>
-                  <p className="mt-6 text-base leading-8 text-trace-muted">{project.summary}</p>
-                  <p className="mt-4 text-base leading-8 text-trace-muted">
-                    This TRACE record links the mandate with its named client, connected service areas, delivery team, and published knowledge content—so the work remains visible in context.
-                  </p>
+                  <div className="relative">
+                    <GhostNumber value="01" />
+                    <div className="relative">
+                      <AnimatedEyebrow number="01" text="PROJECT OVERVIEW" />
+                      <div className="mt-4">
+                        <AnimatedHeading
+                          text="A practical intervention with an institutional line of sight."
+                          className="font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.06em] text-trace-ink sm:text-5xl"
+                        />
+                      </div>
+                      <p className="mt-6 text-base leading-8 text-trace-muted">{project.summary}</p>
+                      <p className="mt-4 text-base leading-8 text-trace-muted">
+                        This TRACE record links the mandate with its named client, connected service areas, delivery team, and published knowledge content—so the work remains visible in context.
+                      </p>
+                    </div>
+                  </div>
                 </SectionReveal>
 
                 {/* Delivery metrics */}
@@ -854,7 +992,7 @@ export function ProjectDetailPage() {
                 {/* Service areas */}
                 <SectionReveal delay={0.12}>
                   <div className="mt-10">
-                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">SERVICE AREAS</p>
+                    <AnimatedEyebrow text="SERVICE AREAS" />
                     <div className="mt-4 flex flex-wrap gap-2">
                       {relatedServices.map((service) => (
                         <Link key={service.slug} href={`/services/${service.slug}`}>
@@ -932,8 +1070,13 @@ export function ProjectDetailPage() {
             <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
               <div className="flex items-end justify-between gap-5">
                 <SectionReveal>
-                  <p className="section-label">MORE PROJECTS</p>
-                  <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">More from TRACE.</h2>
+                  <AnimatedEyebrow text="MORE PROJECTS" />
+                  <div className="mt-3">
+                    <AnimatedHeading
+                      text="More from TRACE."
+                      className="font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink"
+                    />
+                  </div>
                 </SectionReveal>
                 <SectionReveal delay={0.06}>
                   <Link href="/projects" className="inline-flex items-center gap-2 border-b border-trace-teal pb-2 text-sm font-extrabold text-trace-ink">
@@ -981,7 +1124,7 @@ export function TeamDetailPage() {
   const memberServices = services.filter((service) => member.serviceSlugs.includes(service.slug));
   const memberProjects = projects.filter((project) => member.projectSlugs.includes(project.slug));
   const memberInsights = insights.filter((insight) => insight.teamSlugs.includes(member.slug));
-  return <Shell><main><PageHero label="TEAM MEMBER" title={<>{member.name}</>} description={member.bio} kicker={`${member.role.toUpperCase()} · ${member.specialty.toUpperCase()}`} /><section className="bg-trace-paper py-16"><div className="mx-auto max-w-[1120px] px-5 lg:px-10"><BackLink href="/team" label="team" /><div className="mt-11 grid gap-8 lg:grid-cols-[0.55fr_1.45fr]"><SectionReveal><div className="max-w-[300px] overflow-hidden bg-white ring-1 ring-trace-ink/10"><TeamPortrait member={member} className="aspect-square" imageClassName="p-4" /></div></SectionReveal><SectionReveal delay={0.1}><p className="section-label">AREAS OF PRACTICE</p><h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink">Relevant work, visible expertise.</h2><p className="mt-6 max-w-2xl text-base leading-8 text-trace-muted">{member.bio}</p><div className="mt-7 flex flex-wrap gap-2">{memberServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</div></SectionReveal></div><RelationshipRail title="Relevant projects">{memberProjects.length ? memberProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Relevant projects will be added as they are verified.</p>}</RelationshipRail><RelationshipRail title="Related insights">{memberInsights.length ? memberInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related insights will be added as they are published.</p>}</RelationshipRail></div></section></main></Shell>;
+  return <Shell><main><PageHero label="TEAM MEMBER" title={member.name} titleText={member.name} description={member.bio} kicker={`${member.role.toUpperCase()} · ${member.specialty.toUpperCase()}`} /><section className="bg-trace-paper py-16"><div className="mx-auto max-w-[1120px] px-5 lg:px-10"><BackLink href="/team" label="team" /><div className="mt-11 grid gap-8 lg:grid-cols-[0.55fr_1.45fr]"><SectionReveal><div className="max-w-[300px] overflow-hidden bg-white ring-1 ring-trace-ink/10"><TeamPortrait member={member} className="aspect-square" imageClassName="p-4" /></div></SectionReveal><SectionReveal delay={0.1}><AnimatedEyebrow number="01" text="AREAS OF PRACTICE" /><div className="mt-4"><AnimatedHeading text="Relevant work, visible expertise." className="font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink" /></div><p className="mt-6 max-w-2xl text-base leading-8 text-trace-muted">{member.bio}</p><div className="mt-7 flex flex-wrap gap-2">{memberServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</div></SectionReveal></div><RelationshipRail title="Relevant projects">{memberProjects.length ? memberProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Relevant projects will be added as they are verified.</p>}</RelationshipRail><RelationshipRail title="Related insights">{memberInsights.length ? memberInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related insights will be added as they are published.</p>}</RelationshipRail></div></section></main></Shell>;
 }
 
 export function InsightsPage() {
@@ -1083,7 +1226,7 @@ export function InsightDetailPage() {
   const relatedServices = services.filter((service) => insight.serviceSlugs.includes(service.slug));
   const relatedProjects = projects.filter((project) => insight.projectSlugs.includes(project.slug));
   const relatedTeam = team.filter((member) => insight.teamSlugs.includes(member.slug));
-  return <Shell><main><DetailMediaHero label={insight.type.toUpperCase()} title={<>{insight.title}</>} description={insight.summary} kicker={insight.date.toUpperCase()} image={insightImage(insight)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/insights" label="insights" /><div className="mt-12 grid gap-12 lg:grid-cols-[1.18fr_0.82fr]"><SectionReveal><article className="bg-white p-7 sm:p-10">{insight.type === "Video" && <a href={insight.sourceUrl} target="_blank" rel="noreferrer" className="group relative grid aspect-video place-items-center overflow-hidden bg-trace-ink"><img src={insightImage(insight)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105" /><span className="relative grid h-16 w-16 place-items-center rounded-full border border-white/60 bg-trace-navy/80 text-white"><PlayCircle className="h-8 w-8 text-trace-mint" /></span></a>}<p className="mt-7 font-mono text-[10px] font-bold tracking-[0.16em] text-trace-teal">TRACE KNOWLEDGE RECORD</p><h2 className="mt-4 font-display text-3xl font-extrabold leading-[1.08] tracking-[-0.055em] text-trace-ink">A TRACE perspective.</h2><p className="mt-5 text-base leading-8 text-trace-muted">{insight.summary} The original source remains available through the verified destination associated with this record.</p><SourceAction insight={insight} /></article></SectionReveal><SectionReveal delay={0.08}><aside className="relative overflow-hidden border border-trace-ink/10 bg-white p-7"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><p className="section-label">FOLLOW THE IDEA</p><div className="mt-5 flex flex-wrap gap-2">{relatedServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</div><p className="mt-9 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">FORMAT</p><p className="mt-2 font-display text-2xl font-extrabold text-trace-ink">{insight.type}</p><p className="mt-1 text-sm text-trace-muted">{insight.date}</p><SourceAction insight={insight} /></aside></SectionReveal></div><RelationshipRail title="Related projects">{relatedProjects.length ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Related projects will be connected as they are verified.</p>}</RelationshipRail><RelationshipRail title="Relevant experts">{relatedTeam.length ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Relevant experts will be connected as they are verified.</p>}</RelationshipRail></div></section></main></Shell>;
+  return <Shell><main><DetailMediaHero label={insight.type.toUpperCase()} title={insight.title} description={insight.summary} kicker={insight.date.toUpperCase()} image={insightImage(insight)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/insights" label="insights" /><div className="mt-12 grid gap-12 lg:grid-cols-[1.18fr_0.82fr]"><SectionReveal><article className="relative overflow-hidden bg-white p-7 sm:p-10"><GhostNumber value="01" />{insight.type === "Video" && <a href={insight.sourceUrl} target="_blank" rel="noreferrer" className="group relative grid aspect-video place-items-center overflow-hidden bg-trace-ink"><img src={insightImage(insight)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105" /><span className="relative grid h-16 w-16 place-items-center rounded-full border border-white/60 bg-trace-navy/80 text-white"><PlayCircle className="h-8 w-8 text-trace-mint" /></span></a>}<div className="relative mt-7"><AnimatedEyebrow number="01" text="TRACE KNOWLEDGE RECORD" /></div><div className="relative mt-4"><AnimatedHeading text="A TRACE perspective." className="font-display text-3xl font-extrabold leading-[1.08] tracking-[-0.055em] text-trace-ink" /></div><p className="relative mt-5 text-base leading-8 text-trace-muted">{insight.summary} The original source remains available through the verified destination associated with this record.</p><div className="relative"><SourceAction insight={insight} /></div></article></SectionReveal><SectionReveal delay={0.08}><aside className="relative overflow-hidden border border-trace-ink/10 bg-white p-7"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><AnimatedEyebrow text="FOLLOW THE IDEA" /><div className="mt-5 flex flex-wrap gap-2">{relatedServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</div><p className="mt-9 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">FORMAT</p><p className="mt-2 font-display text-2xl font-extrabold text-trace-ink">{insight.type}</p><p className="mt-1 text-sm text-trace-muted">{insight.date}</p><SourceAction insight={insight} /></aside></SectionReveal></div><RelationshipRail title="Related projects">{relatedProjects.length ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Related projects will be connected as they are verified.</p>}</RelationshipRail><RelationshipRail title="Relevant experts">{relatedTeam.length ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Relevant experts will be connected as they are verified.</p>}</RelationshipRail></div></section></main></Shell>;
 }
 
 export function InnovationsPage() {
