@@ -1,12 +1,11 @@
 /** TRACE accessible light foundation: a systems-led positioning brief and scan-friendly project showcase using approved navy, turquoise, and existing TRACE project data. */
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ArrowUpRight, X } from "lucide-react";
 import { Link } from "wouter";
 import { ASSETS, services, type Service } from "@/data/traceData";
 import { SectionReveal } from "@/components/SectionReveal";
 import ScrollStack, { ScrollStackItem } from "@/components/ui/ScrollStack";
-import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
 
 // TRACE logo colors per pillar. cardBg used for ScrollStack cards.
@@ -274,69 +273,186 @@ export function TracePositioningSection() {
   );
 }
 
-function ServiceCard({ service, index }: { service: Service; index: number }) {
-  const [open, setOpen] = useState(false);
+function ServiceOverviewDialog({ service, onClose }: { service: Service | null; onClose: () => void }) {
   const reduceMotion = useReducedMotion();
-  const disciplineText = service.disciplines.join(" · ");
+  const disciplineText = service?.disciplines.join(" · ");
+
+  useEffect(() => {
+    if (!service) return;
+    const close = (event: KeyboardEvent) => event.key === "Escape" && onClose();
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [service, onClose]);
+
+  // Lock body scroll while open
+  useEffect(() => {
+    if (service) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [service]);
+
   return (
-    <SectionReveal delay={Math.min(index * 0.045, 0.2)}>
-      <StarBorder color="#009CA6" speed="8s" className="h-full">
-      <article className={`group relative flex h-full flex-col overflow-hidden bg-white shadow-[0_14px_32px_rgba(18,61,103,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(18,61,103,0.18)]`}>
-        <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} />
-        <Link href={`/services/${service.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-trace-navy" aria-label={`Open ${service.title} briefing`}>
-          <img src={serviceImages[service.slug]} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.055]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/52 via-transparent to-transparent" />
-          <span className="absolute left-4 top-4 bg-white/94 px-3 py-1.5 font-display text-[10px] font-black tracking-[0.08em] text-trace-navy shadow-sm">{service.solutions} SOLUTIONS</span>
-          <span className="absolute right-4 top-4 grid h-9 w-9 place-items-center bg-trace-navy/90 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"><ArrowUpRight className="h-4 w-4" /></span>
-        </Link>
-        <div className="flex flex-1 flex-col p-5 sm:p-6">
-          <p className="font-display text-[11px] font-black uppercase tracking-[0.09em] text-trace-teal">{service.strapline}</p>
-          <h3 className="mt-3 font-display text-[1.55rem] font-extrabold leading-[1.05] tracking-[-0.045em] text-trace-ink">{service.title}</h3>
-          <p className="mt-3 line-clamp-2 text-sm leading-6 text-trace-muted">{service.description}</p>
-
-          <AnimatePresence initial={false}>
-            {open && (
-              <motion.div
-                key="details"
-                initial={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                animate={reduceMotion ? { opacity: 1 } : { height: "auto", opacity: 1 }}
-                exit={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="mt-4 border-t border-trace-ink/8 pt-4">
-                  <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-trace-teal">DISCIPLINES</p>
-                  <ul className="mt-3 flex flex-wrap gap-1.5">
-                    {service.disciplines.map((discipline) => (
-                      <li key={discipline} className="border border-trace-ink/12 bg-trace-paper px-2.5 py-1 text-[11px] font-bold leading-4 text-trace-navy">{discipline}</li>
-                    ))}
-                  </ul>
-                  <p className="mt-4 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-teal">FOCUS</p>
-                  <p className="mt-2 text-[13px] leading-5 text-trace-muted">{disciplineText}.</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="mt-auto flex items-center justify-between gap-3 border-t border-trace-ink/8 pt-4">
+    <AnimatePresence>
+      {service && (
+        <motion.div
+          className="fixed inset-0 z-[80] grid place-items-center bg-trace-ink/80 px-4 py-8 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${service.title} overview`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.22 }}
+          onMouseDown={onClose}
+        >
+          <motion.article
+            initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduceMotion ? {} : { opacity: 0, y: 12, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            onMouseDown={(event) => event.stopPropagation()}
+            className="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-[0_32px_100px_rgba(0,0,0,0.38)]"
+          >
+            {/* Close button */}
             <button
               type="button"
-              onClick={() => setOpen((current) => !current)}
-              aria-expanded={open}
-              aria-controls={`service-details-${service.slug}`}
-              className="inline-flex items-center gap-1.5 text-xs font-extrabold text-trace-navy transition-colors hover:text-trace-teal"
+              onClick={onClose}
+              aria-label="Close overview"
+              className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-trace-ink/70 text-white backdrop-blur-sm transition-colors hover:bg-trace-ink"
             >
-              {open ? "Hide details" : "Show details"}
-              <ChevronDown className={`h-4 w-4 text-trace-teal transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+              <X className="h-4 w-4" />
             </button>
-            <Link href={`/services/${service.slug}`} className="inline-flex items-center gap-1.5 text-xs font-extrabold text-trace-ink hover:text-trace-teal">
-              Explore <ArrowUpRight className="h-4 w-4 text-trace-orange" />
-            </Link>
+
+            {/* Hero image */}
+            <div className="relative aspect-[16/7] overflow-hidden rounded-t-2xl bg-trace-navy">
+              <img
+                src={serviceImages[service.slug]}
+                alt=""
+                className="h-full w-full object-cover opacity-85"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/75 via-transparent to-transparent" />
+              <span className="absolute left-5 top-5 bg-white/90 px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.1em] text-trace-navy shadow-sm">
+                {service.solutions} SOLUTIONS
+              </span>
+            </div>
+
+            {/* Body */}
+            <div className="p-7 sm:p-9">
+              <p className="font-mono text-[11px] font-bold tracking-[0.16em] text-trace-teal">
+                {service.strapline.toUpperCase()}
+              </p>
+              <h2 className="mt-3 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.055em] text-trace-ink sm:text-4xl">
+                {service.title}
+              </h2>
+              <p className="mt-4 text-base leading-7 text-trace-muted">{service.description}</p>
+
+              <div className="mt-7 border-t border-trace-ink/8 pt-6">
+                <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-trace-teal">DISCIPLINES</p>
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {service.disciplines.map((discipline) => (
+                    <li
+                      key={discipline}
+                      className="rounded-full border border-trace-ink/14 bg-trace-paper px-3.5 py-1.5 font-mono text-[11px] font-bold text-trace-navy"
+                    >
+                      {discipline}
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="mt-6 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-teal">FOCUS</p>
+                <p className="mt-2 text-sm leading-6 text-trace-muted">{disciplineText}.</p>
+              </div>
+
+              {/* CTAs */}
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link
+                  href={`/services/${service.slug}`}
+                  className="inline-flex items-center gap-2 bg-trace-navy px-6 py-3 text-sm font-extrabold text-white transition-transform duration-200 hover:-translate-y-0.5"
+                >
+                  Explore service <ArrowUpRight className="h-4 w-4 text-trace-mint" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-5 py-3 text-sm font-extrabold text-trace-ink transition-colors hover:text-trace-teal"
+                >
+                  Keep exploring
+                </button>
+              </div>
+            </div>
+          </motion.article>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function ServiceCard({ service, index }: { service: Service; index: number }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  return (
+    <>
+      <SectionReveal delay={Math.min(index * 0.045, 0.2)} className="h-full">
+        <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_14px_32px_rgba(18,61,103,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(18,61,103,0.18)]">
+          <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
+
+          {/* Image — clicking navigates to service page */}
+          <Link
+            href={`/services/${service.slug}`}
+            className="relative block aspect-[16/9] overflow-hidden rounded-t-2xl bg-trace-navy"
+            aria-label={`Open ${service.title} briefing`}
+          >
+            <img
+              src={serviceImages[service.slug]}
+              alt=""
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.055]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/52 via-transparent to-transparent" />
+            <span className="absolute left-4 top-4 bg-white/94 px-3 py-1.5 font-display text-[10px] font-black tracking-[0.08em] text-trace-navy shadow-sm">
+              {service.solutions} SOLUTIONS
+            </span>
+            <span className="absolute right-4 top-4 grid h-9 w-9 place-items-center bg-trace-navy/90 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <ArrowUpRight className="h-4 w-4" />
+            </span>
+          </Link>
+
+          {/* Body */}
+          <div className="flex flex-1 flex-col p-5 sm:p-6">
+            <p className="font-display text-[11px] font-black uppercase tracking-[0.09em] text-trace-teal">
+              {service.strapline}
+            </p>
+            <h3 className="mt-3 font-display text-[1.55rem] font-extrabold leading-[1.05] tracking-[-0.045em] text-trace-ink">
+              {service.title}
+            </h3>
+            <p className="mt-3 line-clamp-2 text-sm leading-6 text-trace-muted">{service.description}</p>
+
+            {/* Footer */}
+            <div className="mt-auto flex items-center justify-between gap-3 border-t border-trace-ink/8 pt-4">
+              <button
+                type="button"
+                onClick={() => setDialogOpen(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-extrabold text-trace-navy transition-colors hover:text-trace-teal"
+              >
+                Overview
+                <ArrowUpRight className="h-3.5 w-3.5 text-trace-teal" />
+              </button>
+              <Link
+                href={`/services/${service.slug}`}
+                className="inline-flex items-center gap-1.5 text-xs font-extrabold text-trace-ink hover:text-trace-teal"
+              >
+                Explore <ArrowUpRight className="h-4 w-4 text-trace-orange" />
+              </Link>
+            </div>
           </div>
-        </div>
-      </article>
-      </StarBorder>
-    </SectionReveal>
+        </article>
+      </SectionReveal>
+
+      {/* Overview popup — rendered via portal so it escapes the card stacking context */}
+      <ServiceOverviewDialog
+        service={dialogOpen ? service : null}
+        onClose={() => setDialogOpen(false)}
+      />
+    </>
   );
 }
 

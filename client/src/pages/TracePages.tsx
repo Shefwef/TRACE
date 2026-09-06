@@ -85,7 +85,85 @@ export function AboutPage() {
 }
 
 export function ServicesPage() {
-  return <Shell><main><PageHero label="SERVICES" title={<>Capabilities for <span className="text-trace-mint">systems that matter.</span></>} description="Integrated advisory, technology, research, and implementation services for more competitive, capable, and resilient institutions." tone="navy" /><section className="py-20 sm:py-28"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="max-w-2xl"><p className="section-label">AREAS OF DELIVERY</p><h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Each service starts with context—and ends in capability.</h2></div><div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{services.map((service, index) => <SectionReveal key={service.slug} delay={index * 0.04}><Link href={`/services/${service.slug}`} className="group relative flex min-h-[415px] flex-col overflow-hidden border border-trace-ink/10 bg-white transition-transform duration-300 hover:-translate-y-1"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} /><div className="relative h-48 overflow-hidden bg-trace-paper"><img src={serviceImage(service)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/58 to-transparent" /><span className="absolute bottom-4 left-5 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-mint">{service.solutions} INTEGRATED SOLUTIONS</span></div><div className="flex flex-1 flex-col p-7"><p className="font-mono text-[10px] font-bold tracking-[0.14em] text-trace-teal">{service.strapline.toUpperCase()}</p><h2 className="mt-4 font-display text-3xl font-extrabold leading-[0.98] tracking-[-0.055em] text-trace-ink">{service.title}</h2><p className="mt-5 text-sm leading-6 text-trace-muted">{service.description}</p><div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-5"><span className="text-xs font-bold text-trace-muted">View service briefing</span><ArrowUpRight className="h-5 w-5 text-trace-orange transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" /></div></div></Link></SectionReveal>)}</div></div></section></main></Shell>;
+  return (
+    <Shell>
+      <main>
+        <PageHero label="SERVICES" title={<>Capabilities for <span className="text-trace-mint">systems that matter.</span></>} description="Integrated advisory, technology, research, and implementation services for more competitive, capable, and resilient institutions." tone="navy" />
+        <section className="py-20 sm:py-28">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="max-w-2xl">
+              <p className="section-label">AREAS OF DELIVERY</p>
+              <h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Each service starts with context—and ends in capability.</h2>
+            </div>
+            <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {services.map((service, index) => (
+                <SectionReveal key={service.slug} delay={index * 0.04} className="h-full">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="h-full"
+                  >
+                    <Link href={`/services/${service.slug}`} className="block h-full">
+                      <div className="group relative h-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.16)]">
+                        <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
+                        <div className="relative aspect-[16/9] w-full overflow-hidden">
+                          <motion.img
+                            src={serviceImage(service)}
+                            alt={service.title}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/60 via-trace-ink/10 to-transparent" />
+                          <span className="absolute right-4 top-4 bg-trace-orange px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] text-white">
+                            {service.solutions} SOLUTIONS
+                          </span>
+                          <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
+                            {service.disciplines.slice(0, 3).map((discipline) => (
+                              <span
+                                key={discipline}
+                                className="rounded-full border-0 bg-trace-ink/55 px-3 py-1 font-mono text-[9px] font-bold tracking-[0.08em] text-white/90 backdrop-blur-sm"
+                              >
+                                {discipline}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center bg-trace-ink/20 backdrop-blur-[2px] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <motion.span
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-trace-ink shadow-lg"
+                            >
+                              <ArrowUpRight className="h-4 w-4 text-trace-teal" />
+                              View Service
+                            </motion.span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-3 p-5 sm:p-6">
+                          <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">
+                            {service.strapline.toUpperCase()}
+                          </p>
+                          <h3 className="font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink transition-colors group-hover:text-trace-teal sm:text-2xl">
+                            {service.title}
+                          </h3>
+                          <p className="line-clamp-2 text-sm leading-6 text-trace-muted">
+                            {service.description}
+                          </p>
+                          <div className="flex items-center justify-between border-t border-trace-ink/8 pt-3">
+                            <span className="text-xs font-bold text-trace-ink">Service briefing</span>
+                            <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                </SectionReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 function ServiceStoryChapter({ chapter, index, isActive, registerRef }: {
@@ -305,7 +383,91 @@ export function InsightsPage() {
   const [query, setQuery] = useState("");
   const types = ["All", "Video", "Article", "Publication", "Meeting", "Event", "Brochure"];
   const displayed = useMemo(() => insights.filter((insight) => (type === "All" || insight.type === type) && (!query || `${insight.title} ${insight.summary}`.toLowerCase().includes(query.toLowerCase()))), [type, query]);
-  return <Shell><main><PageHero label="KNOWLEDGE & RESEARCH" title={<>Ideas that move <span className="text-trace-teal">trade forward.</span></>} description="Videos, articles, publications, and brochures from TRACE’s growing body of published knowledge." tone="dark" kicker={`${insights.length} PUBLISHED INSIGHT RECORDS`} /><section className="py-16 sm:py-20"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-2">{types.map((item) => <button key={item} onClick={() => setType(item)} className={`px-4 py-2 text-xs font-extrabold transition-colors ${type === item ? "border-b-2 border-trace-orange text-trace-navy" : "text-trace-muted hover:text-trace-navy"}`}>{item.toUpperCase()}</button>)}</div><label className="flex w-full max-w-md items-center gap-3 border border-trace-ink/12 bg-white px-3 py-3"><Search className="h-4 w-4 text-trace-teal" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search knowledge" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" /></label></div><p className="mt-7 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-muted">SHOWING {displayed.length} INSIGHT{displayed.length === 1 ? "" : "S"}</p><div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{displayed.map((insight, index) => <SectionReveal key={insight.slug} delay={index * 0.04}><StarBorder color="#009CA6" speed="8s" className="h-full"><Link href={`/insights/${insight.slug}`} className="group flex min-h-[465px] flex-col overflow-hidden bg-white transition-transform duration-300 hover:-translate-y-1"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} /><div className="relative h-48 overflow-hidden bg-trace-paper"><img src={insightImage(insight)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/55 to-transparent" /><span className="absolute left-5 top-5 bg-trace-navy px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.13em] text-white">{insight.type.toUpperCase()}</span></div><div className="flex flex-1 flex-col p-7"><p className="font-mono text-[9px] font-bold tracking-[0.13em] text-trace-teal">{insight.date.toUpperCase()}</p><h2 className="mt-4 font-display text-3xl font-extrabold leading-[1.04] tracking-[-0.055em] text-trace-ink">{insight.title}</h2><p className="mt-5 line-clamp-4 text-sm leading-6 text-trace-muted">{insight.summary}</p><div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-5"><span className="text-xs font-bold text-trace-muted">Open insight</span><ArrowUpRight className="h-5 w-5 text-trace-orange transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" /></div></div></Link></StarBorder></SectionReveal>)}</div>{displayed.length === 0 && <p className="py-16 text-center text-trace-muted">No insights match this search.</p>}</div></section></main></Shell>;
+  return (
+    <Shell>
+      <main>
+        <PageHero label="KNOWLEDGE & RESEARCH" title={<>Ideas that move <span className="text-trace-teal">trade forward.</span></>} description="Videos, articles, publications, and brochures from TRACE’s growing body of published knowledge." tone="dark" kicker={`${insights.length} PUBLISHED INSIGHT RECORDS`} />
+        <section className="py-16 sm:py-20">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {types.map((item) => (
+                  <button key={item} onClick={() => setType(item)} className={`px-4 py-2 text-xs font-extrabold transition-colors ${type === item ? "border-b-2 border-trace-orange text-trace-navy" : "text-trace-muted hover:text-trace-navy"}`}>{item.toUpperCase()}</button>
+                ))}
+              </div>
+              <label className="flex w-full max-w-md items-center gap-3 border border-trace-ink/12 bg-white px-3 py-3">
+                <Search className="h-4 w-4 text-trace-teal" />
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search knowledge" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" />
+              </label>
+            </div>
+            <p className="mt-7 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-muted">SHOWING {displayed.length} INSIGHT{displayed.length === 1 ? "" : "S"}</p>
+            <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {displayed.map((insight, index) => (
+                <SectionReveal key={insight.slug} delay={index * 0.04} className="h-full">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="h-full"
+                  >
+                    <Link href={`/insights/${insight.slug}`} className="block h-full">
+                      <div className="group relative h-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.16)]">
+                        <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
+                        <div className="relative aspect-[16/9] w-full overflow-hidden">
+                          <motion.img
+                            src={insightImage(insight)}
+                            alt={insight.title}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/60 via-trace-ink/10 to-transparent" />
+                          <span className="absolute right-4 top-4 bg-trace-orange px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] text-white">
+                            {insight.type.toUpperCase()}
+                          </span>
+                          {insight.type === "Video" && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="grid h-14 w-14 place-items-center rounded-full bg-white/95 shadow-lg">
+                                <PlayCircle className="h-8 w-8 text-trace-teal" />
+                              </span>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 flex items-center justify-center bg-trace-ink/20 backdrop-blur-[2px] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <motion.span
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-trace-ink shadow-lg"
+                            >
+                              <ArrowUpRight className="h-4 w-4 text-trace-teal" />
+                              Open Insight
+                            </motion.span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-3 p-5 sm:p-6">
+                          <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">
+                            {insight.date.toUpperCase()}
+                          </p>
+                          <h3 className="font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink transition-colors group-hover:text-trace-teal sm:text-2xl">
+                            {insight.title}
+                          </h3>
+                          <p className="line-clamp-3 text-sm leading-6 text-trace-muted">
+                            {insight.summary}
+                          </p>
+                          <div className="flex items-center justify-between border-t border-trace-ink/8 pt-3">
+                            <span className="text-xs font-bold text-trace-ink">{insight.type}</span>
+                            <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                </SectionReveal>
+              ))}
+            </div>
+            {displayed.length === 0 && <p className="py-16 text-center text-trace-muted">No insights match this search.</p>}
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 export function InsightDetailPage() {
@@ -319,7 +481,81 @@ export function InsightDetailPage() {
 }
 
 export function InnovationsPage() {
-  return <Shell><main><PageHero label="OUR INNOVATIONS" title={<>Intelligence that makes the next <span className="text-trace-teal">move visible.</span></>} description="Digital products that turn complex trade rules, export priorities, and scattered data into usable decisions." tone="dark" /><section className="bg-trace-paper py-20 sm:py-28"><div className="mx-auto grid max-w-[1480px] gap-7 px-5 lg:px-10">{innovations.map((innovation, index) => <SectionReveal key={innovation.slug} delay={index * 0.08}><StarBorder color="#009CA6" speed="8s"><motion.article whileHover={{ y: -7 }} transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }} className="group grid overflow-hidden bg-white lg:grid-cols-[1.1fr_0.9fr]"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} /><div className="relative min-h-[320px] overflow-hidden bg-trace-ink"><img src={innovation.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75 transition-transform duration-700 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-tr from-trace-ink/78 via-trace-ink/22 to-transparent" /><div className="absolute bottom-7 left-7 flex flex-wrap gap-2">{innovation.tags.map((tag) => <span key={tag} className="border border-white/22 bg-white/10 px-3 py-2 font-mono text-[10px] font-bold tracking-[0.12em] text-trace-mint">{tag.toUpperCase()}</span>)}</div></div><div className="flex flex-col justify-between p-8 sm:p-10"><div><p className="section-label">TRACE PRODUCT 0{index + 1}</p><h2 className="mt-5 font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] text-trace-ink">{innovation.title}</h2><p className="mt-6 text-sm leading-7 text-trace-muted">{innovation.description}</p></div><a href={innovation.url} target="_blank" rel="noreferrer" className="mt-10 inline-flex w-fit items-center gap-2 border-b border-trace-teal pb-2 text-sm font-extrabold text-trace-ink transition-transform duration-200 group-hover:translate-x-1">Visit platform <ExternalLink className="h-4 w-4 text-trace-orange" /></a></div></motion.article></StarBorder></SectionReveal>)}</div></section></main></Shell>;
+  return (
+    <Shell>
+      <main>
+        <PageHero label="OUR INNOVATIONS" title={<>Intelligence that makes the next <span className="text-trace-teal">move visible.</span></>} description="Digital products that turn complex trade rules, export priorities, and scattered data into usable decisions." tone="dark" />
+        <section className="bg-trace-paper py-20 sm:py-28">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {innovations.map((innovation, index) => (
+                <SectionReveal key={innovation.slug} delay={index * 0.06} className="h-full">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="h-full"
+                  >
+                    <a href={innovation.url} target="_blank" rel="noreferrer" className="block h-full">
+                      <div className="group relative h-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.16)]">
+                        <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
+                        <div className="relative aspect-[16/9] w-full overflow-hidden">
+                          <motion.img
+                            src={innovation.image}
+                            alt={innovation.title}
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/65 via-trace-ink/15 to-transparent" />
+                          <span className="absolute right-4 top-4 bg-trace-orange px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] text-white">
+                            PRODUCT 0{index + 1}
+                          </span>
+                          <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
+                            {innovation.tags.slice(0, 3).map((tag) => (
+                              <span
+                                key={tag}
+                                className="rounded-full border-0 bg-trace-ink/55 px-3 py-1 font-mono text-[9px] font-bold tracking-[0.08em] text-white/90 backdrop-blur-sm"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center bg-trace-ink/20 backdrop-blur-[2px] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <motion.span
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-bold text-trace-ink shadow-lg"
+                            >
+                              <ExternalLink className="h-4 w-4 text-trace-teal" />
+                              Visit Platform
+                            </motion.span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-3 p-5 sm:p-6">
+                          <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">
+                            TRACE INNOVATION
+                          </p>
+                          <h3 className="font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink transition-colors group-hover:text-trace-teal sm:text-2xl">
+                            {innovation.title}
+                          </h3>
+                          <p className="line-clamp-3 text-sm leading-6 text-trace-muted">
+                            {innovation.description}
+                          </p>
+                          <div className="flex items-center justify-between border-t border-trace-ink/8 pt-3">
+                            <span className="text-xs font-bold text-trace-ink">Visit platform</span>
+                            <ExternalLink className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </motion.div>
+                </SectionReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 type CareerRole = {
