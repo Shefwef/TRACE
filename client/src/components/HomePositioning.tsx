@@ -62,6 +62,9 @@ const serviceImages: Record<Service["slug"], string> = {
   "market-access-sps": ASSETS.heroColdChain,
   "technology-solutions": ASSETS.heroInteroperability,
   "research-innovation": ASSETS.heroResearch,
+  "training-capacity-building": ASSETS.heroPolicy,
+  "technical-assistance-project-management": ASSETS.heroInteroperability,
+  "temperature-controlled-logistics": ASSETS.heroColdChain,
 };
 
 /** Auto-rotating 3D deck of pillar cards. Front card cycles back every ~4s; back cards are clickable to bring forward. */
