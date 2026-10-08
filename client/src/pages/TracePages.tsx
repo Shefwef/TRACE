@@ -10,7 +10,7 @@ import { TeamPortrait } from "@/components/TeamPortrait";
 import SpecularButton from "@/components/ui/SpecularButton";
 import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
-import { ASSETS, contact, innovations, insights, metrics, projects, services, team, type Insight, type Project, type Service, type ServiceProduct, type TeamMember } from "@/data/traceData";
+import { ASSETS, contact, innovations, insights, latestUpdates, metrics, projects, services, team, type Insight, type Project, type Service, type ServiceProduct, type TeamMember } from "@/data/traceData";
 import { ProjectCard } from "@/components/ui/glass-blog-card-shadcnui";
 
 const serviceMedia: Record<string, string> = {
@@ -175,6 +175,41 @@ function EntityTag({ children }: { children: ReactNode }) {
 }
 
 function RelationshipRail({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const slack = 2; // avoid flicker from sub-pixel rounding
+    setCanScrollLeft(el.scrollLeft > slack);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - slack);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateScrollState();
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    const resizeObserver = new ResizeObserver(updateScrollState);
+    resizeObserver.observe(el);
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      resizeObserver.disconnect();
+    };
+  }, [updateScrollState]);
+
+  const scrollByCard = useCallback((direction: -1 | 1) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Scroll by ~1 card width (first child width + gap). Falls back to 80% viewport width.
+    const firstChild = el.firstElementChild as HTMLElement | null;
+    const gap = 16; // matches gap-4
+    const step = firstChild ? firstChild.offsetWidth + gap : el.clientWidth * 0.8;
+    el.scrollBy({ left: direction * step, behavior: "smooth" });
+  }, []);
+
   return (
     <section className="border-t border-trace-ink/10 py-12 sm:py-16">
       <div className="flex items-center justify-between gap-5">
@@ -187,11 +222,50 @@ function RelationshipRail({ title, children, action }: { title: string; children
             />
           </div>
         </div>
-        {action}
+        <div className="flex items-center gap-3">
+          {/* Scroll chevrons — hidden until there's actually something to scroll to */}
+          <div className="hidden items-center gap-2 sm:flex">
+            <button
+              type="button"
+              onClick={() => scrollByCard(-1)}
+              disabled={!canScrollLeft}
+              aria-label="Scroll related records left"
+              className={`grid h-9 w-9 place-items-center rounded-full border border-trace-ink/15 bg-white text-trace-ink transition-all ${canScrollLeft ? "hover:border-trace-teal hover:text-trace-teal" : "opacity-30"}`}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollByCard(1)}
+              disabled={!canScrollRight}
+              aria-label="Scroll related records right"
+              className={`grid h-9 w-9 place-items-center rounded-full border border-trace-ink/15 bg-white text-trace-ink transition-all ${canScrollRight ? "hover:border-trace-teal hover:text-trace-teal" : "opacity-30"}`}
+            >
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+          {action}
+        </div>
       </div>
-      {/* pr-5 prevents last card clipping; items-stretch keeps cards same height per row */}
-      <div className="mt-7 flex snap-x items-stretch gap-4 overflow-x-auto pb-4 pr-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {children}
+
+      {/* Scroll rail with gradient fade edges to signal more content */}
+      <div className="relative mt-7">
+        {/* Left fade — only visible when scrolled right */}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent transition-opacity duration-200 ${canScrollLeft ? "opacity-100" : "opacity-0"}`}
+        />
+        {/* Right fade — visible when more cards exist to the right */}
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent transition-opacity duration-200 ${canScrollRight ? "opacity-100" : "opacity-0"}`}
+        />
+        <div
+          ref={scrollRef}
+          className="flex snap-x items-stretch gap-4 overflow-x-auto pb-4 pr-5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {children}
+        </div>
       </div>
     </section>
   );
@@ -932,7 +1006,6 @@ export function ProjectDetailPage() {
   const relatedServices = services.filter((service) => project.serviceSlugs.includes(service.slug));
   const contributors = team.filter((member) => project.teamSlugs.includes(member.slug));
   const relatedInsights = insights.filter((insight) => insight.projectSlugs.includes(project.slug));
-  const moreProjects = projects.filter((p) => p.slug !== project.slug).slice(0, 3);
 
   return (
     <Shell>
@@ -1064,50 +1137,6 @@ export function ProjectDetailPage() {
           </div>
         </section>
 
-        {/* ── More projects ── */}
-        {moreProjects.length > 0 && (
-          <section className="bg-[#F6FAFC] py-14 sm:py-20">
-            <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
-              <div className="flex items-end justify-between gap-5">
-                <SectionReveal>
-                  <AnimatedEyebrow text="MORE PROJECTS" />
-                  <div className="mt-3">
-                    <AnimatedHeading
-                      text="More from TRACE."
-                      className="font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink"
-                    />
-                  </div>
-                </SectionReveal>
-                <SectionReveal delay={0.06}>
-                  <Link href="/projects" className="inline-flex items-center gap-2 border-b border-trace-teal pb-2 text-sm font-extrabold text-trace-ink">
-                    View all <ArrowUpRight className="h-4 w-4 text-trace-teal" />
-                  </Link>
-                </SectionReveal>
-              </div>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {moreProjects.map((p, index) => (
-                  <SectionReveal key={p.slug} delay={index * 0.06} className="h-full">
-                    <Link href={`/projects/${p.slug}`} className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.09)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(7,27,43,0.13)]">
-                      <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={11} borderWidth={1.5} />
-                      <div className="relative h-40 overflow-hidden rounded-t-2xl bg-trace-paper">
-                        <img src={projectImage(p)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/52 to-transparent" />
-                        <span className="absolute bottom-3 left-4 font-mono text-[8px] font-bold tracking-[0.12em] text-trace-mint">{p.client.toUpperCase()}</span>
-                      </div>
-                      <div className="flex flex-1 flex-col p-5">
-                        <h3 className="font-display text-xl font-extrabold leading-[1.06] tracking-[-0.04em] text-trace-ink group-hover:text-trace-teal transition-colors">{p.title}</h3>
-                        <div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-4 text-xs font-bold text-trace-muted">
-                          <span>{p.period}</span>
-                          <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                        </div>
-                      </div>
-                    </Link>
-                  </SectionReveal>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
       </main>
     </Shell>
   );
@@ -1227,6 +1256,115 @@ export function InsightDetailPage() {
   const relatedProjects = projects.filter((project) => insight.projectSlugs.includes(project.slug));
   const relatedTeam = team.filter((member) => insight.teamSlugs.includes(member.slug));
   return <Shell><main><DetailMediaHero label={insight.type.toUpperCase()} title={insight.title} description={insight.summary} kicker={insight.date.toUpperCase()} image={insightImage(insight)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/insights" label="insights" /><div className="mt-12 grid gap-12 lg:grid-cols-[1.18fr_0.82fr]"><SectionReveal><article className="relative overflow-hidden bg-white p-7 sm:p-10"><GhostNumber value="01" />{insight.type === "Video" && <a href={insight.sourceUrl} target="_blank" rel="noreferrer" className="group relative grid aspect-video place-items-center overflow-hidden bg-trace-ink"><img src={insightImage(insight)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105" /><span className="relative grid h-16 w-16 place-items-center rounded-full border border-white/60 bg-trace-navy/80 text-white"><PlayCircle className="h-8 w-8 text-trace-mint" /></span></a>}<div className="relative mt-7"><AnimatedEyebrow number="01" text="TRACE KNOWLEDGE RECORD" /></div><div className="relative mt-4"><AnimatedHeading text="A TRACE perspective." className="font-display text-3xl font-extrabold leading-[1.08] tracking-[-0.055em] text-trace-ink" /></div><p className="relative mt-5 text-base leading-8 text-trace-muted">{insight.summary} The original source remains available through the verified destination associated with this record.</p><div className="relative"><SourceAction insight={insight} /></div></article></SectionReveal><SectionReveal delay={0.08}><aside className="relative overflow-hidden border border-trace-ink/10 bg-white p-7"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><AnimatedEyebrow text="FOLLOW THE IDEA" /><div className="mt-5 flex flex-wrap gap-2">{relatedServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</div><p className="mt-9 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">FORMAT</p><p className="mt-2 font-display text-2xl font-extrabold text-trace-ink">{insight.type}</p><p className="mt-1 text-sm text-trace-muted">{insight.date}</p><SourceAction insight={insight} /></aside></SectionReveal></div><RelationshipRail title="Related projects">{relatedProjects.length ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Related projects will be connected as they are verified.</p>}</RelationshipRail><RelationshipRail title="Relevant experts">{relatedTeam.length ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Relevant experts will be connected as they are verified.</p>}</RelationshipRail></div></section></main></Shell>;
+}
+
+export function LatestUpdatesPage() {
+  const [filter, setFilter] = useState<string>("All");
+  const [query, setQuery] = useState("");
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    latestUpdates.forEach((item) => set.add(item.category));
+    return ["All", ...Array.from(set)];
+  }, []);
+  const displayed = useMemo(() => {
+    const q = query.toLowerCase();
+    return latestUpdates
+      .filter((item) => filter === "All" || item.category === filter)
+      .filter((item) => !q || `${item.title} ${item.summary}`.toLowerCase().includes(q))
+      .slice()
+      .sort((a, b) => (a.isoDate < b.isoDate ? 1 : -1));
+  }, [filter, query]);
+
+  return (
+    <Shell>
+      <main>
+        <PageHero
+          label="NEWS & FEATURES"
+          title={<>The latest from <span className="text-trace-mint">TRACE.</span></>}
+          description="Publications, articles, events, and workshops from TRACE's ongoing work in trade facilitation, policy reform, and institutional modernization."
+          tone="navy"
+          kicker={`${latestUpdates.length} PUBLISHED UPDATES`}
+        />
+        <section className="py-16 sm:py-20">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {categories.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => setFilter(item)}
+                    className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "border-b-2 border-trace-orange text-trace-navy" : "text-trace-muted hover:text-trace-navy"}`}
+                  >
+                    {item.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              <label className="flex w-full max-w-md items-center gap-3 border border-trace-ink/12 bg-white px-3 py-3">
+                <Search className="h-4 w-4 text-trace-teal" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search updates"
+                  className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70"
+                />
+              </label>
+            </div>
+            <p className="mt-7 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-muted">
+              SHOWING {displayed.length} UPDATE{displayed.length === 1 ? "" : "S"}
+            </p>
+            <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {displayed.map((item, index) => (
+                <SectionReveal key={item.slug} delay={index * 0.04} className="h-full">
+                  <motion.a
+                    href={item.url}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noreferrer" : undefined}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="group relative block h-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.16)]"
+                  >
+                    <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
+                    <div className="relative aspect-[16/10] w-full overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt=""
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/60 via-trace-ink/10 to-transparent" />
+                      <span className="absolute left-4 top-4 bg-white/95 px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-navy backdrop-blur">
+                        {item.category.toUpperCase()}
+                      </span>
+                      {item.external && (
+                        <span className="absolute right-4 top-4 grid h-9 w-9 place-items-center bg-trace-navy/85 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                          <ExternalLink className="h-4 w-4" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-3 p-5 sm:p-6">
+                      <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">{item.date.toUpperCase()}</p>
+                      <h3 className="font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink transition-colors group-hover:text-trace-teal sm:text-2xl">
+                        {item.title}
+                      </h3>
+                      <p className="line-clamp-3 text-sm leading-6 text-trace-muted">{item.summary}</p>
+                      <div className="flex items-center justify-between border-t border-trace-ink/8 pt-3">
+                        <span className="text-xs font-bold text-trace-ink">{item.external ? "Read original" : "Read update"}</span>
+                        <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                      </div>
+                    </div>
+                  </motion.a>
+                </SectionReveal>
+              ))}
+            </div>
+            {displayed.length === 0 && (
+              <p className="py-16 text-center text-trace-muted">No updates match this search.</p>
+            )}
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 export function InnovationsPage() {
@@ -1367,48 +1505,135 @@ function formatDeadline(iso: string) {
   return new Date(year, month - 1, day).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+/** Expandable career row — click/Enter/Space toggles an inline reveal of responsibilities, requirements, and apply action. Preserves the dedicated /careers/:slug page for direct linking. */
 function CareerRoleCard({ role, expired }: { role: CareerRole; expired: boolean }) {
+  const [open, setOpen] = useState(false);
+  const panelId = `career-panel-${role.slug}`;
+  const headerId = `career-header-${role.slug}`;
+
   const card = (
-    <Link
-      href={`/careers/${role.slug}`}
-      aria-label={`${expired ? "View closed role" : "View and apply for"}: ${role.title}`}
-      className={`group relative block overflow-hidden border bg-white transition-all ${expired ? "border-trace-ink/12 hover:border-trace-ink/25" : "border-trace-ink/10 hover:-translate-y-0.5 hover:border-trace-teal/55 hover:shadow-[0_18px_38px_rgba(18,61,103,0.12)]"}`}
+    <div
+      className={`relative overflow-hidden border bg-white transition-all ${expired ? "border-trace-ink/12" : open ? "border-trace-teal/55 shadow-[0_18px_38px_rgba(18,61,103,0.12)]" : "border-trace-ink/10 hover:-translate-y-0.5 hover:border-trace-teal/55 hover:shadow-[0_18px_38px_rgba(18,61,103,0.12)]"}`}
     >
       {!expired && <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1} />}
       {expired && (
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1] bg-[repeating-linear-gradient(135deg,_rgba(8,36,64,0.035)_0_10px,_transparent_10px_22px)]" />
       )}
-      <div
-        className={`grid grid-cols-1 items-start gap-5 px-5 py-6 sm:px-7 md:grid-cols-[1.4fr_1fr_0.9fr_auto] md:items-center ${expired ? "opacity-70 grayscale-[45%]" : ""}`}
+
+      {/* Header row — the clickable summary */}
+      <button
+        type="button"
+        id={headerId}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((prev) => !prev)}
+        className={`group relative z-[2] block w-full text-left ${expired ? "" : "cursor-pointer"}`}
       >
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 border px-2.5 py-1 font-mono text-[9px] font-black tracking-[0.14em] ${expired ? "border-trace-ink/20 bg-trace-paper text-trace-muted" : "border-trace-teal/40 bg-trace-teal/10 text-trace-teal"}`}>
-              {expired ? <XCircle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
-              {expired ? "APPLICATIONS CLOSED" : "OPEN POSITION"}
-            </span>
-            <span className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-muted">{role.employment.toUpperCase()}</span>
+        <div
+          className={`grid grid-cols-1 items-start gap-5 px-5 py-6 sm:px-7 md:grid-cols-[1.4fr_1fr_0.9fr_auto] md:items-center ${expired ? "opacity-70 grayscale-[45%]" : ""}`}
+        >
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`inline-flex items-center gap-1.5 border px-2.5 py-1 font-mono text-[9px] font-black tracking-[0.14em] ${expired ? "border-trace-ink/20 bg-trace-paper text-trace-muted" : "border-trace-teal/40 bg-trace-teal/10 text-trace-teal"}`}>
+                {expired ? <XCircle className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
+                {expired ? "APPLICATIONS CLOSED" : "OPEN POSITION"}
+              </span>
+              <span className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-muted">{role.employment.toUpperCase()}</span>
+            </div>
+            <h3 className="mt-3 font-display text-2xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-3xl">{role.title}</h3>
+            <p className="mt-2 text-sm text-trace-muted">{role.discipline}</p>
           </div>
-          <h3 className="mt-3 font-display text-2xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-3xl">{role.title}</h3>
-          <p className="mt-2 text-sm text-trace-muted">{role.discipline}</p>
+          <p className="flex items-center gap-2 text-sm font-bold text-trace-muted"><MapPin className="h-4 w-4 text-trace-teal" />Mohakhali DOHS, Dhaka</p>
+          <p className="text-sm text-trace-muted">
+            <span className="font-bold text-trace-ink">{role.experience}</span><br />
+            <span className={expired ? "text-trace-muted" : "text-trace-navy"}>{expired ? "Closed" : "Closes"} {formatDeadline(role.deadline)}</span>
+          </p>
+          <span className={`inline-flex items-center gap-1.5 justify-self-start text-xs font-extrabold md:justify-self-end ${expired ? "text-trace-muted" : "text-trace-navy"}`}>
+            {open ? "Hide details" : expired ? "View details" : "View details & apply"}
+            <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${open ? "rotate-180" : ""} ${expired ? "text-trace-muted" : "text-trace-orange"}`} />
+          </span>
         </div>
-        <p className="flex items-center gap-2 text-sm font-bold text-trace-muted"><MapPin className="h-4 w-4 text-trace-teal" />Mohakhali DOHS, Dhaka</p>
-        <p className="text-sm text-trace-muted">
-          <span className="font-bold text-trace-ink">{role.experience}</span><br />
-          <span className={expired ? "text-trace-muted" : "text-trace-navy"}>{expired ? "Closed" : "Closes"} {formatDeadline(role.deadline)}</span>
-        </p>
-        <span className={`inline-flex items-center gap-1.5 justify-self-start text-xs font-extrabold md:justify-self-end ${expired ? "text-trace-muted" : "text-trace-navy transition-transform group-hover:translate-x-0.5"}`}>
-          {expired ? "View closed role" : "View & apply"}
-          <ArrowUpRight className={`h-4 w-4 ${expired ? "text-trace-muted" : "text-trace-orange"}`} />
-        </span>
-      </div>
-      {expired && (
-        <span aria-hidden="true" className="pointer-events-none absolute right-4 top-4 z-[2] rotate-6 border-2 border-trace-ink/25 px-3 py-1 font-mono text-[10px] font-black tracking-[0.18em] text-trace-ink/45">
-          CLOSED
-        </span>
-      )}
-    </Link>
+        {expired && (
+          <span aria-hidden="true" className="pointer-events-none absolute right-4 top-4 z-[2] rotate-6 border-2 border-trace-ink/25 px-3 py-1 font-mono text-[10px] font-black tracking-[0.18em] text-trace-ink/45">
+            CLOSED
+          </span>
+        )}
+      </button>
+
+      {/* Expanded panel — responsibilities + requirements + apply action */}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="panel"
+            id={panelId}
+            role="region"
+            aria-labelledby={headerId}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.32, ease: [0.23, 1, 0.32, 1] }}
+            className="relative z-[2] overflow-hidden border-t border-trace-ink/10 bg-white"
+          >
+            {/* Full-width expired banner — reads as a clear status strip at the top of the panel */}
+            {expired && (
+              <div className="flex items-start gap-3 border-b border-trace-ink/10 bg-trace-paper px-5 py-4 sm:px-7">
+                <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-trace-muted" />
+                <div>
+                  <p className="font-mono text-[10px] font-black tracking-[0.16em] text-trace-muted">APPLICATIONS CLOSED</p>
+                  <p className="mt-1 text-xs leading-5 text-trace-muted">
+                    This position closed on <span className="font-bold text-trace-ink">{formatDeadline(role.deadline)}</span>. Browse currently open roles below.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="grid gap-8 px-5 py-8 sm:px-7 md:grid-cols-[1fr_1fr] md:gap-12">
+              <div>
+                <p className="mb-5 text-sm leading-7 text-trace-muted">{role.intro}</p>
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">RESPONSIBILITIES</p>
+                <ul className="mt-3 space-y-2.5">
+                  {role.responsibilities.map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-sm leading-6 text-trace-ink">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-trace-teal" aria-hidden="true" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">REQUIREMENTS</p>
+                <ul className="mt-3 space-y-2.5">
+                  {role.requirements.map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-sm leading-6 text-trace-ink">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-trace-orange" aria-hidden="true" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-trace-ink/10 pt-6">
+                  {!expired && (
+                    <Link
+                      href={`/careers/${role.slug}`}
+                      className="inline-flex items-center gap-2 bg-trace-navy px-5 py-3 text-sm font-extrabold text-white transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.97]"
+                    >
+                      Apply Now <ArrowUpRight className="h-4 w-4 text-trace-mint" />
+                    </Link>
+                  )}
+                  <Link
+                    href={`/careers/${role.slug}`}
+                    className="inline-flex items-center gap-2 border-2 border-trace-navy bg-white px-5 py-3 text-sm font-extrabold text-trace-navy transition-all duration-200 hover:-translate-y-0.5 hover:bg-trace-navy hover:text-white"
+                  >
+                    Open full page <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
+
   if (!expired) {
     return <StarBorder color="#009CA6" speed="8s">{card}</StarBorder>;
   }
@@ -1599,10 +1824,14 @@ export function CareerDetailPage() {
           <div className="pointer-events-none absolute inset-0 opacity-40 hero-grid" />
           <div className="pointer-events-none absolute right-[8%] top-[-18%] h-[360px] w-[360px] rounded-full bg-trace-teal/20 blur-[90px]" />
           <div className="relative mx-auto max-w-[1300px] px-5 pb-16 lg:px-10 sm:pb-20">
-            <Link href="/careers" className="inline-flex items-center gap-2 text-sm font-extrabold text-white/85 transition-colors hover:text-trace-mint">
-              <ArrowLeft className="h-4 w-4 text-trace-mint" />Back to Careers
-            </Link>
-            <p className="mt-8 section-label !text-trace-mint">{role.discipline.toUpperCase()}</p>
+            <div>
+              <Link href="/careers" className="inline-flex items-center gap-2 text-sm font-extrabold text-white/85 transition-colors hover:text-trace-mint">
+                <ArrowLeft className="h-4 w-4 text-trace-mint" />Back to Careers
+              </Link>
+            </div>
+            <div className="mt-8">
+              <p className="section-label !text-trace-mint">{role.discipline.toUpperCase()}</p>
+            </div>
             <h1 className="mt-4 max-w-4xl font-display text-4xl font-extrabold leading-[0.94] tracking-[-0.06em] sm:text-6xl">{role.title}</h1>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <span className={`inline-flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[10px] font-black tracking-[0.16em] ${expired ? "border-white/25 bg-white/8 text-white/70" : "border-trace-mint/45 bg-trace-mint/12 text-trace-mint"}`}>
@@ -1656,8 +1885,11 @@ export function CareerDetailPage() {
 
               <aside className="lg:sticky lg:top-28 lg:h-fit">
                 <SectionReveal delay={0.1}>
-                  <div className="overflow-hidden border border-trace-ink/10 bg-white shadow-[0_16px_38px_rgba(18,61,103,0.10)]">
-                    <div className="border-b border-trace-ink/10 bg-trace-paper px-6 py-5 sm:px-7">
+                  {/* Summary card — reference tone: elevated like Apply but neutral header */}
+                  <div className="overflow-hidden rounded-sm border border-trace-ink/10 bg-white shadow-[0_22px_48px_rgba(18,61,103,0.18)] ring-1 ring-trace-ink/5">
+                    <div className="h-1 w-full bg-trace-navy/20" aria-hidden="true" />
+                    <div className="flex items-center gap-2.5 border-b border-trace-ink/10 bg-trace-paper px-6 py-5 sm:px-7">
+                      <FileText className="h-4 w-4 text-trace-teal" />
                       <p className="font-mono text-[10px] font-black tracking-[0.16em] text-trace-teal">SUMMARY</p>
                     </div>
                     <dl className="grid gap-4 px-6 py-6 sm:px-7">
@@ -1684,12 +1916,21 @@ export function CareerDetailPage() {
                     </dl>
                   </div>
 
-                  <div className="mt-6 overflow-hidden border border-trace-ink/10 bg-white shadow-[0_16px_38px_rgba(18,61,103,0.10)]">
-                    <div className="flex items-center justify-between border-b border-trace-ink/10 bg-trace-paper px-6 py-5 sm:px-7">
-                      <p className="font-mono text-[10px] font-black tracking-[0.16em] text-trace-teal">APPLY FOR THIS POSITION</p>
-                      {expired && (
-                        <span className="inline-flex items-center gap-1.5 border border-trace-ink/20 bg-white px-2.5 py-1 font-mono text-[9px] font-black tracking-[0.14em] text-trace-muted">
-                          <XCircle className="h-3 w-3" />CLOSED
+                  {/* Apply card — primary action: elevated with shadow, teal accent bar, dark navy header, rounded corners */}
+                  <div className="relative mt-8 overflow-hidden rounded-sm border border-trace-navy/15 bg-white shadow-[0_22px_48px_rgba(18,61,103,0.18)] ring-1 ring-trace-teal/15">
+                    <div className="h-1 w-full bg-trace-teal" aria-hidden="true" />
+                    <div className={`flex items-center justify-between px-6 py-5 sm:px-7 ${expired ? "bg-trace-paper" : "bg-trace-navy text-white"}`}>
+                      <div className="flex items-center gap-2.5">
+                        {expired
+                          ? <XCircle className="h-4 w-4 text-trace-muted" />
+                          : <Send className="h-4 w-4 text-trace-mint" />}
+                        <p className={`font-mono text-[10px] font-black tracking-[0.16em] ${expired ? "text-trace-muted" : "text-trace-mint"}`}>
+                          {expired ? "APPLICATIONS CLOSED" : "APPLY FOR THIS POSITION"}
+                        </p>
+                      </div>
+                      {!expired && (
+                        <span className="inline-flex items-center gap-1 border border-trace-mint/40 bg-trace-mint/10 px-2.5 py-1 font-mono text-[9px] font-black tracking-[0.14em] text-trace-mint">
+                          <CheckCircle2 className="h-3 w-3" />OPEN
                         </span>
                       )}
                     </div>

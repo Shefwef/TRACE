@@ -554,6 +554,111 @@ export const innovations = [
   },
 ];
 
+export type LatestUpdateCategory = "Publication" | "Article" | "Innovation" | "Event" | "Workshop" | "Meeting";
+
+export type LatestUpdate = {
+  slug: string;
+  title: string;
+  category: LatestUpdateCategory;
+  date: string; // display format e.g. "Sep 02, 2026"
+  isoDate: string; // sortable ISO date e.g. "2026-09-02"
+  summary: string;
+  image: string;
+  url: string;
+  external: boolean;
+};
+
+export const latestUpdates: LatestUpdate[] = [
+  {
+    slug: "import-policy-order-2026-29-english",
+    title: "Import Policy Order (2026–29) Unofficial English Translation",
+    category: "Publication",
+    date: "Sep 02, 2026",
+    isoDate: "2026-09-02",
+    summary: "The Import Policy Order (IPO) 2026–2029 governs virtually every import into Bangladesh. To help address the language gap, TRACE Consulting has prepared a complete, clause-by-clause unofficial English translation.",
+    image: "https://traceconsultingltd.com/storage/923/IPO-Eng-SM-Post-%281200-x-800-px%29.jpg",
+    url: "https://traceconsultingltd.com/article-details/40",
+    external: true,
+  },
+  {
+    slug: "beyond-tariffs-biggest-trade-opportunity",
+    title: "Beyond Tariffs Lies Bangladesh’s Biggest Trade Opportunity",
+    category: "Article",
+    date: "Jul 30, 2026",
+    isoDate: "2026-07-30",
+    summary: "Analysis exploring how Bangladesh can extend trade gains well beyond tariff considerations by investing in facilitation, regulatory predictability, and private-sector readiness.",
+    image: "https://traceconsultingltd.com/storage/676/11-Insights_Beyond-Traiffs-Lies-Bangladesh.jpg",
+    url: "https://traceconsultingltd.com/article-details/35",
+    external: true,
+  },
+  {
+    slug: "tariff-trade-intelligence-platform-launch",
+    title: "Bangladesh Tariff & Trade Intelligence Platform",
+    category: "Innovation",
+    date: "Jul 30, 2026",
+    isoDate: "2026-07-30",
+    summary: "A new TRACE-built digital platform that turns fragmented tariff, duty, regulatory, and trade-benefit information into decision-ready intelligence by HS code.",
+    image: "https://traceconsultingltd.com/storage/904/WhatsApp-Image-2026-07-30-at-3.44.57-PM.jpeg",
+    url: "https://tariffintel.traceconsultingltd.com/",
+    external: true,
+  },
+  {
+    slug: "mocom-trade-portal-e-learning-inception",
+    title: "Inception Event for Bangladesh Trade Portal E-Learning Modules",
+    category: "Event",
+    date: "Jul 20, 2026",
+    isoDate: "2026-07-20",
+    summary: "TRACE organised the launch event for the Ministry of Commerce’s e-learning modules supporting the Bangladesh Trade Portal initiative.",
+    image: "https://traceconsultingltd.com/storage/997/inception.jpg",
+    url: "https://traceconsultingltd.com/article-details/44",
+    external: true,
+  },
+  {
+    slug: "bfsa-safe-food-import-workshop",
+    title: "Finalization Workshop on Electronic Governance of Safe Food Import Guidelines",
+    category: "Workshop",
+    date: "Jul 09, 2026",
+    isoDate: "2026-07-09",
+    summary: "TRACE participated as a key discussant in the Bangladesh Food Safety Authority’s workshop on digital governance for safe food imports.",
+    image: "https://traceconsultingltd.com/storage/993/Fuad-bhai-BFSA-speech.jpg",
+    url: "https://traceconsultingltd.com/article-details/43",
+    external: true,
+  },
+  {
+    slug: "amcham-investment-climate-reforms",
+    title: "TRACE Engages AmCham Bangladesh to Drive Investment and Business Climate Reforms",
+    category: "Meeting",
+    date: "Jul 09, 2026",
+    isoDate: "2026-07-09",
+    summary: "A working engagement with the American Chamber of Commerce in Bangladesh focused on investment facilitation and regulatory improvements.",
+    image: "https://traceconsultingltd.com/storage/645/2_1200-X800.jpg",
+    url: "https://traceconsultingltd.com/article-details/29",
+    external: true,
+  },
+  {
+    slug: "bsti-textile-testing-modernization",
+    title: "Modernizing BSTI’s Textile Testing for Global Export Standards",
+    category: "Event",
+    date: "Jun 16, 2026",
+    isoDate: "2026-06-16",
+    summary: "An initiative to upgrade the Bangladesh Standards and Testing Institution’s textile testing capabilities so Bangladeshi exports meet global buyer requirements.",
+    image: "https://traceconsultingltd.com/storage/649/BSTI.jpg",
+    url: "https://traceconsultingltd.com/article-details/31",
+    external: true,
+  },
+  {
+    slug: "dls-strategic-dialogue-agro-trade",
+    title: "Modernizing Agro-Trade: The Department of Livestock Strategic Dialogue",
+    category: "Meeting",
+    date: "Jun 04, 2026",
+    isoDate: "2026-06-04",
+    summary: "A strategic dialogue with Bangladesh’s Department of Livestock on modernising agricultural trade systems and inter-agency coordination.",
+    image: "https://traceconsultingltd.com/storage/647/1_1200-X800.jpg",
+    url: "https://traceconsultingltd.com/article-details/30",
+    external: true,
+  },
+];
+
 export const metrics = [
   { value: "30+", label: "national policy & regulatory reforms" },
   { value: "14", label: "government digital platforms" },
