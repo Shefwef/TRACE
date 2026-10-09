@@ -35,7 +35,6 @@ export const ASSETS = {
 
 export const partnerLogos = [
   { name: "Partner organization 01", src: portableMedia("/media/partners/partner-01.png", "/manus-storage/partner-01_585c0c4c.png") },
-  { name: "Partner organization 02", src: portableMedia("/media/partners/partner-02.png", "/manus-storage/partner-02_ca82b097.png") },
   { name: "Partner organization 03", src: portableMedia("/media/partners/partner-03.png", "/manus-storage/partner-03_4229128c.png") },
   { name: "Partner organization 04", src: portableMedia("/media/partners/partner-04.png", "/manus-storage/partner-04_fbe137b2.png") },
   { name: "Partner organization 05", src: portableMedia("/media/partners/partner-05.png", "/manus-storage/partner-05_923a7547.png") },
