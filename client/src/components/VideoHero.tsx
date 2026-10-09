@@ -12,7 +12,7 @@
  *   - `buttons`      — one or more { label, href } items rendered side-by-side
  */
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowDown, ArrowRight, Pause, Play, X } from "lucide-react";
+import { ArrowDown, ArrowRight, Pause, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 
@@ -126,7 +126,6 @@ export function VideoHero() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
   const systemReduceMotion = useReducedMotion();
   const captureMode = typeof navigator !== "undefined" && navigator.webdriver;
   const reduceMotion = Boolean(systemReduceMotion || captureMode);
@@ -261,20 +260,6 @@ export function VideoHero() {
         </AnimatePresence>
       </div>
 
-      {/* ── TOP-RIGHT · Play/Pause toggle (sits BELOW the SiteHeader's Contact Us button) ──
-          SiteHeader is 78px tall → anchor at top: 24 (96px) so there's a visible gap. */}
-      <button
-        type="button"
-        onClick={togglePlay}
-        aria-label={isPlaying ? "Pause hero video" : "Play hero video"}
-        aria-pressed={!isPlaying}
-        className="group absolute right-6 top-24 z-20 grid h-11 w-11 place-items-center rounded-xl border border-white/35 bg-white/10 text-white shadow-[0_10px_28px_rgba(8,36,64,0.4)] backdrop-blur-md transition-all duration-300 hover:border-trace-teal hover:bg-trace-teal hover:text-white sm:right-10"
-      >
-        {isPlaying
-          ? <Pause className="h-4 w-4 fill-current" />
-          : <Play className="h-4 w-4 fill-current translate-x-[1px]" />}
-      </button>
-
       {/* ── BOTTOM-CENTER · Explore scroll hint ── */}
       <button
         type="button"
@@ -291,86 +276,20 @@ export function VideoHero() {
         <span className="font-mono text-[10px] font-bold tracking-[0.2em]">EXPLORE</span>
       </button>
 
-      {/* ── BOTTOM-RIGHT · Watch video button ── */}
+      {/* ── BOTTOM-RIGHT · Play/Pause toggle ──
+          Pausing freezes the CTA state so whichever pill is on screen stays visible until play resumes. */}
       <button
         type="button"
-        onClick={() => setModalOpen(true)}
-        className="group absolute bottom-7 right-6 z-20 inline-flex items-center gap-2.5 rounded-xl border border-white/35 bg-white/10 px-5 py-2.5 text-sm font-extrabold text-white shadow-[0_14px_32px_rgba(8,36,64,0.4)] backdrop-blur-md transition-all duration-300 hover:border-trace-teal hover:bg-trace-teal/90 hover:text-white sm:bottom-10 sm:right-10"
+        onClick={togglePlay}
+        aria-label={isPlaying ? "Pause hero video" : "Play hero video"}
+        aria-pressed={!isPlaying}
+        className="group absolute bottom-7 right-6 z-20 grid h-11 w-11 place-items-center rounded-xl border border-white/35 bg-white/10 text-white shadow-[0_14px_32px_rgba(8,36,64,0.4)] backdrop-blur-md transition-all duration-300 hover:border-trace-teal hover:bg-trace-teal hover:text-white sm:bottom-10 sm:right-10"
       >
-        <span>Watch video</span>
-        <Play className="h-4 w-4 fill-current" />
+        {isPlaying
+          ? <Pause className="h-4 w-4 fill-current" />
+          : <Play className="h-4 w-4 fill-current translate-x-[1px]" />}
       </button>
-
-      {/* ── Modal video player ── */}
-      <VideoPlayerModal open={modalOpen} onClose={() => setModalOpen(false)} src={VIDEO_SRC} />
     </section>
-  );
-}
-
-/**
- * Dark fullscreen modal with a native HTML5 video player (standard controls).
- * Closes on Escape, backdrop click, or the X button. Locks background scroll while open.
- */
-function VideoPlayerModal({ open, onClose, src }: { open: boolean; onClose: () => void; src: string }) {
-  const reduceMotion = useReducedMotion();
-
-  // Lock background scroll + wire Escape key while the modal is open.
-  useEffect(() => {
-    if (!open) return;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
-
-  return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          onMouseDown={onClose}
-          role="dialog"
-          aria-modal="true"
-          aria-label="TRACE video player"
-          className="fixed inset-0 z-[90] grid place-items-center bg-black/95 px-3 py-4 backdrop-blur-md sm:px-6 sm:py-6"
-        >
-          <motion.div
-            initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: 14 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={reduceMotion ? {} : { opacity: 0, scale: 0.98, y: 8 }}
-            transition={{ type: "spring", stiffness: 240, damping: 26 }}
-            onMouseDown={(event) => event.stopPropagation()}
-            className="relative w-full max-w-[1600px] overflow-hidden rounded-2xl bg-black shadow-[0_30px_100px_rgba(0,0,0,0.6)]"
-          >
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close video"
-              className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-white backdrop-blur-sm transition-colors hover:bg-black"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <video
-              key={open ? "open" : "closed"}
-              src={src}
-              controls
-              autoPlay
-              playsInline
-              className="h-auto max-h-[94vh] w-full"
-            />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
 
