@@ -555,6 +555,16 @@ export const innovations = [
 
 export type LatestUpdateCategory = "Publication" | "Article" | "Innovation" | "Event" | "Workshop" | "Meeting";
 
+export type UpdateSection = {
+  heading?: string;
+  paragraphs: string[];
+};
+
+export type UpdateBody = {
+  sections: UpdateSection[];
+  team?: { name: string; role: string }[];
+};
+
 export type LatestUpdate = {
   slug: string;
   title: string;
@@ -565,9 +575,84 @@ export type LatestUpdate = {
   image: string;
   url: string;
   external: boolean;
+  body?: UpdateBody;
 };
 
 export const latestUpdates: LatestUpdate[] = [
+  {
+    slug: "trs-customs-reform-assignment",
+    title: "TRACE Signs World Bank-Financed Time Release Study Assignment for Evidence-Based Customs Reform in Bangladesh",
+    category: "Event",
+    date: "Oct 07, 2026",
+    isoDate: "2026-10-07",
+    summary: "TRACE Consulting has secured a World Bank-financed contract for the Time Release Study at key Bangladeshi custom houses, measuring clearance times and driving evidence-based customs reform.",
+    image: ASSETS.heroTrade,
+    url: "/latest-updates/trs-customs-reform-assignment",
+    external: false,
+    body: {
+      sections: [
+        {
+          heading: "A Milestone for TRACE Consulting",
+          paragraphs: [
+            "TRACE Consulting has secured a contract for the Time Release Study (TRS) at key Bangladeshi custom houses (Package SD-13) under the Customs Modernization and Infrastructure Development Project, financed by the World Bank. The firm will serve as sub-consultant to a TTT Global-led JV, with Md. Masud Sadiq as Team Leader.",
+            "A time-release study is more than a conventional survey. It integrates customs procedure expertise, WCO methodology, extensive data analysis, and engagement with relevant stakeholders. TRACE Consulting brings deep experience in customs modernization, digital trade systems, and regulatory reform to this assignment.",
+          ],
+        },
+        {
+          heading: "Why the Study Matters",
+          paragraphs: [
+            "Previous 2022 data showed import clearance averaged 11 days at Benapole, 12 days at Chattogram, and 8 days at Dhaka Airport. Document preparation consumed 72–78% of total clearance time. This new assignment will measure changes since 2022, assess prior recommendation implementation, and examine modernization initiatives including Bangladesh’s National Single Window system.",
+            "The study also supports implementation of the WTO Trade Facilitation Agreement’s Article 7.6 — a key international commitment for Bangladesh’s trade competitiveness.",
+          ],
+        },
+        {
+          heading: "Key Deliverables",
+          paragraphs: [
+            "The 21-month assignment covers six customs locations: Chattogram Seaport, Dhaka Airport, Benapole, Bhomra and Burimari Land Ports, and ICD Kamalapur. Deliverables include measuring release times for diverse products, analyzing system data, identifying bottlenecks, engaging stakeholders, and establishing sustainable measurement frameworks.",
+            "The core objective centers on turning measurement into action — providing NBR with evidence-based insights on delays and effective reforms to strengthen Bangladesh’s trade competitiveness.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Md. Masud Sadiq", role: "Team Leader" },
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+      ],
+    },
+  },
+  {
+    slug: "taraps-agriculture-assignment",
+    title: "TRACE signed the World Bank–financed TARAPS assignment to help Bangladesh’s Ministry of Agriculture repurpose public support for sustainable food systems",
+    category: "Event",
+    date: "Oct 05, 2026",
+    isoDate: "2026-10-05",
+    summary: "TRACE Consulting partnered with TTT Global and BUILD to support Bangladesh’s Ministry of Agriculture in redirecting agricultural public support toward more sustainable, equitable, and climate-responsive outcomes.",
+    image: ASSETS.heroPolicy,
+    url: "/latest-updates/taraps-agriculture-assignment",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "TRACE Consulting partnered with TTT Global and BUILD to secure a consultancy contract for TARAPS (Technical Assistance for Repurposing of Agricultural Public Support Towards a Sustainable Food Systems Transformation in Bangladesh). The agreement became effective on October 5, 2026.",
+            "The initiative operates under the Department of Agricultural Extension within Bangladesh’s Ministry of Agriculture, with funding from the World Bank. TRACE’s scope includes reviewing agricultural policies and programs, examining public expenditure and subsidy frameworks, identifying policy and institutional shortcomings, proposing reform strategies, and enhancing systems for policy execution and assessment.",
+          ],
+        },
+        {
+          heading: "Redirecting Public Support Towards Sustainability",
+          paragraphs: [
+            "The engagement emphasizes redirecting agricultural subsidies toward outcomes that are more sustainable, efficient, equitable, and climate-responsive while strengthening ministerial capacity for data-driven decision-making.",
+            "Agriculture significantly influences Bangladesh’s economy, food security, and rural communities. TRACE aims to reinforce the policy and institutional infrastructure governing public resource allocation throughout the agricultural sector.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Nahrin Rahman Swarna", role: "Technical Director" },
+        { name: "Rubayat E Shams Anik", role: "Senior Portfolio Manager" },
+        { name: "Mahanaz Akter Lopa", role: "Trade Facilitation Specialist" },
+      ],
+    },
+  },
   {
     slug: "import-policy-order-2026-29-english",
     title: "Import Policy Order (2026–29) Unofficial English Translation",
@@ -576,19 +661,69 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-09-02",
     summary: "The Import Policy Order (IPO) 2026–2029 governs virtually every import into Bangladesh. To help address the language gap, TRACE Consulting has prepared a complete, clause-by-clause unofficial English translation.",
     image: "https://traceconsultingltd.com/storage/923/IPO-Eng-SM-Post-%281200-x-800-px%29.jpg",
-    url: "https://traceconsultingltd.com/article-details/40",
-    external: true,
+    url: "/latest-updates/import-policy-order-2026-29-english",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "The Import Policy Order (IPO) 2026–2029 establishes regulatory frameworks governing imports into Bangladesh. This policy document outlines the conditions, procedures, restrictions, exemptions, and other requirements that importers, businesses, foreign investors, and compliance teams need to navigate.",
+            "A significant challenge has persisted: the IPO was gazetted in Bangla only, without an English translation released alongside it. This mirrors the previous iteration from 2021–2024, which similarly lacked an official English version.",
+          ],
+        },
+        {
+          heading: "Closing the Language Gap",
+          paragraphs: [
+            "The absence of an authorized translation creates practical difficulties. Businesses frequently resort to independent translators or automated translation tools to interpret intricate regulatory language. This dependency risks misconstruction of HS-code specifications, documentation requirements, conditional provisions, and exemption criteria — potentially causing preventable operational delays and legal uncertainty.",
+            "TRACE Consulting responded to this gap by developing a complete, clause-by-clause unofficial English translation of the Import Policy Order 2026–2029, making it accessible to international businesses, investors, and compliance teams.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Mimma Afrin", role: "Technical Lead" },
+        { name: "Mohammed Mahraj-ul-Alam Samrat", role: "Head of Trade Facilitation & Regulatory Compliance" },
+        { name: "Rubayat E Shams Anik", role: "Senior Portfolio Manager" },
+      ],
+    },
   },
   {
     slug: "beyond-tariffs-biggest-trade-opportunity",
     title: "Beyond Tariffs Lies Bangladesh’s Biggest Trade Opportunity",
     category: "Article",
-    date: "Jul 30, 2026",
-    isoDate: "2026-07-30",
+    date: "Jul 16, 2026",
+    isoDate: "2026-07-16",
     summary: "Analysis exploring how Bangladesh can extend trade gains well beyond tariff considerations by investing in facilitation, regulatory predictability, and private-sector readiness.",
     image: "https://traceconsultingltd.com/storage/676/11-Insights_Beyond-Traiffs-Lies-Bangladesh.jpg",
-    url: "https://traceconsultingltd.com/article-details/35",
-    external: true,
+    url: "/latest-updates/beyond-tariffs-biggest-trade-opportunity",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "Published in The Business Standard by TRACE CEO Fuad M Khalid Hossen, this article argues that modern economic competitiveness depends increasingly on institutional efficiency rather than tariffs alone. Bangladesh faces significant trade challenges despite automation progress, with cargo at Chattogram Port taking approximately 270 hours for release compared to 95 hours in India and 30 hours in Thailand.",
+            "The US–Bangladesh Agreement on Reciprocal Trade (ART) provides a framework addressing customs modernization, sanitary measures, digital trade, investment facilitation, and regulatory cooperation. Key provisions include technological solutions for full pre-arrival processing, paperless trade, and digitalized border procedures by 2030.",
+          ],
+        },
+        {
+          heading: "Facilitation as Competitive Advantage",
+          paragraphs: [
+            "The piece highlights Bangladesh’s existing progress through USDA-funded initiatives, where digital pre-arrival processing reduced regulatory clearance times by approximately three to four days. Risk-based regulatory approaches could potentially reduce clearance times by around 50%.",
+            "Stronger inter-agency coordination through the Bangladesh Single Window (BSW) initiative reduces duplicate documentation and sequential approvals. Trade facilitation alone proves insufficient; the nation must strengthen compliance with international sanitary and phytosanitary standards to diversify exports beyond ready-made garments.",
+          ],
+        },
+        {
+          heading: "The Path Forward",
+          paragraphs: [
+            "The ART promotes science-based measures consistent with WTO principles and international standards from the Codex Alimentarius Commission and World Organization for Animal Health.",
+            "Successful implementation requires capable institutions, effective coordination, technology investment, and private sector partnerships to enhance competitiveness in regional and global markets.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+      ],
+    },
   },
   {
     slug: "tariff-trade-intelligence-platform-launch",
@@ -609,8 +744,34 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-07-20",
     summary: "TRACE organised the launch event for the Ministry of Commerce’s e-learning modules supporting the Bangladesh Trade Portal initiative.",
     image: "https://traceconsultingltd.com/storage/997/inception.jpg",
-    url: "https://traceconsultingltd.com/article-details/44",
-    external: true,
+    url: "/latest-updates/mocom-trade-portal-e-learning-inception",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "An Inception Workshop titled ‘Developing E-Learning Modules through the Bangladesh Trade Portal (BTP)’ took place at the ATM Shamsul Haque Auditorium, CIRDAP. TRACE Consulting’s CEO Fuad M. Khalid Hossen presented the keynote address.",
+            "The initiative operates under Package SD-59, funded by the World Bank’s Bangladesh Regional Connectivity Project-1 (BRCP-1) under the Ministry of Commerce, with Orangebd as the lead firm and TRACE Consulting as sub-consultant.",
+          ],
+        },
+        {
+          heading: "Building Trade Literacy",
+          paragraphs: [
+            "The project will develop over 20 bilingual interactive e-learning modules addressing WTO agreements, trade policies and laws, import-export procedures, trade compliance, and good practices such as risk-based compliance. The platform targets awareness gaps, noting that approximately 20 Bangladeshi companies hold Authorized Economic Operator (AEO) status compared to 4,500 in India.",
+            "The CEO emphasized that many trade facilitation reforms already exist but go unused because businesses are not aware of them. The modules will guide traders through risk-based clearance, AEO certification, Advance Rulings, SPS and TBT compliance, and export diversification as Bangladesh approaches LDC graduation.",
+          ],
+        },
+        {
+          heading: "A Long-Standing Commitment",
+          paragraphs: [
+            "This assignment carries special significance, as the CEO previously helped establish the Bangladesh Trade Portal in 2014 under an IFC–World Bank Group initiative.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+      ],
+    },
   },
   {
     slug: "bfsa-safe-food-import-workshop",
@@ -620,8 +781,36 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-07-09",
     summary: "TRACE participated as a key discussant in the Bangladesh Food Safety Authority’s workshop on digital governance for safe food imports.",
     image: "https://traceconsultingltd.com/storage/993/Fuad-bhai-BFSA-speech.jpg",
-    url: "https://traceconsultingltd.com/article-details/43",
-    external: true,
+    url: "/latest-updates/bfsa-safe-food-import-workshop",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "TRACE Consulting’s leadership participated in a Bangladesh Food Safety Authority stakeholder meeting to help finalize electronic food import guidelines. CEO Fuad M. Khalid Hossen and Mohammed Mahraj-ul-Alam Samrat, Head of Trade Facilitation and Regulatory Compliance, served as invited discussants.",
+            "The guidelines resulted from TRACE’s earlier work on the USDA Bangladesh Trade Facilitation Project. The team designed an electronic framework for safe food imports and collaborated with the Ministry of Commerce to integrate provisions into the Import Policy Order 2026–2029.",
+          ],
+        },
+        {
+          heading: "Key Recommendations",
+          paragraphs: [
+            "Key recommendations included making non-BSTI food item clearance fully digital, covering pre-arrival processing, automated risk assessment, post-clearance oversight, laboratory integration, and customs coordination. TRACE developed the National Food Import Information Management System (NFIIMS) to support execution.",
+            "During discussions, the CEO recommended starting with 50 to 100 priority products to establish risk profiles and testing parameters before expanding. He emphasized that stakeholder awareness is essential so the system facilitates rather than burdens trade.",
+          ],
+        },
+        {
+          heading: "International Best Practice",
+          paragraphs: [
+            "The presentation examined BFSA’s Food Safety Act authority, electronic importer registration, No Objection Certificates, and pre-arrival notification processes. It referenced risk-based models from India, Vietnam, Cambodia, Australia, and New Zealand and proposed establishing a dedicated Risk Management Unit.",
+            "When fully operational, the system is expected to reduce clearance timelines from approximately 15 days to several days.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Mohammed Mahraj-ul-Alam Samrat", role: "Head of Trade Facilitation & Regulatory Compliance" },
+      ],
+    },
   },
   {
     slug: "amcham-investment-climate-reforms",
@@ -631,8 +820,28 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-07-09",
     summary: "A working engagement with the American Chamber of Commerce in Bangladesh focused on investment facilitation and regulatory improvements.",
     image: "https://traceconsultingltd.com/storage/645/2_1200-X800.jpg",
-    url: "https://traceconsultingltd.com/article-details/29",
-    external: true,
+    url: "/latest-updates/amcham-investment-climate-reforms",
+    external: false,
+    body: {
+      sections: [
+        {
+          heading: "Strategic Dialogue with AmCham Bangladesh",
+          paragraphs: [
+            "TRACE recently held a high-level strategic meeting with the American Chamber of Commerce in Bangladesh (AmCham). The session was a powerful platform for TRACE to drive meaningful dialogue on critical trade and investment framework improvements.",
+            "The discussion was guided by Mr. Syed Ershad Ahmed, former AmCham Bangladesh president, and other leadership members. During the session, TRACE collaborated on regulatory reforms aimed at enhancing Bangladesh’s competitiveness in global markets.",
+          ],
+        },
+        {
+          paragraphs: [
+            "The focus centered on creating business-friendly conditions and attracting both domestic and foreign direct investment (FDI). TRACE’s engagement with AmCham reflects the firm’s commitment to cross-sector dialogue and investment climate reform.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Mohammed Mahraj-ul-Alam Samrat", role: "Head of Trade Facilitation & Regulatory Compliance" },
+      ],
+    },
   },
   {
     slug: "bsti-textile-testing-modernization",
@@ -642,8 +851,30 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-06-16",
     summary: "An initiative to upgrade the Bangladesh Standards and Testing Institution’s textile testing capabilities so Bangladeshi exports meet global buyer requirements.",
     image: "https://traceconsultingltd.com/storage/649/BSTI.jpg",
-    url: "https://traceconsultingltd.com/article-details/31",
-    external: true,
+    url: "/latest-updates/bsti-textile-testing-modernization",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "TRACE Consulting organized a stakeholder engagement workshop at the Bangladesh Standards and Testing Institution (BSTI). The event brought together the BSTI Director General and representatives from BGMEA, BKMEA, buying houses, and international brands.",
+            "Key focus areas included mapping current barriers to test report acceptance, identifying actionable improvements for service efficiency and reliability, and achieving global compliance standards.",
+          ],
+        },
+        {
+          heading: "Empowering National Infrastructure",
+          paragraphs: [
+            "The objective was to shorten testing lead times, reinforce international buyer trust, and future-proof Bangladesh’s export-oriented RMG sector.",
+            "The project — Strengthening Export-Oriented Textile Testing Capacity at BSTI Laboratory — aims to deliver the speed, reliability, and world-class compliance demanded by international buyers.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Abu Saleh Muhammad Saifullah", role: "Director & Chief Operating Officer" },
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Mimma Afrin", role: "Technical Lead, Laboratory Operations" },
+      ],
+    },
   },
   {
     slug: "dls-strategic-dialogue-agro-trade",
@@ -653,8 +884,29 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-06-04",
     summary: "A strategic dialogue with Bangladesh’s Department of Livestock on modernising agricultural trade systems and inter-agency coordination.",
     image: "https://traceconsultingltd.com/storage/647/1_1200-X800.jpg",
-    url: "https://traceconsultingltd.com/article-details/30",
-    external: true,
+    url: "/latest-updates/dls-strategic-dialogue-agro-trade",
+    external: false,
+    body: {
+      sections: [
+        {
+          heading: "Strategic Dialogue with DLS Leadership",
+          paragraphs: [
+            "TRACE Consulting facilitated an executive-level meeting with Department of Livestock Services (DLS) leadership. The session concentrated on actionable strategies to accelerate the digital transformation of livestock trade-related services and implement robust, risk-based inspection frameworks.",
+            "Key discussion areas included modernizing legislative procedures, advancing laboratory accreditation, and ensuring compliance with international Sanitary and Phytosanitary (SPS) standards.",
+          ],
+        },
+        {
+          paragraphs: [
+            "The organization aims to help DLS streamline agro-trade facilitation, reduce administrative burdens, and expand international market access for Bangladesh’s livestock sector.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Michael J. Parr", role: "Strategic Advisor" },
+        { name: "Mimma Afrin", role: "Technical Lead, Laboratory Operations" },
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+      ],
+    },
   },
 ];
 

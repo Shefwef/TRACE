@@ -10,7 +10,7 @@ import { TeamPortrait } from "@/components/TeamPortrait";
 import SpecularButton from "@/components/ui/SpecularButton";
 import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
-import { ASSETS, contact, innovations, insights, latestUpdates, metrics, projects, services, team, type Insight, type Project, type Service, type ServiceProduct, type TeamMember } from "@/data/traceData";
+import { ASSETS, contact, innovations, insights, latestUpdates, metrics, projects, services, team, type Insight, type LatestUpdate, type Project, type Service, type ServiceProduct, type TeamMember } from "@/data/traceData";
 import { ProjectCard } from "@/components/ui/glass-blog-card-shadcnui";
 
 const serviceMedia: Record<string, string> = {
@@ -343,7 +343,9 @@ export function AboutPage() {
   const commitments = ["Upholding integrity and transparency in every engagement", "Delivering measurable outcomes beyond recommendations", "Strengthening local capacity and fostering ownership", "Advancing innovation and sustainability across every project"];
   const framework = [["01", "Insight", "Research, data, and deep expertise turn complex trade and policy challenges into clear opportunities for action."], ["02", "Strategy", "Evidence- and technology-driven solutions meet global standards while aligning with institutional realities."], ["03", "Impact", "Practical implementation reduces barriers, advances reform, and equips institutions to sustain change independently."]];
   const distinctions = [["Industry-wide network", "Partnerships across government, the private sector, and development organizations support coordinated cross-sector solutions."], ["Sustainable approach", "Long-term strategies embed local capacity, environmental responsibility, and institutional ownership beyond project lifecycles."], ["Tailored innovation", "Context-specific solutions combine global practice, emerging technology, and local insight."], ["End-to-end solutions", "Support spans strategy, design, implementation, and scaling."]];
-  return <Shell><main><PageHero label="ABOUT TRACE" title={<>A firm built on <span className="text-trace-mint">insight</span>, strategy, and lasting impact.</>} description="TRACE integrates trade expertise, policy reform, digital systems, and practical implementation to help institutions make complex change move." tone="navy" /><section className="bg-trace-paper py-24 sm:py-32"><div className="mx-auto grid max-w-[1480px] gap-10 px-5 lg:grid-cols-[0.94fr_1.06fr] lg:gap-14 lg:px-10"><SectionReveal><div className="max-w-xl"><p className="section-label">WHO WE ARE</p><h2 className="mt-5 font-display text-5xl font-extrabold leading-[0.94] tracking-[-0.065em] text-trace-ink">Architecting resilience in a dynamic landscape.</h2><div className="mt-8 grid gap-6 text-base leading-8 text-trace-muted"><p>TRACE Consulting is a strategic advisory firm specializing in international trade, economic policy, regulatory reform, digital government solutions, and implementation support.</p><p>We help governments, development partners, and the private sector modernize institutions, strengthen regulatory systems, and improve trade competitiveness through evidence-based policy, technology, and implementation support.</p><p>Our work bridges the gap between policy design and practical delivery—making reforms usable, systems resilient, and impact sustainable.</p></div></div></SectionReveal><SectionReveal delay={0.1}><figure className="relative aspect-[5/4] overflow-hidden border border-trace-ink/10 bg-white"><img src={ASSETS.aboutTrace} alt="Overhead view of professionals meeting around a collaborative table" className="absolute inset-0 h-full w-full object-cover" /></figure></SectionReveal></div></section><section className="bg-trace-navy py-20 text-white sm:py-24"><div className="mx-auto grid max-w-[1480px] gap-12 px-5 lg:grid-cols-[1fr_1fr] lg:gap-20 lg:px-10"><SectionReveal><p className="section-label !text-trace-mint">OUR MISSION</p><h2 className="mt-5 max-w-xl font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] sm:text-5xl">Intelligent, sustainable, and inclusive solutions for stronger economies and institutions.</h2><p className="mt-7 max-w-xl text-base leading-8 text-white/78">TRACE integrates rigorous research with practical implementation to deliver lasting, measurable impact at scale—bridging the distance between policy ambition and institutional practice.</p></SectionReveal><SectionReveal delay={0.08}><div className="lg:border-l lg:border-white/18 lg:pl-12"><p className="section-label !text-trace-mint">OUR COMMITMENT</p><div className="mt-7 grid gap-x-9 gap-y-6 sm:grid-cols-2">{commitments.map((commitment) => <div key={commitment} className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-trace-mint" /><p className="text-sm font-medium leading-6 text-white/88">{commitment}</p></div>)}</div><p className="mt-9 border-l-2 border-trace-teal pl-4 text-sm leading-6 text-white/76">We go beyond advisory—partnering closely to co-create lasting, meaningful change.</p></div></SectionReveal></div></section><section className="bg-white py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="max-w-3xl"><p className="section-label">HOW WE WORK</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">From insight to sustained impact.</h2><p className="mt-5 max-w-2xl text-base leading-7 text-trace-muted">A practical three-stage framework connects intelligence, implementation design, and durable client capability.</p></div></SectionReveal><div className="mt-10 grid gap-4 md:grid-cols-3">{framework.map(([number, title, body], index) => <SectionReveal key={title} delay={index * 0.06}><article className="relative min-h-[250px] border-l-2 border-t-2 border-trace-teal bg-trace-paper p-6"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={12} borderWidth={1} /><p className="font-display text-[13px] font-black tracking-[0.1em] text-trace-teal">{number}</p><h3 className="mt-10 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">{title}</h3><p className="mt-4 text-sm leading-6 text-trace-muted">{body}</p></article></SectionReveal>)}</div></div></section><section className="bg-trace-paper py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="flex flex-col justify-between gap-5 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end"><div><p className="section-label">WHAT MAKES TRACE DIFFERENT</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Depth that stays connected to delivery.</h2></div></div></SectionReveal><div className="mt-8 grid gap-px border-l border-t border-trace-ink/10 sm:grid-cols-2 xl:grid-cols-4">{distinctions.map(([title, body], index) => <SectionReveal key={title} delay={index * 0.045}><article className="relative min-h-[238px] border-b border-r border-trace-ink/10 bg-white p-6"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={13} borderWidth={1} /><p className="font-display text-[13px] font-black tracking-[0.1em] text-trace-teal">0{index + 1}</p><h3 className="mt-8 font-display text-2xl font-extrabold leading-[1.04] tracking-[-0.05em] text-trace-ink">{title}</h3><p className="mt-4 text-sm leading-6 text-trace-muted">{body}</p></article></SectionReveal>)}</div></div></section><section className="bg-white py-20"><div className="mx-auto grid max-w-[1480px] gap-8 px-5 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">{metrics.map((metric, index) => <SectionReveal key={metric.label} delay={index * 0.06}><p className="font-display text-5xl font-extrabold tracking-[-0.07em] text-trace-ink">{metric.value}</p><p className="mt-2 max-w-[12rem] text-sm leading-5 text-trace-muted">{metric.label}</p></SectionReveal>)}</div></section></main></Shell>;
+  const featuredProjects = projects.slice(0, 3);
+  const featuredUpdates = latestUpdates.filter((u) => !u.external).sort((a, b) => b.isoDate.localeCompare(a.isoDate)).slice(0, 4);
+  return <Shell><main><PageHero label="ABOUT TRACE" title={<>A firm built on <span className="text-trace-mint">insight</span>, strategy, and lasting impact.</>} description="TRACE integrates trade expertise, policy reform, digital systems, and practical implementation to help institutions make complex change move." tone="navy" /><section className="bg-trace-paper py-24 sm:py-32"><div className="mx-auto grid max-w-[1480px] gap-10 px-5 lg:grid-cols-[0.94fr_1.06fr] lg:gap-14 lg:px-10"><SectionReveal><div className="max-w-xl"><p className="section-label">WHO WE ARE</p><h2 className="mt-5 font-display text-5xl font-extrabold leading-[0.94] tracking-[-0.065em] text-trace-ink">Architecting resilience in a dynamic landscape.</h2><div className="mt-8 grid gap-6 text-base leading-8 text-trace-muted"><p>TRACE Consulting is a strategic advisory firm specializing in international trade, economic policy, regulatory reform, digital government solutions, and implementation support.</p><p>We help governments, development partners, and the private sector modernize institutions, strengthen regulatory systems, and improve trade competitiveness through evidence-based policy, technology, and implementation support.</p><p>Our work bridges the gap between policy design and practical delivery—making reforms usable, systems resilient, and impact sustainable.</p></div></div></SectionReveal><SectionReveal delay={0.1}><figure className="relative aspect-[5/4] overflow-hidden border border-trace-ink/10 bg-white"><img src={ASSETS.aboutTrace} alt="Overhead view of professionals meeting around a collaborative table" className="absolute inset-0 h-full w-full object-cover" /></figure></SectionReveal></div></section><section className="bg-trace-navy py-20 text-white sm:py-24"><div className="mx-auto grid max-w-[1480px] gap-12 px-5 lg:grid-cols-[1fr_1fr] lg:gap-20 lg:px-10"><SectionReveal><p className="section-label !text-trace-mint">OUR MISSION</p><h2 className="mt-5 max-w-xl font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] sm:text-5xl">Intelligent, sustainable, and inclusive solutions for stronger economies and institutions.</h2><p className="mt-7 max-w-xl text-base leading-8 text-white/78">TRACE integrates rigorous research with practical implementation to deliver lasting, measurable impact at scale—bridging the distance between policy ambition and institutional practice.</p></SectionReveal><SectionReveal delay={0.08}><div className="lg:border-l lg:border-white/18 lg:pl-12"><p className="section-label !text-trace-mint">OUR COMMITMENT</p><div className="mt-7 grid gap-x-9 gap-y-6 sm:grid-cols-2">{commitments.map((commitment) => <div key={commitment} className="flex gap-3"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-trace-mint" /><p className="text-sm font-medium leading-6 text-white/88">{commitment}</p></div>)}</div><p className="mt-9 border-l-2 border-trace-teal pl-4 text-sm leading-6 text-white/76">We go beyond advisory—partnering closely to co-create lasting, meaningful change.</p></div></SectionReveal></div></section><section className="bg-white py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="max-w-3xl"><p className="section-label">HOW WE WORK</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">From insight to sustained impact.</h2><p className="mt-5 max-w-2xl text-base leading-7 text-trace-muted">A practical three-stage framework connects intelligence, implementation design, and durable client capability.</p></div></SectionReveal><div className="mt-10 grid gap-4 md:grid-cols-3">{framework.map(([number, title, body], index) => <SectionReveal key={title} delay={index * 0.06}><article className="relative min-h-[250px] border-l-2 border-t-2 border-trace-teal bg-trace-paper p-6"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={12} borderWidth={1} /><p className="font-display text-[13px] font-black tracking-[0.1em] text-trace-teal">{number}</p><h3 className="mt-10 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">{title}</h3><p className="mt-4 text-sm leading-6 text-trace-muted">{body}</p></article></SectionReveal>)}</div></div></section><section className="bg-trace-paper py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="flex flex-col justify-between gap-5 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end"><div><p className="section-label">WHAT MAKES TRACE DIFFERENT</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Depth that stays connected to delivery.</h2></div></div></SectionReveal><div className="mt-8 grid gap-px border-l border-t border-trace-ink/10 sm:grid-cols-2 xl:grid-cols-4">{distinctions.map(([title, body], index) => <SectionReveal key={title} delay={index * 0.045}><article className="relative min-h-[238px] border-b border-r border-trace-ink/10 bg-white p-6"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={13} borderWidth={1} /><p className="font-display text-[13px] font-black tracking-[0.1em] text-trace-teal">0{index + 1}</p><h3 className="mt-8 font-display text-2xl font-extrabold leading-[1.04] tracking-[-0.05em] text-trace-ink">{title}</h3><p className="mt-4 text-sm leading-6 text-trace-muted">{body}</p></article></SectionReveal>)}</div></div></section><section className="bg-white py-20"><div className="mx-auto grid max-w-[1480px] gap-8 px-5 sm:grid-cols-2 lg:grid-cols-4 lg:px-10">{metrics.map((metric, index) => <SectionReveal key={metric.label} delay={index * 0.06}><p className="font-display text-5xl font-extrabold tracking-[-0.07em] text-trace-ink">{metric.value}</p><p className="mt-2 max-w-[12rem] text-sm leading-5 text-trace-muted">{metric.label}</p></SectionReveal>)}</div></section><section className="bg-trace-paper py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="flex flex-col justify-between gap-5 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end"><div><p className="section-label">FEATURED PROJECTS</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Work that makes the case.</h2></div><Link href="/projects" className="inline-flex items-center gap-2 border-b border-trace-teal pb-1.5 text-sm font-extrabold text-trace-teal">View all projects <ArrowRight className="h-4 w-4" /></Link></div></SectionReveal><div className="mt-8 grid gap-5 md:grid-cols-3">{featuredProjects.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.06} className="h-full"><Link href={`/projects/${project.slug}`} className="group block h-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.16)]"><div className="relative aspect-[16/9] overflow-hidden"><img src={projectImage(project)} alt={project.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/60 via-trace-ink/10 to-transparent" /><span className={`absolute left-4 top-4 px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] ${project.status === "Ongoing" ? "bg-trace-teal text-white" : "bg-white/95 text-trace-navy backdrop-blur"}`}>{project.status.toUpperCase()}</span></div><div className="p-5 sm:p-6"><p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">{project.client.toUpperCase()}</p><h3 className="mt-2 font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink transition-colors group-hover:text-trace-teal">{project.title}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-trace-muted">{project.summary}</p><div className="mt-4 flex items-center justify-between border-t border-trace-ink/8 pt-3"><span className="text-xs font-bold text-trace-ink">{project.period}</span><ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></div></div></Link></SectionReveal>)}</div></div></section><section className="bg-white py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="flex flex-col justify-between gap-5 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end"><div><p className="section-label">LATEST UPDATES</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Knowledge from active work.</h2></div><Link href="/latest-updates" className="inline-flex items-center gap-2 border-b border-trace-teal pb-1.5 text-sm font-extrabold text-trace-teal">View all updates <ArrowRight className="h-4 w-4" /></Link></div></SectionReveal><div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">{featuredUpdates.map((item, index) => <SectionReveal key={item.slug} delay={index * 0.05} className="h-full"><Link href={item.url} className="group block h-full overflow-hidden rounded-2xl bg-trace-paper shadow-[0_8px_24px_rgba(7,27,43,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(7,27,43,0.14)]"><div className="relative aspect-[16/9] overflow-hidden"><img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/55 via-transparent to-transparent" /><span className="absolute left-3 top-3 bg-white/95 px-2.5 py-1 font-mono text-[9px] font-bold tracking-[0.12em] text-trace-navy backdrop-blur">{item.category.toUpperCase()}</span></div><div className="p-4"><p className="font-mono text-[9px] font-bold tracking-[0.16em] text-trace-teal">{item.date.toUpperCase()}</p><h3 className="mt-2 line-clamp-2 font-display text-sm font-extrabold leading-[1.25] tracking-[-0.03em] text-trace-ink transition-colors group-hover:text-trace-teal">{item.title}</h3></div></Link></SectionReveal>)}</div></div></section><section className="bg-trace-navy py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between"><SectionReveal><div><h2 className="font-display text-4xl font-extrabold tracking-[-0.06em] text-white sm:text-5xl">Have a project in mind?<br /><span className="text-trace-mint">Let's build something that lasts.</span></h2><p className="mt-5 max-w-xl text-base leading-8 text-white/72">Whether reforming a regulatory system, building technical capacity, or modernising digital infrastructure, we would like to hear from you.</p></div></SectionReveal><SectionReveal delay={0.08}><Link href="/contact" className="inline-flex items-center gap-3 border border-white/35 bg-white/10 px-7 py-4 text-sm font-extrabold text-white backdrop-blur-md transition-all duration-300 hover:border-trace-teal hover:bg-trace-teal rounded-xl">Start a conversation <ArrowRight className="h-4 w-4" /></Link></SectionReveal></div></div></section></main></Shell>;
 }
 
 export function ServicesPage() {
@@ -1258,6 +1260,148 @@ export function InsightDetailPage() {
   return <Shell><main><DetailMediaHero label={insight.type.toUpperCase()} title={insight.title} description={insight.summary} kicker={insight.date.toUpperCase()} image={insightImage(insight)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/insights" label="insights" /><div className="mt-12 grid gap-12 lg:grid-cols-[1.18fr_0.82fr]"><SectionReveal><article className="relative overflow-hidden bg-white p-7 sm:p-10"><GhostNumber value="01" />{insight.type === "Video" && <a href={insight.sourceUrl} target="_blank" rel="noreferrer" className="group relative grid aspect-video place-items-center overflow-hidden bg-trace-ink"><img src={insightImage(insight)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105" /><span className="relative grid h-16 w-16 place-items-center rounded-full border border-white/60 bg-trace-navy/80 text-white"><PlayCircle className="h-8 w-8 text-trace-mint" /></span></a>}<div className="relative mt-7"><AnimatedEyebrow number="01" text="TRACE KNOWLEDGE RECORD" /></div><div className="relative mt-4"><AnimatedHeading text="A TRACE perspective." className="font-display text-3xl font-extrabold leading-[1.08] tracking-[-0.055em] text-trace-ink" /></div><p className="relative mt-5 text-base leading-8 text-trace-muted">{insight.summary} The original source remains available through the verified destination associated with this record.</p><div className="relative"><SourceAction insight={insight} /></div></article></SectionReveal><SectionReveal delay={0.08}><aside className="relative overflow-hidden border border-trace-ink/10 bg-white p-7"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><AnimatedEyebrow text="FOLLOW THE IDEA" /><div className="mt-5 flex flex-wrap gap-2">{relatedServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</div><p className="mt-9 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">FORMAT</p><p className="mt-2 font-display text-2xl font-extrabold text-trace-ink">{insight.type}</p><p className="mt-1 text-sm text-trace-muted">{insight.date}</p><SourceAction insight={insight} /></aside></SectionReveal></div><RelationshipRail title="Related projects">{relatedProjects.length ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Related projects will be connected as they are verified.</p>}</RelationshipRail><RelationshipRail title="Relevant experts">{relatedTeam.length ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Relevant experts will be connected as they are verified.</p>}</RelationshipRail></div></section></main></Shell>;
 }
 
+function UpdateCard({ item }: { item: LatestUpdate }) {
+  const cardClass = "group relative block h-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.16)]";
+  const inner = (
+    <>
+      <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
+      <div className="relative aspect-[16/10] w-full overflow-hidden">
+        <img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/60 via-trace-ink/10 to-transparent" />
+        <span className="absolute left-4 top-4 bg-white/95 px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-navy backdrop-blur">{item.category.toUpperCase()}</span>
+        {item.external && <span className="absolute right-4 top-4 grid h-9 w-9 place-items-center bg-trace-navy/85 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"><ExternalLink className="h-4 w-4" /></span>}
+      </div>
+      <div className="flex flex-col gap-3 p-5 sm:p-6">
+        <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">{item.date.toUpperCase()}</p>
+        <h3 className="font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink transition-colors group-hover:text-trace-teal sm:text-2xl">{item.title}</h3>
+        <p className="line-clamp-3 text-sm leading-6 text-trace-muted">{item.summary}</p>
+        <div className="flex items-center justify-between border-t border-trace-ink/8 pt-3">
+          <span className="text-xs font-bold text-trace-ink">{item.external ? "Read original" : "Read update"}</span>
+          <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </div>
+      </div>
+    </>
+  );
+  if (item.external) {
+    return <a href={item.url} target="_blank" rel="noreferrer" className={cardClass}>{inner}</a>;
+  }
+  return <Link href={item.url} className={cardClass}>{inner}</Link>;
+}
+
+export function LatestUpdateDetailPage() {
+  const [, params] = useRoute("/latest-updates/:slug");
+  const item = latestUpdates.find((u) => u.slug === params?.slug);
+  if (!item || item.external) return <NotFoundEntity />;
+  const { body } = item;
+  const otherUpdates = latestUpdates.filter((u) => !u.external && u.slug !== item.slug).slice(0, 3);
+  return (
+    <Shell>
+      <main>
+        {/* ── Hero ── */}
+        <section className="relative min-h-[52vh] overflow-hidden bg-trace-ink pt-36 sm:pt-44">
+          <img src={item.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-b from-trace-ink/55 via-trace-ink/30 to-trace-ink" />
+          <div className="relative mx-auto max-w-[1200px] px-5 pb-16 lg:px-10">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="bg-trace-teal px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] text-white">{item.category.toUpperCase()}</span>
+              <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-white/60">{item.date.toUpperCase()}</span>
+            </div>
+            <h1 className="mt-5 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.06em] text-white sm:text-5xl">{item.title}</h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-white/72">{item.summary}</p>
+          </div>
+        </section>
+
+        {/* ── Body ── */}
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
+            <BackLink href="/latest-updates" label="updates" />
+            <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_320px]">
+              {/* Article body */}
+              <article>
+                {body?.sections.map((section, si) => (
+                  <SectionReveal key={si} delay={si * 0.06}>
+                    <div className="relative mb-10">
+                      <GhostNumber value={String(si + 1).padStart(2, "0")} />
+                      {section.heading && (
+                        <div className="relative mb-4">
+                          <AnimatedEyebrow number={String(si + 1).padStart(2, "0")} text={section.heading.toUpperCase()} />
+                        </div>
+                      )}
+                      <div className="relative grid gap-5">
+                        {section.paragraphs.map((para, pi) => (
+                          <p key={pi} className="text-base leading-8 text-trace-muted">{para}</p>
+                        ))}
+                      </div>
+                    </div>
+                  </SectionReveal>
+                ))}
+              </article>
+
+              {/* Sidebar */}
+              <aside className="space-y-6">
+                <SectionReveal delay={0.1}>
+                  <div className="relative overflow-hidden border border-trace-ink/10 bg-white p-6 shadow-[0_8px_24px_rgba(7,27,43,0.08)]">
+                    <div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" />
+                    <AnimatedEyebrow text="ABOUT THIS UPDATE" />
+                    <div className="mt-5 grid gap-4">
+                      <div>
+                        <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted">CATEGORY</p>
+                        <p className="mt-1.5 font-display text-lg font-extrabold text-trace-ink">{item.category}</p>
+                      </div>
+                      <div>
+                        <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted">DATE</p>
+                        <p className="mt-1.5 text-sm font-bold text-trace-ink">{item.date}</p>
+                      </div>
+                    </div>
+                  </div>
+                </SectionReveal>
+
+                {body?.team && body.team.length > 0 && (
+                  <SectionReveal delay={0.15}>
+                    <div className="relative overflow-hidden border border-trace-ink/10 bg-trace-navy p-6 shadow-[0_8px_24px_rgba(7,27,43,0.12)]">
+                      <div className="absolute left-0 top-0 h-1 w-full bg-trace-mint" />
+                      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-mint">TEAM</p>
+                      <div className="mt-4 grid gap-3">
+                        {body.team.map((member) => (
+                          <div key={member.name} className="flex flex-col">
+                            <span className="text-sm font-extrabold text-white">{member.name}</span>
+                            <span className="text-xs text-white/60">{member.role}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </SectionReveal>
+                )}
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        {/* ── More updates ── */}
+        {otherUpdates.length > 0 && (
+          <section className="bg-trace-paper py-16 sm:py-20">
+            <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
+              <SectionReveal>
+                <div className="flex items-end justify-between border-b border-trace-ink/10 pb-7">
+                  <h2 className="font-display text-2xl font-extrabold tracking-[-0.05em] text-trace-ink">More updates</h2>
+                  <Link href="/latest-updates" className="inline-flex items-center gap-2 text-sm font-bold text-trace-teal hover:underline">View all <ArrowRight className="h-3.5 w-3.5" /></Link>
+                </div>
+              </SectionReveal>
+              <div className="mt-6 grid gap-5 sm:grid-cols-3">
+                {otherUpdates.map((u, index) => (
+                  <SectionReveal key={u.slug} delay={index * 0.06} className="h-full">
+                    <UpdateCard item={u} />
+                  </SectionReveal>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+      </main>
+    </Shell>
+  );
+}
+
 export function LatestUpdatesPage() {
   const [filter, setFilter] = useState<string>("All");
   const [query, setQuery] = useState("");
@@ -1315,45 +1459,7 @@ export function LatestUpdatesPage() {
             <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {displayed.map((item, index) => (
                 <SectionReveal key={item.slug} delay={index * 0.04} className="h-full">
-                  <motion.a
-                    href={item.url}
-                    target={item.external ? "_blank" : undefined}
-                    rel={item.external ? "noreferrer" : undefined}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="group relative block h-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.16)]"
-                  >
-                    <ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={10} borderWidth={1.5} />
-                    <div className="relative aspect-[16/10] w-full overflow-hidden">
-                      <img
-                        src={item.image}
-                        alt=""
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/60 via-trace-ink/10 to-transparent" />
-                      <span className="absolute left-4 top-4 bg-white/95 px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-navy backdrop-blur">
-                        {item.category.toUpperCase()}
-                      </span>
-                      {item.external && (
-                        <span className="absolute right-4 top-4 grid h-9 w-9 place-items-center bg-trace-navy/85 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                          <ExternalLink className="h-4 w-4" />
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-3 p-5 sm:p-6">
-                      <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">{item.date.toUpperCase()}</p>
-                      <h3 className="font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink transition-colors group-hover:text-trace-teal sm:text-2xl">
-                        {item.title}
-                      </h3>
-                      <p className="line-clamp-3 text-sm leading-6 text-trace-muted">{item.summary}</p>
-                      <div className="flex items-center justify-between border-t border-trace-ink/8 pt-3">
-                        <span className="text-xs font-bold text-trace-ink">{item.external ? "Read original" : "Read update"}</span>
-                        <ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                  </motion.a>
+                  <UpdateCard item={item} />
                 </SectionReveal>
               ))}
             </div>

@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import { AboutPage, CareerDetailPage, CareersPage, ContactPage, InnovationsPage, InsightDetailPage, InsightsPage, LatestUpdatesPage, ProjectDetailPage, ProjectsPage, ServiceDetailPage, ServicesPage, TeamDetailPage, TeamPage } from "./pages/TracePages";
+import { AboutPage, CareerDetailPage, CareersPage, ContactPage, InnovationsPage, InsightDetailPage, InsightsPage, LatestUpdateDetailPage, LatestUpdatesPage, ProjectDetailPage, ProjectsPage, ServiceDetailPage, ServicesPage, TeamDetailPage, TeamPage } from "./pages/TracePages";
 import { TeamHierarchyPage } from "./components/TeamHierarchy";
 
 
@@ -38,6 +38,7 @@ function Router() {
         <Route path={"/insights/:slug"} component={InsightDetailPage} />
         <Route path={"/innovations"} component={InnovationsPage} />
         <Route path={"/latest-updates"} component={LatestUpdatesPage} />
+        <Route path={"/latest-updates/:slug"} component={LatestUpdateDetailPage} />
         <Route path={"/careers"} component={CareersPage} />
         <Route path={"/careers/:slug"} component={CareerDetailPage} />
         <Route path={"/contact"} component={ContactPage} />
