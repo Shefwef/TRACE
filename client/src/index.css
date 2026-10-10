@@ -158,6 +158,49 @@
 
   @media (min-width: 640px) { .container { padding-left: 1.5rem; padding-right: 1.5rem; } }
   @media (min-width: 1024px) { .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; } }
+
+  /* ── Ambient background field: subtle drifting orbs + micro-dot lattice on all white/paper sections ── */
+  /* Uses ::before for gradient orbs and ::after for a faint repeating dot grid.
+     z-index: -1 inside isolation: isolate puts them above the section's own bg-color but behind all child content. */
+  section[class*="bg-white"],
+  section[class*="bg-trace-paper"] {
+    position: relative;
+    isolation: isolate;
+  }
+  section[class*="bg-white"]::before,
+  section[class*="bg-trace-paper"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 62% 72% at 92%  4%,  rgba(0, 156, 166, 0.028) 0%, transparent 58%),
+      radial-gradient(ellipse 52% 62% at  7%  94%, rgba(18,  61, 103, 0.032) 0%, transparent 58%),
+      radial-gradient(ellipse 42% 54% at 54%  44%, rgba(215,243, 240, 0.040) 0%, transparent 56%);
+    animation: trace-ambient-orbs 34s ease-in-out infinite;
+  }
+  section[class*="bg-white"]::after,
+  section[class*="bg-trace-paper"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(circle 1px at 1px 1px, rgba(0, 156, 166, 0.07) 0%, transparent 100%);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(ellipse 86% 76% at center, black 15%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 86% 76% at center, black 15%, transparent 70%);
+    animation: trace-ambient-dots 80s linear infinite;
+  }
+  @keyframes trace-ambient-orbs {
+    0%,  100% { opacity: 1;    transform: scale(1);    }
+    30%        { opacity: 0.55; transform: scale(1.06); }
+    65%        { opacity: 0.78; transform: scale(0.96); }
+  }
+  @keyframes trace-ambient-dots {
+    to { background-position: 50px 50px; }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
