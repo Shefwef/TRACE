@@ -46,7 +46,10 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
           // other UI layer including the fixed site header.
           // Backdrop: translucent black with a soft blur — darkens the page but lets the
           // site faintly show through, so the dialog reads as a focused layer, not a blackout.
-          className="fixed inset-0 z-[9999] grid place-items-start overflow-y-auto px-4 py-10 backdrop-blur-[6px] sm:py-14"
+          // overflow-y-auto on the outer layer + flex min-h-full items-center on the inner
+          // layer keeps the dialog vertically centered when it fits, and scrolls naturally
+          // when the content is taller than the viewport.
+          className="fixed inset-0 z-[9999] overflow-y-auto backdrop-blur-[6px]"
           style={{ backgroundColor: "rgba(0, 0, 0, 0.55)" }}
           role="dialog"
           aria-modal="true"
@@ -56,6 +59,7 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
           exit={{ opacity: 0 }}
           onMouseDown={onClose}
         >
+         <div className="flex min-h-full items-center justify-center px-4 py-10 sm:py-14">
           <motion.article
             initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -134,6 +138,7 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
               </div>
             </div>
           </motion.article>
+         </div>
         </motion.div>
       )}
     </AnimatePresence>
