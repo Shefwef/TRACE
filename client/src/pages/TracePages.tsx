@@ -1576,7 +1576,7 @@ export function TeamDetailPage() {
                   <SectionReveal delay={0.1}>
                     <div className="mt-14">
                       <DetailSectionHeading title="Related Projects" />
-                      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {memberProjects.slice(0, projectsShown).map((project) => (
                           <Link key={project.slug} href={`/projects/${project.slug}`} className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(7,27,43,0.14)]">
                             <div className="relative aspect-[16/9] overflow-hidden">
@@ -1606,7 +1606,7 @@ export function TeamDetailPage() {
                   <SectionReveal delay={0.1}>
                     <div className="mt-14">
                       <DetailSectionHeading title="Related Insights" />
-                      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {memberInsights.slice(0, insightsShown).map((insight) => (
                           <Link key={insight.slug} href={`/insights/${insight.slug}`} className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(7,27,43,0.14)]">
                             <div className="relative aspect-[16/9] overflow-hidden">
@@ -1827,7 +1827,7 @@ export function LatestUpdateDetailPage() {
     <Shell>
       <main>
         {/* ── Hero ── */}
-        <section className="relative min-h-[52vh] overflow-hidden bg-trace-ink pt-36 sm:pt-44">
+        <section className="relative min-h-[65vh] overflow-hidden bg-trace-ink pt-36 sm:pt-44">
           <img src={item.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" aria-hidden="true" />
           <div className="absolute inset-0 bg-gradient-to-b from-trace-ink/55 via-trace-ink/30 to-trace-ink" />
           <div className="relative mx-auto max-w-[1200px] px-5 pb-16 lg:px-10">
