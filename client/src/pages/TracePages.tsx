@@ -488,9 +488,6 @@ export function AboutPage() {
 }
 
 export function ServicesPage() {
-  const [showAll, setShowAll] = useState(false);
-  const visibleServices = showAll ? services : services.slice(0, 6);
-  const hiddenCount = services.length - 6;
   return (
     <Shell>
       <main>
@@ -502,7 +499,7 @@ export function ServicesPage() {
               <h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Each service starts with context—and ends in capability.</h2>
             </div>
             <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {visibleServices.map((service, index) => (
+              {services.map((service, index) => (
                 <SectionReveal key={service.slug} delay={index * 0.04} className="h-full">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -565,21 +562,6 @@ export function ServicesPage() {
                 </SectionReveal>
               ))}
             </div>
-            {hiddenCount > 0 && (
-              <div className="mt-12 flex flex-col items-center gap-3">
-                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">
-                  SHOWING {visibleServices.length} OF {services.length} SERVICES
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowAll((v) => !v)}
-                  className="group inline-flex items-center gap-2 rounded-xl bg-trace-navy px-7 py-3.5 text-sm font-extrabold text-white shadow-[0_14px_32px_rgba(18,61,103,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-trace-teal hover:shadow-[0_18px_40px_rgba(0,156,166,0.42)]"
-                >
-                  {showAll ? "Show less" : `View all services (+${hiddenCount})`}
-                  <ArrowRight className={`h-4 w-4 transition-transform duration-300 ${showAll ? "rotate-90" : "group-hover:translate-x-1"}`} />
-                </button>
-              </div>
-            )}
           </div>
         </section>
       </main>
@@ -1149,18 +1131,13 @@ export function ServiceDetailPage() {
 export function ProjectsPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
-  const [showAll, setShowAll] = useState(false);
   const filters = ["All", ...services.map((service) => service.title)];
   const filtered = projects.filter((project) => {
     const serviceMatch = filter === "All" || project.serviceSlugs.some((slug) => services.find((service) => service.slug === slug)?.title === filter);
     const q = query.toLowerCase();
     return serviceMatch && (!q || `${project.title} ${project.client} ${project.summary}`.toLowerCase().includes(q));
   });
-  // Cap the default view at 6 cards; reveal the rest only when the user asks.
-  // Any active filter/search still respects the 6-card cap unless expanded.
-  const visible = showAll ? filtered : filtered.slice(0, 6);
-  const hiddenCount = filtered.length - visible.length;
-  return <Shell><main><PageHero label="PROJECTS" title={<>Work that <span className="text-trace-mint">changes systems.</span></>} description="Trade facilitation, laboratory strengthening, digital transformation, policy advisory, and capacity-building work across connected institutions." tone="navy" /><section className="py-16 sm:py-20"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-2">{filters.map((item) => <button key={item} onClick={() => { setFilter(item); setShowAll(false); }} className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "bg-trace-navy text-white" : "border border-trace-ink/12 bg-white text-trace-muted hover:border-trace-teal"}`}>{item}</button>)}</div><label className="flex w-full max-w-md items-center gap-3 border-b border-trace-ink/20 bg-white px-3 py-3"><Search className="h-4 w-4 text-trace-teal" /><input value={query} onChange={(event) => { setQuery(event.target.value); setShowAll(false); }} placeholder="Search projects" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" /></label></div><div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{visible.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.04} className="h-full"><ProjectCard project={project} image={projectImage(project)} /></SectionReveal>)}</div>{filtered.length === 0 && <p className="py-16 text-center text-trace-muted">No project records match this search.</p>}{hiddenCount > 0 && <div className="mt-12 flex flex-col items-center gap-3"><p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">SHOWING {visible.length} OF {filtered.length} PROJECTS</p><button type="button" onClick={() => setShowAll(true)} className="group inline-flex items-center gap-2 rounded-xl bg-trace-navy px-7 py-3.5 text-sm font-extrabold text-white shadow-[0_14px_32px_rgba(18,61,103,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-trace-teal hover:shadow-[0_18px_40px_rgba(0,156,166,0.42)]">View all projects (+{hiddenCount}) <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" /></button></div>}{showAll && filtered.length > 6 && <div className="mt-10 flex justify-center"><button type="button" onClick={() => setShowAll(false)} className="inline-flex items-center gap-2 text-sm font-bold text-trace-muted hover:text-trace-navy">Show less <ChevronDown className="h-4 w-4 rotate-180" /></button></div>}</div></section></main></Shell>;
+  return <Shell><main><PageHero label="PROJECTS" title={<>Work that <span className="text-trace-mint">changes systems.</span></>} description="Trade facilitation, laboratory strengthening, digital transformation, policy advisory, and capacity-building work across connected institutions." tone="navy" /><section className="py-16 sm:py-20"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-2">{filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "bg-trace-navy text-white" : "border border-trace-ink/12 bg-white text-trace-muted hover:border-trace-teal"}`}>{item}</button>)}</div><label className="flex w-full max-w-md items-center gap-3 border-b border-trace-ink/20 bg-white px-3 py-3"><Search className="h-4 w-4 text-trace-teal" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search projects" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" /></label></div><div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.04} className="h-full"><ProjectCard project={project} image={projectImage(project)} /></SectionReveal>)}</div>{filtered.length === 0 && <p className="py-16 text-center text-trace-muted">No project records match this search.</p>}</div></section></main></Shell>;
 }
 
 export function ProjectDetailPage() {

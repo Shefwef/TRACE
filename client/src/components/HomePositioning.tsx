@@ -460,9 +460,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
 }
 
 export function ProjectShowcase() {
-  const [showAll, setShowAll] = useState(false);
-  const visibleServices = showAll ? services : services.slice(0, 6);
-  const hiddenCount = services.length - 6;
+  const visibleServices = services.slice(0, 6);
   return (
     <section className="bg-[#F7FBFC] py-16 sm:py-[4.5rem]" aria-labelledby="services-showcase-title">
       <div className="mx-auto max-w-[1380px] px-5 lg:px-10">
@@ -480,21 +478,6 @@ export function ProjectShowcase() {
             <ServiceCard key={service.slug} service={service} index={index} />
           ))}
         </div>
-        {hiddenCount > 0 && (
-          <div className="mt-10 flex flex-col items-center gap-3">
-            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">
-              SHOWING {visibleServices.length} OF {services.length} SERVICES
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowAll((v) => !v)}
-              className="group inline-flex items-center gap-2 rounded-xl bg-trace-navy px-7 py-3.5 text-sm font-extrabold text-white shadow-[0_14px_32px_rgba(18,61,103,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-trace-teal hover:shadow-[0_18px_40px_rgba(0,156,166,0.42)]"
-            >
-              {showAll ? "Show less" : `View all services (+${hiddenCount})`}
-              <ArrowRight className={`h-4 w-4 transition-transform duration-300 ${showAll ? "rotate-90" : "group-hover:translate-x-1"}`} />
-            </button>
-          </div>
-        )}
         <div className="mt-7 flex items-center justify-between border-t border-trace-ink/10 pt-5 text-[10px] font-bold uppercase tracking-[0.15em] text-trace-muted"><span>{services.length} INTEGRATED SERVICE AREAS</span><Link href="/services" className="inline-flex items-center gap-2 text-trace-navy hover:text-trace-teal">Explore all services <ArrowRight className="h-3.5 w-3.5" /></Link></div>
       </div>
     </section>
