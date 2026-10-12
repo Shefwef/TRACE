@@ -168,7 +168,7 @@ function HowTraceWorksCard() {
           {/* Left: image — object-contain so the full square photo is visible; no crop */}
           <div className="relative w-full shrink-0 bg-white lg:w-[42%]">
             <img
-              src={ASSETS.aboutTrace}
+              src="/media/about/about_us_trace_home.jpg"
               alt="Overhead view of the TRACE team around a table shaped like the TRACE logo"
               className="block h-auto w-full object-contain"
             />
