@@ -1,6 +1,6 @@
 /** Civic Signal Field route system: image-led institutional briefings that connect services, projects, experts, and verified insight sources. */
 import { animate, AnimatePresence, motion, useInView, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Briefcase, CalendarDays, CheckCircle2, ChevronDown, Clock, ExternalLink, FileText, Mail, MapPin, Phone, PlayCircle, Search, Send, Upload, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Briefcase, CalendarDays, CheckCircle2, ChevronDown, Clock, Crown, ExternalLink, FileText, Linkedin, Mail, MapPin, Phone, PlayCircle, Search, Send, Upload, XCircle } from "lucide-react";
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 import { SectionReveal } from "@/components/SectionReveal";
@@ -1253,50 +1253,123 @@ export function ProjectDetailPage() {
   );
 }
 
-/** Photo card: used when a member has a portrait image. */
+/** Social icon chip overlay used on team cards. Returns null when both links are absent. */
+function TeamSocialOverlay({ member }: { member: TeamMember }) {
+  if (!member.email && !member.linkedin) return null;
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
+  return (
+    <div className="absolute inset-x-0 bottom-4 z-10 flex items-center justify-center gap-2">
+      {member.linkedin && (
+        <a href={member.linkedin} onClick={stop} target="_blank" rel="noreferrer" aria-label={`${member.name} on LinkedIn`} className="grid h-9 w-9 place-items-center rounded-md bg-trace-ink text-white shadow-[0_6px_14px_rgba(8,36,64,0.25)] transition-transform duration-200 hover:-translate-y-0.5">
+          <Linkedin className="h-4 w-4" />
+        </a>
+      )}
+      {member.email && (
+        <a href={`mailto:${member.email}`} onClick={stop} aria-label={`Email ${member.name}`} className="grid h-9 w-9 place-items-center rounded-md bg-trace-ink text-white shadow-[0_6px_14px_rgba(8,36,64,0.25)] transition-transform duration-200 hover:-translate-y-0.5">
+          <Mail className="h-4 w-4" />
+        </a>
+      )}
+    </div>
+  );
+}
+
+/** Photo card: tall portrait on top, name + role beneath. Image dominates the card ratio. */
 function TeamPhotoCard({ member }: { member: TeamMember }) {
   return (
-    <Link href={`/team/${member.slug}`} className="group flex h-full min-h-[400px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.14)]">
-      <div className="relative h-56 overflow-hidden bg-gradient-to-b from-trace-paper to-white">
-        <TeamPortrait member={member} className="h-full w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" />
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-trace-ink/15 to-transparent" />
-        <ArrowUpRight className="absolute right-5 top-5 h-5 w-5 text-trace-orange opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-1 group-hover:translate-x-1" />
+    <Link href={`/team/${member.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.14)]">
+      {/* Thin teal top accent — matches the reference card */}
+      <span className="h-[3px] w-full bg-trace-teal" aria-hidden="true" />
+      {/* Large portrait — aspect 4:5 puts most of the card weight on the image */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-b from-trace-paper to-white">
+        <TeamPortrait member={member} className="absolute inset-0 h-full w-full" imageClassName="transition-transform duration-500 group-hover:scale-[1.03]" />
+        <TeamSocialOverlay member={member} />
       </div>
-      <div className="flex flex-1 flex-col p-6">
-        <p className="font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink">{member.name}</p>
-        <p className="mt-2 text-sm font-bold leading-5 text-trace-teal">{member.role}</p>
-        <div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-3">
-          <span className="h-[3px] w-10 rounded-full bg-trace-orange" aria-hidden="true" />
-        </div>
+      {/* Caption */}
+      <div className="flex flex-1 flex-col px-6 pt-6 pb-7 text-center">
+        <p className="font-display text-xl font-extrabold leading-[1.15] tracking-[-0.03em] text-trace-ink">{member.name}</p>
+        <p className="mt-2 text-sm font-semibold leading-5 text-trace-teal">{member.role}</p>
       </div>
     </Link>
   );
 }
 
-/** Info card: used when a member has no portrait — shows bio + specialty chips instead. */
+/** Info card: no portrait — soft paper tint, bio + specialty chips. Same height feel as photo cards. */
 function TeamInfoCard({ member }: { member: TeamMember }) {
   return (
-    <Link href={`/team/${member.slug}`} className="group flex h-full min-h-[260px] flex-col rounded-2xl bg-white p-6 shadow-[0_14px_40px_rgba(7,27,43,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.14)]">
-      <span className="h-[3px] w-8 rounded-full bg-trace-orange" aria-hidden="true" />
-      <p className="mt-5 font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink">{member.name}</p>
-      <p className="mt-2 text-sm font-bold leading-5 text-trace-teal">{member.role}</p>
-      <p className="mt-4 line-clamp-4 text-sm leading-6 text-trace-muted">{member.bio}</p>
-      {member.tags && member.tags.length > 0 && (
-        <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
-          {member.tags.slice(0, 2).map((tag) => (
-            <span key={tag} className="rounded-full border border-trace-ink/10 bg-trace-paper px-3 py-1 font-mono text-[9px] font-bold tracking-[0.08em] text-trace-navy">{tag}</span>
-          ))}
-        </div>
-      )}
+    <Link href={`/team/${member.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.14)]">
+      <span className="h-[3px] w-full bg-trace-teal" aria-hidden="true" />
+      <div className="flex flex-1 flex-col p-7">
+        <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">PROFILE</p>
+        <p className="mt-4 font-display text-xl font-extrabold leading-[1.15] tracking-[-0.03em] text-trace-ink">{member.name}</p>
+        <p className="mt-2 text-sm font-semibold leading-5 text-trace-teal">{member.role}</p>
+        <p className="mt-4 line-clamp-4 text-sm leading-6 text-trace-muted">{member.bio}</p>
+        {member.tags && member.tags.length > 0 && (
+          <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
+            {member.tags.slice(0, 2).map((tag) => (
+              <span key={tag} className="rounded-full border border-trace-teal/25 bg-trace-mint/40 px-3 py-1 font-mono text-[9px] font-bold tracking-[0.08em] text-trace-navy">{tag}</span>
+            ))}
+          </div>
+        )}
+      </div>
     </Link>
+  );
+}
+
+/** Large horizontal CEO feature card — portrait left, name/bio/tags/socials right. */
+function TeamCEOFeature({ member }: { member: TeamMember }) {
+  return (
+    <div className="overflow-hidden rounded-2xl bg-white shadow-[0_20px_56px_rgba(7,27,43,0.10)] ring-1 ring-trace-ink/5">
+      <div className="grid lg:grid-cols-[0.42fr_0.58fr]">
+        {/* Portrait */}
+        <div className="relative min-h-[380px] overflow-hidden bg-gradient-to-b from-[#DDE4EA] to-[#C9D4DC]">
+          <TeamPortrait member={member} className="absolute inset-0 h-full w-full" imageClassName="object-cover" />
+          <span className="absolute bottom-5 left-5 inline-flex items-center gap-1.5 rounded-full bg-trace-orange px-3.5 py-1.5 font-mono text-[10px] font-bold tracking-[0.18em] text-white shadow-[0_6px_14px_rgba(244,122,32,0.4)]">
+            <Crown className="h-3 w-3" />CEO
+          </span>
+        </div>
+        {/* Content */}
+        <div className="flex flex-col justify-center p-8 sm:p-10 lg:p-12">
+          <h3 className="font-display text-4xl font-extrabold leading-[0.95] tracking-[-0.06em] text-trace-ink sm:text-5xl">{member.name}</h3>
+          <p className="mt-3 text-base font-extrabold text-trace-teal">{member.role}</p>
+          <div className="mt-3 h-[3px] w-16 rounded-full bg-trace-orange" />
+          <p className="mt-6 text-sm leading-7 text-trace-muted sm:text-base sm:leading-8">{member.bio}</p>
+          {member.tags && member.tags.length > 0 && (
+            <div className="mt-6 flex flex-wrap gap-2">
+              {member.tags.map((tag) => (
+                <span key={tag} className="rounded-full border border-trace-teal/30 bg-trace-mint/50 px-3.5 py-1.5 text-xs font-bold text-trace-navy">{tag}</span>
+              ))}
+            </div>
+          )}
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-5 border-t border-trace-ink/10 pt-6">
+            <div className="flex items-center gap-2">
+              {member.linkedin && (
+                <a href={member.linkedin} target="_blank" rel="noreferrer" aria-label={`${member.name} on LinkedIn`} className="grid h-10 w-10 place-items-center rounded-md bg-trace-ink text-white transition-transform duration-200 hover:-translate-y-0.5">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              )}
+              {member.email && (
+                <a href={`mailto:${member.email}`} aria-label={`Email ${member.name}`} className="grid h-10 w-10 place-items-center rounded-md border border-trace-ink/15 bg-white text-trace-ink transition-transform duration-200 hover:-translate-y-0.5">
+                  <Mail className="h-4 w-4" />
+                </a>
+              )}
+            </div>
+            <Link href={`/team/${member.slug}`} className="group inline-flex items-center gap-2 rounded-full border border-trace-ink/15 bg-white px-5 py-2.5 text-sm font-extrabold text-trace-ink transition-all duration-200 hover:border-trace-teal hover:text-trace-teal">
+              View Full Profile <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
 export function TeamPage() {
+  const ceo = team.find((m) => m.slug === "fuad-khalid");
   const byDept = useMemo(() => {
     const map = new Map<Department, TeamMember[]>();
     departmentOrder.forEach((d) => map.set(d, []));
-    team.forEach((m) => map.get(m.department)?.push(m));
+    // Exclude CEO from the departmental grid — he gets his own feature at the top.
+    team.filter((m) => m.slug !== "fuad-khalid").forEach((m) => map.get(m.department)?.push(m));
     return map;
   }, []);
   return (
@@ -1308,12 +1381,33 @@ export function TeamPage() {
           description="A permanent core of trade specialists, researchers, technologists, policy professionals, and implementation partners — organised across six functional departments."
           tone="navy"
         />
+        {/* ── CEO FEATURE ───────────────────────────────────────────────── */}
+        {ceo && (
+          <section className="bg-trace-paper py-16 sm:py-20">
+            <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+              <SectionReveal>
+                <div className="mb-10 max-w-2xl">
+                  <div className="flex items-center gap-3">
+                    <span className="h-[3px] w-10 rounded-full bg-trace-orange" aria-hidden="true" />
+                    <p className="font-mono text-[11px] font-bold tracking-[0.22em] text-trace-teal">LEADERSHIP</p>
+                  </div>
+                  <h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.055em] text-trace-teal sm:text-5xl">Chief Executive Officer</h2>
+                  <p className="mt-5 text-base leading-7 text-trace-muted">Leading TRACE's vision of practical, high-impact consulting for governments and development partners.</p>
+                </div>
+              </SectionReveal>
+              <SectionReveal delay={0.1}>
+                <TeamCEOFeature member={ceo} />
+              </SectionReveal>
+            </div>
+          </section>
+        )}
+        {/* ── DEPARTMENTS ───────────────────────────────────────────────── */}
         {departmentOrder.map((dept, deptIdx) => {
           const members = byDept.get(dept) ?? [];
           if (members.length === 0) return null;
-          const isPaper = deptIdx % 2 === 1;
+          const isPaper = deptIdx % 2 === 0;
           return (
-            <section key={dept} className={`py-16 sm:py-20 ${isPaper ? "bg-trace-paper" : "bg-white"}`}>
+            <section key={dept} className={`py-16 sm:py-20 ${isPaper ? "bg-white" : "bg-trace-paper"}`}>
               <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
                 <SectionReveal>
                   <p className="font-mono text-[11px] font-bold tracking-[0.22em] text-trace-teal">
@@ -1324,7 +1418,7 @@ export function TeamPage() {
                   </h2>
                   <div className="mt-4 h-1 w-16 rounded-full bg-trace-orange" />
                 </SectionReveal>
-                <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {members.map((member, idx) => (
                     <SectionReveal key={member.slug} delay={idx * 0.04} className="h-full">
                       {member.image ? <TeamPhotoCard member={member} /> : <TeamInfoCard member={member} />}
@@ -1347,7 +1441,90 @@ export function TeamDetailPage() {
   const memberServices = services.filter((service) => member.serviceSlugs.includes(service.slug));
   const memberProjects = projects.filter((project) => member.projectSlugs.includes(project.slug));
   const memberInsights = insights.filter((insight) => insight.teamSlugs.includes(member.slug));
-  return <Shell><main><PageHero label="TEAM MEMBER" title={member.name} titleText={member.name} description={member.bio} kicker={`${member.role.toUpperCase()} · ${member.specialty.toUpperCase()}`} /><section className="bg-trace-paper py-16"><div className="mx-auto max-w-[1120px] px-5 lg:px-10"><BackLink href="/team" label="team" /><div className="mt-11 grid gap-8 lg:grid-cols-[0.55fr_1.45fr]"><SectionReveal><div className="max-w-[300px] overflow-hidden bg-white ring-1 ring-trace-ink/10"><TeamPortrait member={member} className="aspect-square" imageClassName="p-4" /></div></SectionReveal><SectionReveal delay={0.1}><AnimatedEyebrow number="01" text="AREAS OF PRACTICE" /><div className="mt-4"><AnimatedHeading text="Relevant work, visible expertise." className="font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink" /></div><p className="mt-6 max-w-2xl text-base leading-8 text-trace-muted">{member.bio}</p><div className="mt-7 flex flex-wrap gap-2">{memberServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</div></SectionReveal></div><RelationshipRail title="Relevant projects">{memberProjects.length ? memberProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Relevant projects will be added as they are verified.</p>}</RelationshipRail><RelationshipRail title="Related insights">{memberInsights.length ? memberInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related insights will be added as they are published.</p>}</RelationshipRail></div></section></main></Shell>;
+  return (
+    <Shell>
+      <main>
+        <PageHero
+          label={member.department.toUpperCase()}
+          title={member.name}
+          titleText={member.name}
+          description={member.role}
+          kicker={member.specialty.toUpperCase()}
+        />
+        <section className="bg-trace-paper py-16">
+          <div className="mx-auto max-w-[1120px] px-5 lg:px-10">
+            <BackLink href="/team" label="team" />
+            <div className="mt-11 grid gap-10 lg:grid-cols-[0.45fr_1.55fr]">
+              {/* Portrait + contact */}
+              <SectionReveal>
+                <div className="overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/5">
+                  <span className="block h-[3px] w-full bg-trace-teal" aria-hidden="true" />
+                  <div className="aspect-[4/5] overflow-hidden bg-gradient-to-b from-trace-paper to-white">
+                    <TeamPortrait member={member} className="h-full w-full" imageClassName="object-cover" />
+                  </div>
+                  {(member.linkedin || member.email) && (
+                    <div className="flex items-center justify-center gap-2.5 border-t border-trace-ink/8 px-5 py-4">
+                      {member.linkedin && (
+                        <a href={member.linkedin} target="_blank" rel="noreferrer" aria-label={`${member.name} on LinkedIn`} className="grid h-10 w-10 place-items-center rounded-md bg-trace-ink text-white transition-transform duration-200 hover:-translate-y-0.5">
+                          <Linkedin className="h-4 w-4" />
+                        </a>
+                      )}
+                      {member.email && (
+                        <a href={`mailto:${member.email}`} aria-label={`Email ${member.name}`} className="grid h-10 w-10 place-items-center rounded-md border border-trace-ink/15 bg-white text-trace-ink transition-transform duration-200 hover:-translate-y-0.5">
+                          <Mail className="h-4 w-4" />
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </SectionReveal>
+
+              {/* Bio + tags + related services */}
+              <SectionReveal delay={0.1}>
+                <AnimatedEyebrow number="01" text="PROFILE" />
+                <div className="mt-4">
+                  <AnimatedHeading text="Relevant work, visible expertise." className="font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink" />
+                </div>
+                <p className="mt-6 max-w-2xl text-base leading-8 text-trace-muted">{member.bio}</p>
+
+                {/* Specialty / expertise tags */}
+                {member.tags && member.tags.length > 0 && (
+                  <div className="mt-8">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">AREAS OF EXPERTISE</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {member.tags.map((tag) => (
+                        <span key={tag} className="rounded-full border border-trace-teal/30 bg-trace-mint/40 px-4 py-1.5 text-xs font-bold text-trace-navy">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Connected services */}
+                {memberServices.length > 0 && (
+                  <div className="mt-7">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">CONNECTED SERVICES</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {memberServices.map((service) => (
+                        <Link key={service.slug} href={`/services/${service.slug}`}>
+                          <EntityTag>{service.title.toUpperCase()}</EntityTag>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </SectionReveal>
+            </div>
+            <RelationshipRail title="Relevant projects">
+              {memberProjects.length ? memberProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Relevant projects will be added as they are verified.</p>}
+            </RelationshipRail>
+            <RelationshipRail title="Related insights">
+              {memberInsights.length ? memberInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />) : <p className="text-sm text-trace-muted">Related insights will be added as they are published.</p>}
+            </RelationshipRail>
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 export function InsightsPage() {
