@@ -485,6 +485,8 @@ export const services: Service[] = [
 ];
 
 export const projects: Project[] = [
+  { slug: "trs-customs-reform", title: "Time Release Study at Key Custom Houses: Strengthening Evidence-Based Customs Modernization in Bangladesh (SD-13)", client: "National Board of Revenue (NBR), The World Bank", period: "Oct 2026 – Jul 2028", status: "Ongoing", serviceSlugs: ["trade-facilitation", "research-innovation"], teamSlugs: ["masud-sadiq", "fuad-khalid", "mahraj-samrat"], summary: "A 21-month, six-location Time Release Study measuring clearance times and benchmarking reform progress against the 2022 TRS baseline across Chattogram Seaport, Dhaka Airport, Benapole, Bhomra, Burimari and ICD Kamalapur.", theme: "navy" },
+  { slug: "taraps-policy-reform", title: "Repurposing Agricultural Public Support for a Sustainable Food System: Policy Reform Consultancy for TARAPS (SD/TARAPS-C2-MoA/03)", client: "Ministry of Agriculture, Department of Agricultural Extension, The World Bank", period: "Oct 2026 – Jan 2028", status: "Ongoing", serviceSlugs: ["policy-regulatory-reform", "research-innovation"], teamSlugs: ["fuad-khalid", "nahrin-swarna", "rubayat-anik"], summary: "Policy reform, institutional strengthening, and public expenditure monitoring to redirect agricultural subsidies toward more sustainable, equitable, and climate-responsive outcomes.", theme: "teal" },
   { slug: "national-tariff-modernization", title: "National Tariff Modernization and Trade Systems Integration", client: "National Board of Revenue (NBR)", period: "2026", status: "Ongoing", serviceSlugs: ["trade-facilitation", "technology-solutions"], teamSlugs: ["fuad-khalid", "mahraj-samrat", "tahsina-shiva"], summary: "Supporting a major tariff and trade-systems modernization effort with the National Board of Revenue.", theme: "navy" },
   { slug: "bsti-textile-testing", title: "Strengthening Export-Oriented Textile Testing Capacity at BSTI", client: "Bangladesh Standards and Testing Institution", period: "2025–2026", status: "Completed", serviceSlugs: ["laboratory-improvement", "research-innovation"], teamSlugs: ["mimma-afrin", "sushanta-sarker"], summary: "A strategic assessment to strengthen textile testing capacity and alignment with export standards.", theme: "teal" },
   { slug: "animal-health-reform", title: "Trade Policy and Regulatory Reform for the Animal Health Sector", client: "AHCAB", period: "2026", status: "Completed", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], teamSlugs: ["fuad-khalid", "bushra-haque", "rubayat-anik"], summary: "Technical and policy advisory support for the animal health sector’s trade and regulatory systems.", theme: "sand" },
@@ -586,7 +588,7 @@ export const latestUpdates: LatestUpdate[] = [
     date: "Oct 07, 2026",
     isoDate: "2026-10-07",
     summary: "TRACE Consulting has secured a World Bank-financed contract for the Time Release Study at key Bangladeshi custom houses, measuring clearance times and driving evidence-based customs reform.",
-    image: ASSETS.heroTrade,
+    image: "/media/updates/trs-customs-reform.png",
     url: "/latest-updates/trs-customs-reform-assignment",
     external: false,
     body: {
@@ -626,7 +628,7 @@ export const latestUpdates: LatestUpdate[] = [
     date: "Oct 05, 2026",
     isoDate: "2026-10-05",
     summary: "TRACE Consulting partnered with TTT Global and BUILD to support Bangladesh’s Ministry of Agriculture in redirecting agricultural public support toward more sustainable, equitable, and climate-responsive outcomes.",
-    image: ASSETS.heroPolicy,
+    image: "/media/updates/taraps-agriculture.jpeg",
     url: "/latest-updates/taraps-agriculture-assignment",
     external: false,
     body: {
