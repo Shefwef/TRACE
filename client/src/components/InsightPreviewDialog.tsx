@@ -1,9 +1,10 @@
-/** Civic Signal Field component: full-blackout preview modal for an insight or news item.
+/** Civic Signal Field component: a light preview modal for an insight or news item.
  *
- *  CRITICAL: this dialog is rendered via React portal into document.body so it escapes any
- *  ancestor stacking context (e.g. the sections with `isolation: isolate` from the ambient
- *  background CSS). Without the portal, the dialog's z-index is scoped to its parent section
- *  and the fixed site header stays visible on top of the overlay. */
+ *  Rendered via React portal into document.body so the overlay escapes any ancestor
+ *  stacking context and fully covers the fixed site header. The backdrop is a soft
+ *  dark wash — not opaque — so the page is still faintly visible underneath, and the
+ *  dialog itself is a crisp white card so the hero image and body copy read at full
+ *  contrast with no blue hue cast over them. */
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, ExternalLink, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,7 +16,7 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
   const reduceMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
 
-  // Portal target only becomes available after mount (needed for SSR / strict guards).
+  // Portal target only becomes available after mount.
   useEffect(() => setMounted(true), []);
 
   // Esc closes.
@@ -25,7 +26,7 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
     return () => window.removeEventListener("keydown", close);
   }, [onClose]);
 
-  // Lock body scroll while the dialog is open so the darkened state feels fully modal.
+  // Lock body scroll while the dialog is open.
   useEffect(() => {
     if (!insight) return;
     const previousOverflow = document.body.style.overflow;
@@ -41,11 +42,12 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
     <AnimatePresence>
       {insight && (
         <motion.div
-          // z-[9999] guarantees we sit above EVERY other UI layer; combined with the portal
-          // mount on document.body this means the backdrop fully covers the fixed site header.
-          // Backdrop: deep navy (TRACE ink) at ~94% — dim focused-mode wash, NOT pure black.
-          className="fixed inset-0 z-[9999] grid place-items-center px-4 py-6 backdrop-blur-xl"
-          style={{ backgroundColor: "rgba(8, 36, 64, 0.94)" }}
+          // z-[9999] + portal into document.body guarantees the overlay sits above every
+          // other UI layer including the fixed site header.
+          // Backdrop: translucent black with a soft blur — darkens the page but lets the
+          // site faintly show through, so the dialog reads as a focused layer, not a blackout.
+          className="fixed inset-0 z-[9999] grid place-items-start overflow-y-auto px-4 py-10 backdrop-blur-[6px] sm:py-14"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.55)" }}
           role="dialog"
           aria-modal="true"
           aria-label={`${insight.title} preview`}
@@ -55,15 +57,16 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
           onMouseDown={onClose}
         >
           <motion.article
-            initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.97 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduceMotion ? {} : { opacity: 0, y: 10, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 280, damping: 28 }}
             onMouseDown={(event) => event.stopPropagation()}
-            className="relative max-h-[94vh] w-full max-w-3xl overflow-auto rounded-2xl text-white shadow-[0_40px_120px_rgba(0,0,0,0.6)] ring-1 ring-white/10"
-            style={{ backgroundColor: "#0a2b4a" }}
+            // White card so there's zero blue hue cast on the hero image or body copy.
+            // Wider max-w-4xl + no vertical height cap so long articles / tall images render in full.
+            className="relative mx-auto w-full max-w-4xl overflow-hidden rounded-2xl bg-white text-trace-ink shadow-[0_40px_120px_rgba(0,0,0,0.45)] ring-1 ring-black/5"
           >
-            {/* Thin teal → mint accent at the top for brand continuity */}
+            {/* Thin teal → mint top accent for brand continuity */}
             <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-trace-teal via-trace-mint to-trace-teal" />
 
             {/* Close */}
@@ -71,32 +74,39 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
               type="button"
               onClick={onClose}
               aria-label="Close preview"
-              className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white backdrop-blur-sm ring-1 ring-white/15 transition-colors hover:bg-white/18"
+              className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-trace-ink shadow-md ring-1 ring-black/10 backdrop-blur-sm transition-all hover:bg-white hover:scale-105"
             >
               <X className="h-4 w-4" />
             </button>
 
-            {/* Hero image */}
-            <div className="relative aspect-[16/6] overflow-hidden rounded-t-2xl bg-gradient-to-br from-trace-teal/40 via-trace-navy to-trace-ink">
-              {insight.image && (
-                <img src={insight.image} alt="" className="h-full w-full object-cover opacity-55" />
+            {/* Hero image — rendered at natural proportions, no color overlay, so the
+                image reads at full fidelity. Category + date pill floats on top-left. */}
+            <div className="relative overflow-hidden bg-trace-paper">
+              {insight.image ? (
+                <img
+                  src={insight.image}
+                  alt=""
+                  className="block h-auto max-h-[480px] w-full object-contain"
+                />
+              ) : (
+                <div className="aspect-[16/7] bg-gradient-to-br from-trace-mint via-trace-teal/40 to-trace-navy" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a2b4a] via-[#0a2b4a]/50 to-transparent" />
-              <p className="absolute bottom-4 left-6 font-mono text-[10px] font-bold tracking-[0.22em] text-trace-mint">
+              <span className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-full bg-trace-ink/85 px-3.5 py-1.5 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-mint backdrop-blur-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-trace-teal" />
                 {insight.type.toUpperCase()} · {insight.date.toUpperCase()}
-              </p>
+              </span>
             </div>
 
             {/* Body */}
-            <div className="p-6 sm:p-8">
-              <p className="font-mono text-[11px] font-bold tracking-[0.22em] text-trace-mint">TRACE NEWS &amp; FEATURES</p>
-              <h2 className="mt-3 font-display text-2xl font-extrabold leading-[1.1] tracking-[-0.05em] text-white sm:text-3xl">
+            <div className="p-6 sm:p-9">
+              <p className="font-mono text-[11px] font-bold tracking-[0.22em] text-trace-teal">TRACE NEWS &amp; FEATURES</p>
+              <h2 className="mt-3 font-display text-2xl font-extrabold leading-[1.08] tracking-[-0.05em] text-trace-ink sm:text-3xl">
                 {insight.title}
               </h2>
-              <p className="mt-4 text-sm leading-7 text-white/72">{insight.summary}</p>
+              <p className="mt-5 text-base leading-7 text-trace-muted">{insight.summary}</p>
 
               {/* CTA row */}
-              <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-white/10 pt-6">
+              <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-trace-ink/10 pt-6">
                 {insight.sourceUrl && (
                   <a
                     href={insight.sourceUrl}
@@ -111,14 +121,14 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
                 <Link
                   href={`/latest-updates/${insight.slug}`}
                   onClick={onClose}
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-extrabold text-white backdrop-blur-sm transition-all hover:border-trace-teal hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-lg border border-trace-ink/15 bg-white px-5 py-2.5 text-sm font-extrabold text-trace-ink transition-all hover:border-trace-teal hover:bg-trace-paper hover:text-trace-teal"
                 >
-                  Read full story <ArrowUpRight className="h-4 w-4 text-trace-mint" />
+                  Read full story <ArrowUpRight className="h-4 w-4 text-trace-teal" />
                 </Link>
                 <button
                   onClick={onClose}
                   type="button"
-                  className="ml-auto text-sm font-bold text-white/60 transition-colors hover:text-white"
+                  className="ml-auto text-sm font-bold text-trace-muted transition-colors hover:text-trace-ink"
                 >
                   Keep exploring
                 </button>
@@ -130,6 +140,5 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
     </AnimatePresence>
   );
 
-  // Portal into document.body — bypasses any stacking context trap from parent sections.
   return createPortal(node, document.body);
 }
