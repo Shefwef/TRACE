@@ -4,10 +4,32 @@
  *  (c) horizontal mouse-wheel / shift+wheel while hovered. Vertical page scroll does NOT affect the carousel. */
 import { motion, useAnimationFrame, useMotionValue, useReducedMotion, useSpring, useTransform, type PanInfo } from "framer-motion";
 import { FileText } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { insights, type Insight } from "@/data/traceData";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { latestUpdates, type Insight, type LatestUpdate } from "@/data/traceData";
 import { InsightPreviewDialog } from "@/components/InsightPreviewDialog";
 import { ShineBorder } from "@/components/ui/ShineBorder";
+
+/** Convert a LatestUpdate into the Insight shape that the carousel + dialog already render.
+ *  Keeps the component's internals untouched while letting us drive it from the news feed. */
+function updateToInsight(u: LatestUpdate): Insight {
+  // Insight.type doesn't include "Workshop" — fold that into "Event" so the chip stays valid.
+  const normalisedType: Insight["type"] =
+    u.category === "Workshop" ? "Event" : (u.category as Insight["type"]);
+  return {
+    slug: u.slug,
+    title: u.title,
+    type: normalisedType,
+    date: u.date,
+    summary: u.summary,
+    serviceSlugs: [],
+    projectSlugs: [],
+    teamSlugs: [],
+    image: u.image,
+    accent: "navy",
+    sourceUrl: u.external ? u.url : undefined,
+    sourceLabel: u.external ? "Open original" : undefined,
+  };
+}
 
 const fallbackPatterns = ["from-[#0B9FA8] via-[#064a5a] to-[#071B2B]", "from-[#081f35] via-[#175879] to-[#ff7a3d]", "from-[#765542] via-[#1c3947] to-[#0b9fa8]", "from-[#073647] via-[#0b9fa8] to-[#b9f3ec]", "from-[#582941] via-[#101f38] to-[#ff7a3d]"];
 
@@ -18,6 +40,15 @@ const DRAG_PX_PER_CARD = 240;
 const WHEEL_PX_PER_CARD = 320;
 
 export function DepthCarousel() {
+  // Source: 6 most-recent, non-external news items from the latestUpdates feed, adapted to the Insight shape the carousel already renders.
+  const insights = useMemo<Insight[]>(() =>
+    latestUpdates
+      .filter((u) => !u.external)
+      .slice()
+      .sort((a, b) => b.isoDate.localeCompare(a.isoDate))
+      .slice(0, 6)
+      .map(updateToInsight),
+  []);
   const [preview, setPreview] = useState<Insight | null>(null);
   const [paused, setPaused] = useState(false);
   const [dragging, setDragging] = useState(false);

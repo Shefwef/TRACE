@@ -1,15 +1,22 @@
 /** Civic Signal Field component: full-blackout preview modal for an insight or news item.
- *  Overlay fully darkens the viewport (including the fixed header, which sits at z-50) by
- *  rendering at z-[100] with a near-opaque black backdrop. The dialog itself is deep navy
- *  with white typography so it reads as a focused, cinematic preview. */
+ *
+ *  CRITICAL: this dialog is rendered via React portal into document.body so it escapes any
+ *  ancestor stacking context (e.g. the sections with `isolation: isolate` from the ambient
+ *  background CSS). Without the portal, the dialog's z-index is scoped to its parent section
+ *  and the fixed site header stays visible on top of the overlay. */
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, ExternalLink, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "wouter";
 import { type Insight } from "@/data/traceData";
 
 export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | null; onClose: () => void }) {
   const reduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+
+  // Portal target only becomes available after mount (needed for SSR / strict guards).
+  useEffect(() => setMounted(true), []);
 
   // Esc closes.
   useEffect(() => {
@@ -18,7 +25,7 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
     return () => window.removeEventListener("keydown", close);
   }, [onClose]);
 
-  // Lock page scroll while the dialog is open so the darkened state feels fully modal.
+  // Lock body scroll while the dialog is open so the darkened state feels fully modal.
   useEffect(() => {
     if (!insight) return;
     const previousOverflow = document.body.style.overflow;
@@ -28,14 +35,16 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
     };
   }, [insight]);
 
-  return (
+  if (!mounted) return null;
+
+  const node = (
     <AnimatePresence>
       {insight && (
         <motion.div
-          // z-[200] guarantees the overlay sits above the fixed SiteHeader (z-50) and
-          // every other UI chrome layer, so the backdrop fully covers the navbar too.
-          // Deep-navy (trace-ink) wash at 94% + heavy blur = dim focused-mode look (NOT pure black).
-          className="fixed inset-0 z-[200] grid place-items-center bg-trace-ink/94 px-4 py-6 backdrop-blur-xl"
+          // z-[9999] guarantees we sit above EVERY other UI layer; combined with the portal
+          // mount on document.body this means the backdrop fully covers the fixed site header.
+          // Backdrop: deep navy (TRACE ink) at ~94% — dim focused-mode wash, NOT pure black.
+          className="fixed inset-0 z-[9999] grid place-items-center px-4 py-6 backdrop-blur-xl"
           style={{ backgroundColor: "rgba(8, 36, 64, 0.94)" }}
           role="dialog"
           aria-modal="true"
@@ -51,9 +60,10 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
             exit={reduceMotion ? {} : { opacity: 0, y: 10, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 280, damping: 28 }}
             onMouseDown={(event) => event.stopPropagation()}
-            className="relative max-h-[94vh] w-full max-w-3xl overflow-auto rounded-2xl bg-[#0a2b4a] text-white shadow-[0_40px_120px_rgba(0,0,0,0.6)] ring-1 ring-white/10"
+            className="relative max-h-[94vh] w-full max-w-3xl overflow-auto rounded-2xl text-white shadow-[0_40px_120px_rgba(0,0,0,0.6)] ring-1 ring-white/10"
+            style={{ backgroundColor: "#0a2b4a" }}
           >
-            {/* Thin teal top accent for brand continuity */}
+            {/* Thin teal → mint accent at the top for brand continuity */}
             <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-trace-teal via-trace-mint to-trace-teal" />
 
             {/* Close */}
@@ -71,7 +81,7 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
               {insight.image && (
                 <img src={insight.image} alt="" className="h-full w-full object-cover opacity-55" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-trace-ink via-trace-ink/50 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a2b4a] via-[#0a2b4a]/50 to-transparent" />
               <p className="absolute bottom-4 left-6 font-mono text-[10px] font-bold tracking-[0.22em] text-trace-mint">
                 {insight.type.toUpperCase()} · {insight.date.toUpperCase()}
               </p>
@@ -99,10 +109,11 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
                   </a>
                 )}
                 <Link
-                  href={`/insights/${insight.slug}`}
+                  href={`/latest-updates/${insight.slug}`}
+                  onClick={onClose}
                   className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-extrabold text-white backdrop-blur-sm transition-all hover:border-trace-teal hover:bg-white/10"
                 >
-                  View TRACE record <ArrowUpRight className="h-4 w-4 text-trace-mint" />
+                  Read full story <ArrowUpRight className="h-4 w-4 text-trace-mint" />
                 </Link>
                 <button
                   onClick={onClose}
@@ -118,4 +129,7 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
       )}
     </AnimatePresence>
   );
+
+  // Portal into document.body — bypasses any stacking context trap from parent sections.
+  return createPortal(node, document.body);
 }
