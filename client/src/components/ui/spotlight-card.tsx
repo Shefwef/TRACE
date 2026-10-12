@@ -21,9 +21,9 @@ interface GlowCardProps {
 
 /** HSL hue bases tuned to TRACE brand colours. The spread controls how far the hue can shift as the pointer moves. */
 const glowColorMap: Record<GlowColor, { base: number; spread: number }> = {
-  teal:   { base: 185, spread: 50 },   // #009CA6 lives around hue 185
-  navy:   { base: 210, spread: 60 },   // #123D67 lives around hue 210
-  mint:   { base: 170, spread: 40 },   // soft version of teal/mint
+  teal:   { base: 188, spread: 18 },   // #009CA6 lives around hue 188 — tight band keeps the glow brand-teal
+  navy:   { base: 212, spread: 22 },   // #123D67 lives around hue 212 — tight band keeps the glow deep-blue
+  mint:   { base: 175, spread: 20 },   // soft mint/teal
   orange: { base: 25,  spread: 50 },   // #F47A20 accent
 };
 
