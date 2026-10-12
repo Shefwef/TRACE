@@ -32,9 +32,11 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
     <AnimatePresence>
       {insight && (
         <motion.div
-          // z-[100] sits above the SiteHeader (z-50) so the backdrop covers the top bar too.
-          // Near-opaque black + heavy blur guarantees everything behind is out of focus.
-          className="fixed inset-0 z-[100] grid place-items-center bg-black/92 px-4 py-6 backdrop-blur-xl"
+          // z-[200] guarantees the overlay sits above the fixed SiteHeader (z-50) and
+          // every other UI chrome layer, so the backdrop fully covers the navbar too.
+          // Deep-navy (trace-ink) wash at 94% + heavy blur = dim focused-mode look (NOT pure black).
+          className="fixed inset-0 z-[200] grid place-items-center bg-trace-ink/94 px-4 py-6 backdrop-blur-xl"
+          style={{ backgroundColor: "rgba(8, 36, 64, 0.94)" }}
           role="dialog"
           aria-modal="true"
           aria-label={`${insight.title} preview`}
@@ -49,7 +51,7 @@ export function InsightPreviewDialog({ insight, onClose }: { insight: Insight | 
             exit={reduceMotion ? {} : { opacity: 0, y: 10, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 280, damping: 28 }}
             onMouseDown={(event) => event.stopPropagation()}
-            className="relative max-h-[94vh] w-full max-w-3xl overflow-auto rounded-2xl bg-trace-ink text-white shadow-[0_40px_120px_rgba(0,0,0,0.65)] ring-1 ring-white/10"
+            className="relative max-h-[94vh] w-full max-w-3xl overflow-auto rounded-2xl bg-[#0a2b4a] text-white shadow-[0_40px_120px_rgba(0,0,0,0.6)] ring-1 ring-white/10"
           >
             {/* Thin teal top accent for brand continuity */}
             <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-trace-teal via-trace-mint to-trace-teal" />

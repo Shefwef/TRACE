@@ -1,4 +1,4 @@
-/** Media-first 3D coverflow stage for TRACE's Featured Insights.
+/** Media-first 3D coverflow stage for TRACE's Latest News & Features.
  *  Progression comes from (a) a continuous slow right-to-left auto-drift (pauses on hover/focus/drag),
  *  (b) horizontal pointer drag (lets the user pull cards left-to-right manually), and
  *  (c) horizontal mouse-wheel / shift+wheel while hovered. Vertical page scroll does NOT affect the carousel. */
@@ -127,13 +127,13 @@ export function DepthCarousel() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-trace-paper py-24 sm:py-32" aria-labelledby="featured-insights-heading">
+    <section className="relative overflow-hidden bg-trace-paper py-24 sm:py-32" aria-labelledby="latest-news-features-heading">
       <motion.div className="pointer-events-none absolute left-1/2 top-[46%] h-[300px] w-[680px] -translate-x-1/2 rounded-full bg-trace-mint/30 blur-[105px]" style={{ opacity: glow }} />
       <div className="relative mx-auto max-w-[1480px] px-5 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="section-label">FEATURED INSIGHTS</p>
-          <h2 id="featured-insights-heading" className="mt-5 font-display text-5xl font-extrabold tracking-[-0.065em] text-trace-ink sm:text-6xl">Follow the idea.</h2>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-trace-muted">Scroll, drag, or swipe — browse the evidence behind the policies, systems, and decisions shaping Bangladesh’s next economy.</p>
+          <p className="section-label">LATEST NEWS &amp; FEATURES</p>
+          <h2 id="latest-news-features-heading" className="mt-5 font-display text-5xl font-extrabold tracking-[-0.065em] text-trace-ink sm:text-6xl">Follow the idea.</h2>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-trace-muted">Scroll, drag, or swipe — browse the latest news, features, and evidence shaping Bangladesh&rsquo;s next economy.</p>
         </div>
 
         <motion.div

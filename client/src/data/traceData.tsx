@@ -135,8 +135,7 @@ export const navItems = [
   { label: "Services", href: "/services" },
   { label: "Projects", href: "/projects" },
   { label: "Team", href: "/team" },
-  { label: "Insights", href: "/insights" },
-  { label: "News", href: "/latest-updates" },
+  { label: "News & Insights", href: "/latest-updates" },
   { label: "Innovations", href: "/innovations" },
   { label: "Careers", href: "/careers" },
 ];

@@ -1952,9 +1952,9 @@ export function LatestUpdatesPage() {
     <Shell>
       <main>
         <PageHero
-          label="NEWS & FEATURES"
+          label="NEWS & INSIGHTS"
           title={<>The latest from <span className="text-trace-mint">TRACE.</span></>}
-          description="Publications, articles, events, and workshops from TRACE's ongoing work in trade facilitation, policy reform, and institutional modernization."
+          description="News, publications, articles, events, workshops, and insights from TRACE's ongoing work in trade facilitation, policy reform, and institutional modernization."
           tone="navy"
           kicker={`${latestUpdates.length} PUBLISHED UPDATES`}
         />
