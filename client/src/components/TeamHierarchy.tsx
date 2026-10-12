@@ -11,7 +11,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 const findMember = (slug: string) => team.find((member) => member.slug === slug);
 const ceo = findMember("fuad-khalid")!;
 const executiveSlugs = ["abu-saleh-saifullah"];
-const functionalSlugs = ["nabeel-khan", "moudud-sujan"];
+const functionalSlugs = ["nabeel-khan", "recardo-halder"];
 const deliverySlugs = ["ahmed-nine", "recardo-halder", "rubayat-anik", "tahsina-shiva", "tanvir-kabir", "mimma-afrin", "umme-tama"];
 const specialistSlugs = ["masud-sadiq", "mahraj-samrat", "ferdous-alam", "sushanta-sarker", "michael-parr", "shafi-uddin"];
 const peopleRailSlugs = ["fuad-khalid", "abu-saleh-saifullah", ...specialistSlugs];

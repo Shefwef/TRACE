@@ -11,7 +11,7 @@ import SpecularButton from "@/components/ui/SpecularButton";
 import { StarBorder } from "@/components/ui/StarBorder";
 import { ShineBorder } from "@/components/ui/ShineBorder";
 import { GlowCard } from "@/components/ui/spotlight-card";
-import { ASSETS, contact, innovations, insights, latestUpdates, projects, services, team, type Insight, type LatestUpdate, type Project, type Service, type ServiceProduct, type TeamMember } from "@/data/traceData";
+import { ASSETS, contact, departmentOrder, innovations, insights, latestUpdates, projects, services, team, type Department, type Insight, type LatestUpdate, type Project, type Service, type ServiceProduct, type TeamMember } from "@/data/traceData";
 import { ProjectCard } from "@/components/ui/glass-blog-card-shadcnui";
 
 const serviceMedia: Record<string, string> = {
@@ -30,6 +30,7 @@ const projectMedia: Record<string, string> = {
   "trs-customs-reform": "/media/projects/time-release-study.png",
   "taraps-policy-reform": "/media/projects/taraps-agriculture.png",
   "national-tariff-modernization": "/media/projects/national-tariff-modernization.jpg",
+  "btp-elearning-platform": ASSETS.heroInteroperability,
   "bsti-textile-testing": ASSETS.heroLaboratory,
   "animal-health-reform": ASSETS.heroColdChain,
   "bafisa-intelligence": ASSETS.heroInteroperability,
@@ -446,10 +447,10 @@ export function AboutPage() {
   const commitments = ["Upholding integrity and transparency in every engagement", "Delivering measurable outcomes beyond recommendations", "Strengthening local capacity and fostering ownership", "Advancing innovation and sustainability across every project"];
   const distinctions = [["Industry-wide network", "Partnerships across government, the private sector, and development organizations support coordinated cross-sector solutions.", "navy" as const], ["Sustainable approach", "Long-term strategies embed local capacity, environmental responsibility, and institutional ownership beyond project lifecycles.", "teal" as const], ["Tailored innovation", "Context-specific solutions combine global practice, emerging technology, and local insight.", "navy" as const], ["End-to-end solutions", "Support spans strategy, design, implementation, and scaling.", "teal" as const]];
   const aboutStats: AboutStat[] = [
-    { value: 30, suffix: "+", label: "Projects delivered across trade, policy, and digital reform", badge: "Portfolio", tint: "#E8F6F7", accent: "#009CA6", ink: "#082440" },
-    { value: 10,              label: "Trade-related laboratories strengthened and accredited",         badge: "Infrastructure", tint: "#EEF4FA", accent: "#123D67", ink: "#082440" },
-    { value: 14,              label: "Government digital platforms designed and deployed",             badge: "Technology", tint: "#FDF1E6", accent: "#F47A20", ink: "#4A2A0A" },
-    { value: 50, suffix: "+", label: "Public and private institutions supported to date",             badge: "Reach", tint: "#F0F8F7", accent: "#009CA6", ink: "#082440" },
+    { value: 30, suffix: "+", label: "Projects delivered across trade, policy, and digital reform", badge: "Portfolio",      tint: "#E8F6F7", accent: "#009CA6", ink: "#082440" }, // soft mint-teal
+    { value: 10,              label: "Trade-related laboratories strengthened and accredited",       badge: "Infrastructure", tint: "#EEF4FA", accent: "#123D67", ink: "#082440" }, // pale navy
+    { value: 14,              label: "Government digital platforms designed and deployed",           badge: "Technology",     tint: "#DEF1EF", accent: "#009CA6", ink: "#082440" }, // mint
+    { value: 50, suffix: "+", label: "Public and private institutions supported to date",           badge: "Reach",          tint: "#E7EEF5", accent: "#123D67", ink: "#082440" }, // ice blue
   ];
   const featuredProjects = projects.slice(0, 3);
   const featuredUpdates = latestUpdates.filter((u) => !u.external).sort((a, b) => b.isoDate.localeCompare(a.isoDate)).slice(0, 7);
@@ -1252,8 +1253,91 @@ export function ProjectDetailPage() {
   );
 }
 
+/** Photo card: used when a member has a portrait image. */
+function TeamPhotoCard({ member }: { member: TeamMember }) {
+  return (
+    <Link href={`/team/${member.slug}`} className="group flex h-full min-h-[400px] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.14)]">
+      <div className="relative h-56 overflow-hidden bg-gradient-to-b from-trace-paper to-white">
+        <TeamPortrait member={member} className="h-full w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" />
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-trace-ink/15 to-transparent" />
+        <ArrowUpRight className="absolute right-5 top-5 h-5 w-5 text-trace-orange opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-1 group-hover:translate-x-1" />
+      </div>
+      <div className="flex flex-1 flex-col p-6">
+        <p className="font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink">{member.name}</p>
+        <p className="mt-2 text-sm font-bold leading-5 text-trace-teal">{member.role}</p>
+        <div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-3">
+          <span className="h-[3px] w-10 rounded-full bg-trace-orange" aria-hidden="true" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/** Info card: used when a member has no portrait — shows bio + specialty chips instead. */
+function TeamInfoCard({ member }: { member: TeamMember }) {
+  return (
+    <Link href={`/team/${member.slug}`} className="group flex h-full min-h-[260px] flex-col rounded-2xl bg-white p-6 shadow-[0_14px_40px_rgba(7,27,43,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.14)]">
+      <span className="h-[3px] w-8 rounded-full bg-trace-orange" aria-hidden="true" />
+      <p className="mt-5 font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink">{member.name}</p>
+      <p className="mt-2 text-sm font-bold leading-5 text-trace-teal">{member.role}</p>
+      <p className="mt-4 line-clamp-4 text-sm leading-6 text-trace-muted">{member.bio}</p>
+      {member.tags && member.tags.length > 0 && (
+        <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
+          {member.tags.slice(0, 2).map((tag) => (
+            <span key={tag} className="rounded-full border border-trace-ink/10 bg-trace-paper px-3 py-1 font-mono text-[9px] font-bold tracking-[0.08em] text-trace-navy">{tag}</span>
+          ))}
+        </div>
+      )}
+    </Link>
+  );
+}
+
 export function TeamPage() {
-  return <Shell><main><PageHero label="OUR TEAM" title={<>Experts who <span className="text-trace-mint">drive change.</span></>} description="A permanent core of trade specialists, researchers, technologists, policy professionals, and implementation partners." tone="navy" /><section className="py-20 sm:py-28"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="grid gap-px border-l border-t border-trace-ink/10 sm:grid-cols-2 lg:grid-cols-3">{team.map((member, index) => <SectionReveal key={member.slug} delay={index * 0.04}><Link href={`/team/${member.slug}`} className="group flex min-h-[365px] flex-col border-b border-r border-trace-ink/10 bg-white transition-colors hover:bg-trace-paper"><div className="relative h-52 overflow-hidden bg-trace-paper"><TeamPortrait member={member} className="h-full w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-trace-ink/25 to-transparent" /><ArrowUpRight className="absolute right-5 top-5 h-5 w-5 text-trace-orange transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" /></div><div className="flex flex-1 flex-col p-7"><p className="font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink">{member.name}</p><p className="mt-3 max-w-xs text-sm font-bold leading-5 text-trace-muted">{member.role}</p><p className="mt-auto pt-5 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-teal">{member.specialty.toUpperCase()}</p></div></Link></SectionReveal>)}</div></div></section></main></Shell>;
+  const byDept = useMemo(() => {
+    const map = new Map<Department, TeamMember[]>();
+    departmentOrder.forEach((d) => map.set(d, []));
+    team.forEach((m) => map.get(m.department)?.push(m));
+    return map;
+  }, []);
+  return (
+    <Shell>
+      <main>
+        <PageHero
+          label="OUR TEAM"
+          title={<>Experts who <span className="text-trace-mint">drive change.</span></>}
+          description="A permanent core of trade specialists, researchers, technologists, policy professionals, and implementation partners — organised across six functional departments."
+          tone="navy"
+        />
+        {departmentOrder.map((dept, deptIdx) => {
+          const members = byDept.get(dept) ?? [];
+          if (members.length === 0) return null;
+          const isPaper = deptIdx % 2 === 1;
+          return (
+            <section key={dept} className={`py-16 sm:py-20 ${isPaper ? "bg-trace-paper" : "bg-white"}`}>
+              <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+                <SectionReveal>
+                  <p className="font-mono text-[11px] font-bold tracking-[0.22em] text-trace-teal">
+                    DEPARTMENT 0{deptIdx + 1} · {members.length} MEMBER{members.length === 1 ? "" : "S"}
+                  </p>
+                  <h2 className="mt-3 max-w-4xl font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.05em] text-trace-ink sm:text-4xl lg:text-5xl">
+                    {dept}
+                  </h2>
+                  <div className="mt-4 h-1 w-16 rounded-full bg-trace-orange" />
+                </SectionReveal>
+                <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {members.map((member, idx) => (
+                    <SectionReveal key={member.slug} delay={idx * 0.04} className="h-full">
+                      {member.image ? <TeamPhotoCard member={member} /> : <TeamInfoCard member={member} />}
+                    </SectionReveal>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        })}
+      </main>
+    </Shell>
+  );
 }
 
 export function TeamDetailPage() {
