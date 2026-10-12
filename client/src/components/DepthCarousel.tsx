@@ -1,8 +1,7 @@
-/** Civic Signal Field component: a media-first ScrollDepth 3D coverflow stage for TRACE's Featured Insights.
- *  Progression comes from (a) a continuous slow auto-drift (pause on hover/focus/drag), (b) horizontal pointer drag,
- *  (c) mouse-wheel/trackpad over the stage, and (d) page scroll — scrolling down nudges cards right, up nudges left,
- *  additive to the auto-drift. Smoothed by a soft spring so transitions feel buttery.
- *  Inspired by Framer's ScrollDepth 3D Carousel; implemented locally with framer-motion to avoid an extra dep. */
+/** Media-first 3D coverflow stage for TRACE's Featured Insights.
+ *  Progression comes from (a) a continuous slow right-to-left auto-drift (pauses on hover/focus/drag),
+ *  (b) horizontal pointer drag (lets the user pull cards left-to-right manually), and
+ *  (c) horizontal mouse-wheel / shift+wheel while hovered. Vertical page scroll does NOT affect the carousel. */
 import { motion, useAnimationFrame, useMotionValue, useReducedMotion, useSpring, useTransform, type PanInfo } from "framer-motion";
 import { FileText } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -17,8 +16,6 @@ const SECONDS_PER_CARD = 7;
 const DRAG_PX_PER_CARD = 240;
 // Wheel sensitivity — larger value means more wheel delta needed to advance.
 const WHEEL_PX_PER_CARD = 320;
-// Page-scroll sensitivity — advance one card for every ~500px of page scroll.
-const PAGE_SCROLL_PX_PER_CARD = 500;
 
 export function DepthCarousel() {
   const [preview, setPreview] = useState<Insight | null>(null);
@@ -122,21 +119,8 @@ export function DepthCarousel() {
     return () => stage.removeEventListener("wheel", onWheel);
   }, [reduceMotion, scheduleSnap, setPosition]);
 
-  // Page scroll → additive nudge to the carousel (ScrollDepth-style).
-  // Scrolling down the page drifts cards right; scrolling up drifts them left.
-  useEffect(() => {
-    if (reduceMotion) return;
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const current = window.scrollY;
-      const delta = current - lastY;
-      lastY = current;
-      if (Math.abs(delta) < 1) return;
-      setPosition(positionRef.current + delta / PAGE_SCROLL_PX_PER_CARD);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [reduceMotion, setPosition]);
+  // Page scroll no longer drives the carousel — direction stays as the auto right-to-left
+  // drift. Drag still works to pull cards left-to-right manually; hover still pauses.
 
   useEffect(() => () => {
     if (snapTimerRef.current) window.clearTimeout(snapTimerRef.current);

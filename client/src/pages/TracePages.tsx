@@ -402,43 +402,73 @@ function StatCard({ stat, index }: { stat: AboutStat; index: number }) {
   );
 }
 
-/** Infinite right-to-left marquee of update cards (duplicates children for seamless loop). Pauses on hover. */
+/** Infinite right-to-left marquee of large news cards.
+ *  - 2 cards visible at a time on desktop, 1 on mobile
+ *  - Hovering ANY card pauses the entire marquee (via group-hover + animation-play-state via :has)
+ *  - Hovering a specific card lifts/scales/shadows it and reveals additional detail
+ *  - Text is line-clamped so each card previews the summary with "…" */
 function UpdatesMarquee({ items }: { items: LatestUpdate[] }) {
   const reduceMotion = useReducedMotion();
+  const [paused, setPaused] = useState(false);
   return (
-    <div className="relative overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)] [-webkit-mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)]">
+    <div
+      className="relative overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_4%,black_96%,transparent)] [-webkit-mask-image:linear-gradient(90deg,transparent,black_4%,black_96%,transparent)]"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       <div
-        className="flex gap-5"
+        className="flex items-stretch gap-7 py-6"
         style={{
           width: "max-content",
-          animation: reduceMotion ? "none" : "trace-updates-marquee 42s linear infinite",
+          animation: reduceMotion ? "none" : "trace-updates-marquee 46s linear infinite",
+          animationPlayState: paused ? "paused" : "running",
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.animationPlayState = "paused"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.animationPlayState = "running"; }}
       >
         {[0, 1].map((copy) => (
-          <div key={copy} className="flex shrink-0 gap-5" aria-hidden={copy === 1 ? true : undefined}>
+          <div key={copy} className="flex shrink-0 items-stretch gap-7" aria-hidden={copy === 1 ? true : undefined}>
             {items.map((item) => (
               <Link
                 key={`${item.slug}-${copy}`}
                 href={item.url}
-                className="group block w-[320px] shrink-0 overflow-hidden rounded-2xl bg-white shadow-[0_12px_32px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(7,27,43,0.16)]"
+                className="group/card relative flex w-[clamp(320px,46vw,560px)] shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-[0_14px_36px_rgba(7,27,43,0.10)] ring-1 ring-trace-ink/5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:z-10 hover:-translate-y-2 hover:scale-[1.025] hover:shadow-[0_30px_70px_rgba(7,27,43,0.22)] hover:ring-trace-teal/35"
               >
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/55 via-transparent to-transparent" />
-                  <span className="absolute left-3 top-3 bg-white/95 px-2.5 py-1 font-mono text-[9px] font-bold tracking-[0.12em] text-trace-navy backdrop-blur">{item.category.toUpperCase()}</span>
+                {/* Image — larger aspect for the bigger card */}
+                <div className="relative aspect-[16/9] overflow-hidden">
+                  <img src={item.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover/card:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/65 via-trace-ink/15 to-transparent" />
+                  {/* Category chip */}
+                  <span className="absolute left-4 top-4 bg-white/95 px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-navy backdrop-blur">
+                    {item.category.toUpperCase()}
+                  </span>
+                  {/* Date pill — bottom-left on image for larger-card balance */}
+                  <span className="absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-trace-ink/70 px-3 py-1 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-mint backdrop-blur">
+                    <span className="h-1 w-1 rounded-full bg-trace-teal" />{item.date.toUpperCase()}
+                  </span>
+                  {/* Arrow indicator (reveals on hover) */}
+                  <span className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-trace-orange text-white opacity-0 shadow-[0_10px_24px_rgba(244,122,32,0.4)] transition-all duration-300 group-hover/card:opacity-100">
+                    <ArrowUpRight className="h-5 w-5" strokeWidth={2.5} />
+                  </span>
                 </div>
-                <div className="p-5">
-                  <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">{item.date.toUpperCase()}</p>
-                  <h3 className="mt-2 line-clamp-3 font-display text-base font-extrabold leading-[1.25] tracking-[-0.03em] text-trace-ink transition-colors group-hover:text-trace-teal">{item.title}</h3>
+                {/* Body */}
+                <div className="flex flex-1 flex-col p-6 sm:p-7">
+                  <h3 className="line-clamp-2 font-display text-xl font-extrabold leading-[1.15] tracking-[-0.04em] text-trace-ink transition-colors duration-300 group-hover/card:text-trace-teal sm:text-2xl">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-trace-muted transition-colors duration-300 group-hover/card:text-trace-ink/75">
+                    {item.summary}
+                  </p>
+                  {/* Read-more row — fades in a stronger CTA on hover */}
+                  <div className="mt-auto flex items-center justify-between border-t border-trace-ink/10 pt-4">
+                    <span className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">READ UPDATE</span>
+                    <ArrowRight className="h-4 w-4 text-trace-orange transition-transform duration-300 group-hover/card:translate-x-1" />
+                  </div>
                 </div>
               </Link>
             ))}
           </div>
         ))}
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes trace-updates-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 10px)); } }` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes trace-updates-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 14px)); } }` }} />
     </div>
   );
 }
@@ -453,11 +483,14 @@ export function AboutPage() {
     { value: 50, suffix: "+", label: "Public and private institutions supported to date",           badge: "Reach",          tint: "#E7EEF5", accent: "#123D67", ink: "#082440" }, // ice blue
   ];
   const featuredProjects = projects.slice(0, 3);
-  const featuredUpdates = latestUpdates.filter((u) => !u.external).sort((a, b) => b.isoDate.localeCompare(a.isoDate)).slice(0, 7);
+  const featuredUpdates = latestUpdates.filter((u) => !u.external).sort((a, b) => b.isoDate.localeCompare(a.isoDate)).slice(0, 6);
   return <Shell><main><section className="relative overflow-hidden bg-trace-ink pt-36 text-white sm:pt-44"><img src="/media/about/about-hero.png" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center opacity-85" /><div className="absolute inset-0 bg-gradient-to-b from-trace-ink/70 via-trace-ink/55 to-trace-ink" /><div className="relative mx-auto max-w-[1480px] px-5 pb-28 lg:px-10 sm:pb-32"><SectionReveal><p className="section-label !text-trace-mint">ABOUT TRACE</p><h1 className="mt-5 max-w-4xl font-display text-5xl font-extrabold leading-[0.95] tracking-[-0.07em] text-white sm:text-6xl lg:text-7xl">A firm built on <span className="text-trace-mint">insight</span>, strategy, and lasting impact.</h1><p className="mt-7 max-w-2xl text-base leading-8 text-white/78 sm:text-lg">TRACE integrates trade expertise, policy reform, digital systems, and practical implementation to help institutions make complex change move.</p></SectionReveal></div></section><section className="bg-trace-paper py-24 sm:py-32"><div className="mx-auto grid max-w-[1480px] gap-10 px-5 lg:grid-cols-[0.94fr_1.06fr] lg:gap-14 lg:px-10"><SectionReveal><div className="max-w-xl"><p className="section-label">WHO WE ARE</p><h2 className="mt-5 font-display text-5xl font-extrabold leading-[0.94] tracking-[-0.065em] text-trace-ink">Architecting resilience in a dynamic landscape.</h2><div className="mt-8 grid gap-6 text-base leading-8 text-trace-muted"><p>TRACE Consulting is a strategic advisory firm specializing in international trade, economic policy, regulatory reform, digital government solutions, and implementation support.</p><p>We help governments, development partners, and the private sector modernize institutions, strengthen regulatory systems, and improve trade competitiveness through evidence-based policy, technology, and implementation support.</p><p>Our work bridges the gap between policy design and practical delivery—making reforms usable, systems resilient, and impact sustainable.</p></div><div className="mt-10 border-t border-trace-ink/12 pt-8"><p className="section-label">OUR MISSION</p><p className="mt-4 text-base leading-8 text-trace-muted">TRACE integrates rigorous research with practical implementation to deliver lasting, measurable impact at scale—bridging the distance between policy ambition and institutional practice.</p></div></div></SectionReveal><SectionReveal delay={0.1}><figure className="relative aspect-[5/4] overflow-hidden border border-trace-ink/10 bg-white"><img src={ASSETS.aboutTrace} alt="Overhead view of professionals meeting around a collaborative table" className="absolute inset-0 h-full w-full object-cover" /></figure></SectionReveal></div></section><section className="bg-white py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="max-w-2xl"><p className="section-label">OUR TRACK RECORD</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Measurable impact, in numbers.</h2><p className="mt-5 text-base leading-7 text-trace-muted">Our work has supported reforms, built infrastructure, and strengthened institutions across Bangladesh and beyond.</p></div></SectionReveal><div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{aboutStats.map((stat, index) => <StatCard key={stat.label} stat={stat} index={index} />)}</div></div></section><section className="relative overflow-hidden bg-trace-ink text-white"><img src="/media/about/our-commitment.jpg" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" /><div className="absolute inset-0 bg-gradient-to-r from-trace-ink/95 via-trace-ink/78 to-trace-ink/30" /><div className="relative mx-auto max-w-[1480px] px-5 py-20 sm:py-24 lg:px-10"><div className="max-w-xl"><motion.p initial={{ opacity: 0, y: -8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "0px 0px -60px 0px" }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="font-mono text-[11px] font-bold tracking-[0.26em] text-trace-mint">OUR COMMITMENT</motion.p><motion.h2 initial={{ opacity: 0, y: 24, filter: "blur(6px)" }} whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }} viewport={{ once: true, margin: "0px 0px -60px 0px" }} transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }} className="mt-4 font-display text-4xl font-extrabold leading-[0.98] tracking-[-0.06em] text-white sm:text-5xl lg:text-6xl">Beyond advisory. <br /><span className="text-trace-teal">Built to last.</span></motion.h2><motion.div initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true, margin: "0px 0px -60px 0px" }} transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36, 1] }} className="mt-5 h-1 w-20 origin-left rounded-full bg-trace-orange" /><motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "0px 0px -60px 0px" }} transition={{ duration: 0.5, delay: 0.45, ease: [0.22, 1, 0.36, 1] }} className="mt-8 font-mono text-xs font-bold tracking-[0.22em] text-trace-teal">WE ARE COMMITTED TO</motion.p><ul className="mt-5 space-y-4">{commitments.map((c, i) => <motion.li key={c} initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "0px 0px -60px 0px" }} transition={{ duration: 0.5, delay: 0.55 + i * 0.08, ease: [0.22, 1, 0.36, 1] }} className="flex items-start gap-4"><span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-trace-orange/18 text-trace-orange" aria-hidden="true"><ArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} /></span><span className="font-display text-base font-medium leading-7 text-white/92 sm:text-lg">{c}</span></motion.li>)}</ul><motion.blockquote initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "0px 0px -60px 0px" }} transition={{ duration: 0.55, delay: 0.95, ease: [0.22, 1, 0.36, 1] }} className="mt-9 border-l-2 border-trace-teal pl-5"><p className="font-display text-base italic leading-7 text-white/82 sm:text-lg">At TRACE Consulting, we go beyond advisory — partnering closely to co-create lasting, meaningful change.</p></motion.blockquote></div></div></section><section className="bg-trace-paper py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="flex flex-col justify-between gap-5 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end"><div><p className="section-label">WHAT MAKES TRACE DIFFERENT</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Depth that stays connected to delivery.</h2></div></div></SectionReveal><div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">{distinctions.map(([title, body, color], index) => <SectionReveal key={title as string} delay={index * 0.06} className="h-full"><GlowCard glowColor={color as "teal" | "mint" | "orange" | "navy"} customSize className="flex h-full min-h-[260px] flex-col justify-between p-7"><div><p className="font-mono text-[11px] font-black tracking-[0.14em] text-trace-teal">0{index + 1}</p><h3 className="mt-6 font-display text-[1.7rem] font-extrabold leading-[1.04] tracking-[-0.05em] text-trace-ink">{title}</h3></div><p className="mt-5 text-sm leading-6 text-trace-muted">{body}</p></GlowCard></SectionReveal>)}</div></div></section><section className="bg-trace-paper py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="flex flex-col justify-between gap-5 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end"><div><p className="section-label">FEATURED PROJECTS</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Work that makes the case.</h2></div><Link href="/projects" className="inline-flex items-center gap-2 border-b border-trace-teal pb-1.5 text-sm font-extrabold text-trace-teal">View all projects <ArrowRight className="h-4 w-4" /></Link></div></SectionReveal><div className="mt-8 grid gap-5 md:grid-cols-3">{featuredProjects.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.06} className="h-full"><Link href={`/projects/${project.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.10)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(7,27,43,0.16)]"><div className="relative aspect-[16/9] overflow-hidden"><img src={projectImage(project)} alt={project.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/60 via-trace-ink/10 to-transparent" /><span className={`absolute left-4 top-4 px-3 py-1.5 font-mono text-[9px] font-bold tracking-[0.14em] ${project.status === "Ongoing" ? "bg-trace-teal text-white" : "bg-white/95 text-trace-navy backdrop-blur"}`}>{project.status.toUpperCase()}</span></div><div className="flex flex-1 flex-col p-5 sm:p-6"><p className="line-clamp-2 min-h-[2.5rem] font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">{project.client.toUpperCase()}</p><h3 className="mt-2 line-clamp-3 min-h-[4.4rem] font-display text-xl font-extrabold leading-[1.1] tracking-[-0.04em] text-trace-ink transition-colors group-hover:text-trace-teal">{project.title}</h3><p className="mt-3 line-clamp-2 min-h-[3rem] text-sm leading-6 text-trace-muted">{project.summary}</p><div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-4"><span className="text-xs font-bold text-trace-ink">{project.period}</span><ArrowUpRight className="h-4 w-4 text-trace-orange transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></div></div></Link></SectionReveal>)}</div></div></section><section className="bg-white py-20 sm:py-24"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><SectionReveal><div className="flex flex-col justify-between gap-5 border-b border-trace-ink/10 pb-8 sm:flex-row sm:items-end"><div><p className="section-label">LATEST UPDATES</p><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Knowledge from active work.</h2></div><Link href="/latest-updates" className="inline-flex items-center gap-2 border-b border-trace-teal pb-1.5 text-sm font-extrabold text-trace-teal">View all updates <ArrowRight className="h-4 w-4" /></Link></div></SectionReveal></div><div className="mt-10"><UpdatesMarquee items={featuredUpdates} /></div></section><section className="relative overflow-hidden bg-trace-navy py-24 text-white sm:py-28"><div className="absolute inset-0 bg-gradient-to-br from-trace-ink via-trace-navy to-[#0f3458]" /><div className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-trace-teal/18 blur-[120px]" /><div className="pointer-events-none absolute -bottom-40 -left-20 h-[26rem] w-[26rem] rounded-full bg-trace-orange/12 blur-[120px]" /><div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "radial-gradient(circle 1px at 1px 1px, rgba(215,243,240,0.6) 0%, transparent 100%)", backgroundSize: "32px 32px" }} /><div className="relative mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col items-start gap-10 lg:flex-row lg:items-end lg:justify-between"><SectionReveal className="flex-1"><p className="font-mono text-[11px] font-bold tracking-[0.26em] text-trace-mint">GET IN TOUCH</p><h2 className="mt-5 font-display text-5xl font-extrabold leading-[0.98] tracking-[-0.065em] text-white sm:text-6xl">Have a project in mind?<br /><span className="bg-gradient-to-r from-trace-mint to-trace-teal bg-clip-text text-transparent">Let's build something that lasts.</span></h2><p className="mt-6 max-w-xl text-base leading-8 text-white/75 sm:text-lg">Whether reforming a regulatory system, building technical capacity, or modernising digital infrastructure, we would like to hear from you.</p></SectionReveal><SectionReveal delay={0.1}><Link href="/contact" className="group relative inline-flex items-center gap-3 overflow-hidden rounded-xl bg-trace-orange px-8 py-5 text-sm font-extrabold uppercase tracking-wider text-white shadow-[0_18px_42px_rgba(244,122,32,0.42),0_4px_12px_rgba(244,122,32,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(244,122,32,0.55),0_6px_16px_rgba(244,122,32,0.38)]"><span aria-hidden="true" className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-[#ff9b4a] via-trace-orange to-[#e86a10] transition-transform duration-500 ease-out group-hover:scale-x-100" /><span className="relative z-10">Start a conversation</span><ArrowRight className="relative z-10 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" strokeWidth={2.5} /></Link></SectionReveal></div></div></section></main></Shell>;
 }
 
 export function ServicesPage() {
+  const [showAll, setShowAll] = useState(false);
+  const visibleServices = showAll ? services : services.slice(0, 6);
+  const hiddenCount = services.length - 6;
   return (
     <Shell>
       <main>
@@ -469,7 +502,7 @@ export function ServicesPage() {
               <h2 className="mt-4 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink sm:text-5xl">Each service starts with context—and ends in capability.</h2>
             </div>
             <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {services.map((service, index) => (
+              {visibleServices.map((service, index) => (
                 <SectionReveal key={service.slug} delay={index * 0.04} className="h-full">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -532,6 +565,21 @@ export function ServicesPage() {
                 </SectionReveal>
               ))}
             </div>
+            {hiddenCount > 0 && (
+              <div className="mt-12 flex flex-col items-center gap-3">
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">
+                  SHOWING {visibleServices.length} OF {services.length} SERVICES
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowAll((v) => !v)}
+                  className="group inline-flex items-center gap-2 rounded-xl bg-trace-navy px-7 py-3.5 text-sm font-extrabold text-white shadow-[0_14px_32px_rgba(18,61,103,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-trace-teal hover:shadow-[0_18px_40px_rgba(0,156,166,0.42)]"
+                >
+                  {showAll ? "Show less" : `View all services (+${hiddenCount})`}
+                  <ArrowRight className={`h-4 w-4 transition-transform duration-300 ${showAll ? "rotate-90" : "group-hover:translate-x-1"}`} />
+                </button>
+              </div>
+            )}
           </div>
         </section>
       </main>
@@ -1101,13 +1149,18 @@ export function ServiceDetailPage() {
 export function ProjectsPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
+  const [showAll, setShowAll] = useState(false);
   const filters = ["All", ...services.map((service) => service.title)];
   const filtered = projects.filter((project) => {
     const serviceMatch = filter === "All" || project.serviceSlugs.some((slug) => services.find((service) => service.slug === slug)?.title === filter);
     const q = query.toLowerCase();
     return serviceMatch && (!q || `${project.title} ${project.client} ${project.summary}`.toLowerCase().includes(q));
   });
-  return <Shell><main><PageHero label="PROJECTS" title={<>Work that <span className="text-trace-mint">changes systems.</span></>} description="Trade facilitation, laboratory strengthening, digital transformation, policy advisory, and capacity-building work across connected institutions." tone="navy" /><section className="py-16 sm:py-20"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-2">{filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "bg-trace-navy text-white" : "border border-trace-ink/12 bg-white text-trace-muted hover:border-trace-teal"}`}>{item}</button>)}</div><label className="flex w-full max-w-md items-center gap-3 border-b border-trace-ink/20 bg-white px-3 py-3"><Search className="h-4 w-4 text-trace-teal" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search projects" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" /></label></div><div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.04} className="h-full"><ProjectCard project={project} image={projectImage(project)} /></SectionReveal>)}</div>{filtered.length === 0 && <p className="py-16 text-center text-trace-muted">No project records match this search.</p>}</div></section></main></Shell>;
+  // Cap the default view at 6 cards; reveal the rest only when the user asks.
+  // Any active filter/search still respects the 6-card cap unless expanded.
+  const visible = showAll ? filtered : filtered.slice(0, 6);
+  const hiddenCount = filtered.length - visible.length;
+  return <Shell><main><PageHero label="PROJECTS" title={<>Work that <span className="text-trace-mint">changes systems.</span></>} description="Trade facilitation, laboratory strengthening, digital transformation, policy advisory, and capacity-building work across connected institutions." tone="navy" /><section className="py-16 sm:py-20"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-2">{filters.map((item) => <button key={item} onClick={() => { setFilter(item); setShowAll(false); }} className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "bg-trace-navy text-white" : "border border-trace-ink/12 bg-white text-trace-muted hover:border-trace-teal"}`}>{item}</button>)}</div><label className="flex w-full max-w-md items-center gap-3 border-b border-trace-ink/20 bg-white px-3 py-3"><Search className="h-4 w-4 text-trace-teal" /><input value={query} onChange={(event) => { setQuery(event.target.value); setShowAll(false); }} placeholder="Search projects" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" /></label></div><div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{visible.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.04} className="h-full"><ProjectCard project={project} image={projectImage(project)} /></SectionReveal>)}</div>{filtered.length === 0 && <p className="py-16 text-center text-trace-muted">No project records match this search.</p>}{hiddenCount > 0 && <div className="mt-12 flex flex-col items-center gap-3"><p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">SHOWING {visible.length} OF {filtered.length} PROJECTS</p><button type="button" onClick={() => setShowAll(true)} className="group inline-flex items-center gap-2 rounded-xl bg-trace-navy px-7 py-3.5 text-sm font-extrabold text-white shadow-[0_14px_32px_rgba(18,61,103,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-trace-teal hover:shadow-[0_18px_40px_rgba(0,156,166,0.42)]">View all projects (+{hiddenCount}) <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" /></button></div>}{showAll && filtered.length > 6 && <div className="mt-10 flex justify-center"><button type="button" onClick={() => setShowAll(false)} className="inline-flex items-center gap-2 text-sm font-bold text-trace-muted hover:text-trace-navy">Show less <ChevronDown className="h-4 w-4 rotate-180" /></button></div>}</div></section></main></Shell>;
 }
 
 export function ProjectDetailPage() {
