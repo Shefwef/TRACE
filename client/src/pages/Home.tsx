@@ -2,7 +2,6 @@
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, ChevronRight, ExternalLink, MapPin, PlayCircle, Plus } from "lucide-react";
 import { Link } from "wouter";
-import { BrandFloaters } from "@/components/BrandFloaters";
 import { DepthCarousel } from "@/components/DepthCarousel";
 import { VideoHero } from "@/components/VideoHero";
 import { ProjectFocusStage } from "@/components/ProjectFocusStage";
@@ -71,7 +70,7 @@ function ExpertiseNetwork() {
 }
 
 export default function Home() {
-  return <div className="relative min-h-screen overflow-x-hidden"><BrandFloaters /><SiteHeader overlay /><main><VideoHero />
+  return <div className="min-h-screen overflow-x-hidden"><SiteHeader overlay /><main><VideoHero />
     <TracePositioningSection /><ProjectShowcase /><ProjectFocusStage /><DepthCarousel /><TeamLeadershipPreview /><PartnerRail /><OfficeMapPanel />
   </main><SiteFooter /></div>;
 }

@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Briefcase, CalendarDays, CheckCirc
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 import { SectionReveal } from "@/components/SectionReveal";
-import { BrandFloaters } from "@/components/BrandFloaters";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TeamPortrait } from "@/components/TeamPortrait";
@@ -44,14 +43,7 @@ const projectImage = (project: Project) => projectMedia[project.slug] ?? ASSETS.
 const insightImage = (insight: Insight) => insight.image ?? ASSETS.insightReform;
 
 function Shell({ children }: { children: ReactNode }) {
-  return (
-    <div className="relative min-h-screen overflow-x-hidden bg-trace-paper">
-      <BrandFloaters />
-      <SiteHeader />
-      {children}
-      <SiteFooter />
-    </div>
-  );
+  return <div className="min-h-screen overflow-x-hidden bg-trace-paper"><SiteHeader />{children}<SiteFooter /></div>;
 }
 
 function PageHero({ label, title, description, tone = "light", kicker, titleText }: { label: string; title: ReactNode; description: string; tone?: "light" | "dark" | "navy"; kicker?: string; titleText?: string }) {
@@ -1194,7 +1186,119 @@ export function ProjectsPage() {
     const q = query.toLowerCase();
     return serviceMatch && (!q || `${project.title} ${project.client} ${project.summary}`.toLowerCase().includes(q));
   });
-  return <Shell><main><PageHero label="PROJECTS" title={<>Work that <span className="text-trace-mint">changes systems.</span></>} description="Trade facilitation, laboratory strengthening, digital transformation, policy advisory, and capacity-building work across connected institutions." tone="navy" /><section className="py-16 sm:py-20"><div className="mx-auto max-w-[1480px] px-5 lg:px-10"><div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between"><div className="flex flex-wrap gap-2">{filters.map((item) => <button key={item} onClick={() => setFilter(item)} className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "bg-trace-navy text-white" : "border border-trace-ink/12 bg-white text-trace-muted hover:border-trace-teal"}`}>{item}</button>)}</div><label className="flex w-full max-w-md items-center gap-3 border-b border-trace-ink/20 bg-white px-3 py-3"><Search className="h-4 w-4 text-trace-teal" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search projects" className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70" /></label></div><div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map((project, index) => <SectionReveal key={project.slug} delay={index * 0.04} className="h-full"><ProjectCard project={project} image={projectImage(project)} /></SectionReveal>)}</div>{filtered.length === 0 && <p className="py-16 text-center text-trace-muted">No project records match this search.</p>}</div></section></main></Shell>;
+  const featured = projects.slice(0, Math.min(6, projects.length));
+  return (
+    <Shell>
+      <main>
+        <PageHero
+          label="PROJECTS"
+          title={<>Work that <span className="text-trace-mint">changes systems.</span></>}
+          description="Trade facilitation, laboratory strengthening, digital transformation, policy advisory, and capacity-building work across connected institutions."
+          tone="navy"
+        />
+
+        {/* ── Featured projects — horizontal snap-scrolling strip ── */}
+        <section className="bg-trace-paper py-12 sm:py-16">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="section-label">FEATURED PROJECTS</p>
+                <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-4xl">
+                  Scroll through our active mandates.
+                </h2>
+              </div>
+              <p className="hidden font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted sm:block">
+                SWIPE / SCROLL →
+              </p>
+            </div>
+            {/* Horizontal snap strip. On lg, roughly 3 cards fit at once; narrower on smaller screens.
+                Users scroll horizontally to see additional cards. */}
+            <div className="mt-8 -mx-5 overflow-x-auto overflow-y-hidden px-5 pb-6 lg:-mx-10 lg:px-10 [-ms-overflow-style:none] [scrollbar-width:thin]">
+              <div className="flex snap-x snap-mandatory gap-5" style={{ scrollPaddingLeft: "1.25rem" }}>
+                {featured.map((project, index) => (
+                  <Link
+                    key={project.slug}
+                    href={`/projects/${project.slug}`}
+                    className="group relative flex w-[85vw] shrink-0 snap-start flex-col overflow-hidden rounded-2xl bg-white shadow-[0_14px_40px_rgba(7,27,43,0.1)] ring-1 ring-trace-ink/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_rgba(7,27,43,0.18)] sm:w-[460px] lg:w-[480px]"
+                  >
+                    {/* Image */}
+                    <div className="relative aspect-[16/9] overflow-hidden">
+                      <img src={projectImage(project)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-trace-ink/60 via-transparent to-transparent" />
+                      <span className={`absolute left-4 top-4 px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.14em] ${project.status === "Ongoing" ? "bg-trace-teal text-white" : "bg-white/95 text-trace-navy"}`}>
+                        {project.status.toUpperCase()}
+                      </span>
+                      <span className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/95 text-trace-navy opacity-0 shadow-md transition-opacity duration-300 group-hover:opacity-100">
+                        <ArrowUpRight className="h-5 w-5" strokeWidth={2.5} />
+                      </span>
+                      {/* Number tag — large */}
+                      <span className="absolute bottom-4 right-4 font-display text-6xl font-black leading-none tracking-[-0.08em] text-white/40 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    {/* Content */}
+                    <div className="flex flex-1 flex-col p-6 sm:p-7">
+                      <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">{project.client.toUpperCase()}</p>
+                      <h3 className="mt-3 line-clamp-3 font-display text-xl font-extrabold leading-[1.15] tracking-[-0.03em] text-trace-ink transition-colors group-hover:text-trace-teal sm:text-2xl">
+                        {project.title}
+                      </h3>
+                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-trace-muted">{project.summary}</p>
+                      <div className="mt-auto flex items-center justify-between border-t border-trace-ink/8 pt-4">
+                        <span className="text-xs font-bold text-trace-ink">{project.period}</span>
+                        <ArrowRight className="h-4 w-4 text-trace-orange transition-transform duration-300 group-hover:translate-x-1" />
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── All projects (with filter + search) ── */}
+        <section className="py-14 sm:py-20">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="mb-6">
+              <p className="section-label">ALL PROJECTS</p>
+              <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-4xl">
+                Explore the full portfolio.
+              </h2>
+            </div>
+            <div className="flex flex-col gap-5 border-b border-trace-ink/10 pb-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {filters.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => setFilter(item)}
+                    className={`px-4 py-2 text-xs font-extrabold transition-colors ${filter === item ? "bg-trace-navy text-white" : "border border-trace-ink/12 bg-white text-trace-muted hover:border-trace-teal"}`}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <label className="flex w-full max-w-md items-center gap-3 border-b border-trace-ink/20 bg-white px-3 py-3">
+                <Search className="h-4 w-4 text-trace-teal" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search projects"
+                  className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-trace-muted/70"
+                />
+              </label>
+            </div>
+            <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {filtered.map((project, index) => (
+                <SectionReveal key={project.slug} delay={index * 0.04} className="h-full">
+                  <ProjectCard project={project} image={projectImage(project)} />
+                </SectionReveal>
+              ))}
+            </div>
+            {filtered.length === 0 && <p className="py-16 text-center text-trace-muted">No project records match this search.</p>}
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 export function ProjectDetailPage() {
@@ -1965,7 +2069,143 @@ export function InsightDetailPage() {
   const relatedServices = services.filter((service) => insight.serviceSlugs.includes(service.slug));
   const relatedProjects = projects.filter((project) => insight.projectSlugs.includes(project.slug));
   const relatedTeam = team.filter((member) => insight.teamSlugs.includes(member.slug));
-  return <Shell><main><DetailMediaHero label={insight.type.toUpperCase()} title={insight.title} description={insight.summary} kicker={insight.date.toUpperCase()} image={insightImage(insight)} /><section className="bg-trace-paper py-16 sm:py-20"><div className="mx-auto max-w-[1200px] px-5 lg:px-10"><BackLink href="/insights" label="insights" /><div className="mt-12 grid gap-12 lg:grid-cols-[1.18fr_0.82fr]"><SectionReveal><article className="relative overflow-hidden bg-white p-7 sm:p-10"><GhostNumber value="01" />{insight.type === "Video" && <a href={insight.sourceUrl} target="_blank" rel="noreferrer" className="group relative grid aspect-video place-items-center overflow-hidden bg-trace-ink"><img src={insightImage(insight)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105" /><span className="relative grid h-16 w-16 place-items-center rounded-full border border-white/60 bg-trace-navy/80 text-white"><PlayCircle className="h-8 w-8 text-trace-mint" /></span></a>}<div className="relative mt-7"><AnimatedEyebrow number="01" text="TRACE KNOWLEDGE RECORD" /></div><div className="relative mt-4"><AnimatedHeading text="A TRACE perspective." className="font-display text-3xl font-extrabold leading-[1.08] tracking-[-0.055em] text-trace-ink" /></div><p className="relative mt-5 text-base leading-8 text-trace-muted">{insight.summary} The original source remains available through the verified destination associated with this record.</p><div className="relative"><SourceAction insight={insight} /></div></article></SectionReveal><SectionReveal delay={0.08}><aside className="relative overflow-hidden border border-trace-ink/10 bg-white p-7"><div className="absolute left-0 top-0 h-1 w-full bg-trace-teal" /><AnimatedEyebrow text="FOLLOW THE IDEA" /><div className="mt-5 flex flex-wrap gap-2">{relatedServices.map((service) => <Link key={service.slug} href={`/services/${service.slug}`}><EntityTag>{service.title.toUpperCase()}</EntityTag></Link>)}</div><p className="mt-9 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">FORMAT</p><p className="mt-2 font-display text-2xl font-extrabold text-trace-ink">{insight.type}</p><p className="mt-1 text-sm text-trace-muted">{insight.date}</p><SourceAction insight={insight} /></aside></SectionReveal></div><RelationshipRail title="Related projects">{relatedProjects.length ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />) : <p className="text-sm text-trace-muted">Related projects will be connected as they are verified.</p>}</RelationshipRail><RelationshipRail title="Relevant experts">{relatedTeam.length ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />) : <p className="text-sm text-trace-muted">Relevant experts will be connected as they are verified.</p>}</RelationshipRail></div></section></main></Shell>;
+  const bodyParas = insight.body ?? [insight.summary];
+  return (
+    <Shell>
+      <main>
+        <DetailMediaHero
+          label={insight.type.toUpperCase()}
+          title={insight.title}
+          description={insight.summary}
+          kicker={insight.date.toUpperCase()}
+          image={insightImage(insight)}
+        />
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-[1280px] px-5 lg:px-10">
+            <BackLink href="/insights" label="insights" />
+            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-14">
+              {/* ── Article body ── */}
+              <article>
+                {/* Full image at the top (user explicitly asked for the image to be shown in full) */}
+                {insight.image && (
+                  <div className="relative mb-10 overflow-hidden rounded-2xl bg-trace-paper shadow-[0_14px_40px_rgba(7,27,43,0.1)] ring-1 ring-trace-ink/5">
+                    <img src={insight.image} alt="" className="block h-auto w-full object-contain" />
+                  </div>
+                )}
+                {/* Author + published-in byline */}
+                {(insight.author || insight.publisher) && (
+                  <p className="font-mono text-[11px] font-bold tracking-[0.18em] text-trace-muted">
+                    {insight.author && `BY ${insight.author.toUpperCase()}`}
+                    {insight.author && insight.publisher && " · "}
+                    {insight.publisher && `PUBLISHED IN ${insight.publisher.toUpperCase()}`}
+                  </p>
+                )}
+                {/* Body paragraphs */}
+                <div className="mt-6 space-y-5 text-base leading-8 text-trace-muted sm:text-[17px] sm:leading-[1.75]">
+                  {bodyParas.map((para, i) => (
+                    <motion.p
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.4, delay: i * 0.03 }}
+                    >
+                      {para}
+                    </motion.p>
+                  ))}
+                </div>
+                {/* Entity tags */}
+                {relatedServices.length > 0 && (
+                  <div className="mt-10 border-t border-trace-ink/8 pt-6">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">RELATED AREAS</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {relatedServices.map((service) => (
+                        <Link key={service.slug} href={`/services/${service.slug}`}>
+                          <EntityTag>{service.title.toUpperCase()}</EntityTag>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </article>
+
+              {/* ── Right sidebar: View the publication card (sticky) ── */}
+              <aside className="lg:sticky lg:top-28 space-y-5">
+                {insight.sourceUrl && (
+                  <div className="overflow-hidden rounded-2xl bg-trace-ink p-6 text-white shadow-[0_18px_46px_rgba(7,27,43,0.18)] ring-1 ring-white/10">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.22em] text-trace-mint">PUBLISHED SOURCE</p>
+                    {insight.publisher && (
+                      <p className="mt-3 font-display text-xl font-extrabold tracking-[-0.03em] text-white">{insight.publisher}</p>
+                    )}
+                    <p className="mt-2 text-xs leading-5 text-white/60">The original article is hosted on the publisher's site.</p>
+                    <a
+                      href={insight.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-trace-orange px-5 py-3 text-sm font-extrabold text-white shadow-[0_10px_24px_rgba(244,122,32,0.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(244,122,32,0.5)]"
+                    >
+                      {insight.sourceLabel ?? "View the publication"}
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                )}
+                {/* Format / date card */}
+                <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-[0_8px_24px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/8">
+                  <span className="block h-1 w-full rounded-full bg-trace-teal" aria-hidden="true" />
+                  <p className="mt-5 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">FORMAT</p>
+                  <p className="mt-2 font-display text-xl font-extrabold text-trace-ink">{insight.type}</p>
+                  <p className="mt-4 font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">PUBLISHED</p>
+                  <p className="mt-2 text-sm font-bold text-trace-ink">{insight.date}</p>
+                </div>
+                {/* Related team */}
+                {relatedTeam.length > 0 && (
+                  <div className="overflow-hidden rounded-2xl bg-white p-6 shadow-[0_8px_24px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/8">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-teal">RELEVANT EXPERTS</p>
+                    <div className="mt-4 space-y-4">
+                      {relatedTeam.slice(0, 3).map((m) => (
+                        <Link key={m.slug} href={`/team/${m.slug}`} className="group flex items-center gap-3">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full ring-1 ring-trace-ink/8">
+                            <TeamPortrait member={m} className="h-full w-full" imageClassName="object-cover" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-extrabold text-trace-ink transition-colors group-hover:text-trace-teal">{m.name}</p>
+                            <p className="truncate text-[11px] font-bold text-trace-muted">{m.role}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </aside>
+            </div>
+
+            {/* Related projects */}
+            {relatedProjects.length > 0 && (
+              <div className="mt-16">
+                <div className="flex items-center gap-3">
+                  <span className="h-5 w-1 rounded-full bg-trace-orange" aria-hidden="true" />
+                  <h2 className="font-display text-2xl font-extrabold tracking-[-0.04em] text-trace-ink">Related projects</h2>
+                </div>
+                <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {relatedProjects.map((project) => (
+                    <Link key={project.slug} href={`/projects/${project.slug}`} className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(7,27,43,0.14)]">
+                      <div className="relative aspect-[16/9] overflow-hidden">
+                        <img src={projectImage(project)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      </div>
+                      <div className="flex flex-1 flex-col p-4">
+                        <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">{project.client.toUpperCase()}</p>
+                        <h3 className="mt-2 line-clamp-3 text-sm font-extrabold leading-5 text-trace-ink transition-colors group-hover:text-trace-teal">{project.title}</h3>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 function UpdateCard({ item }: { item: LatestUpdate }) {
@@ -2783,21 +3023,217 @@ export function ContactPage() {
   const initialSubject = new URLSearchParams(location.split("?")[1] ?? "").get("subject") ?? "";
   const [sent, setSent] = useState(false);
   const submit = (event: FormEvent) => { event.preventDefault(); setSent(true); };
-  return <Shell><main><PageHero label="CONTACT" title={<>Let’s start a <span className="text-trace-teal">conversation.</span></>} description="Whether you are a government agency, development partner, or private company, TRACE is ready to understand the mandate behind your next move." /><section className="py-20 sm:py-28"><div className="mx-auto grid max-w-[1480px] gap-10 px-5 lg:grid-cols-[0.78fr_1.22fr] lg:px-10"><SectionReveal><p className="section-label">HEAD OFFICE — DHAKA</p><div className="mt-7 grid gap-6"><a href={`tel:${contact.phone}`} className="flex items-start gap-4"><Phone className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.phone}</strong><span className="mt-1 block text-sm text-trace-muted">Head Office — Dhaka</span></span></a><a href={`mailto:${contact.email}`} className="flex items-start gap-4"><Mail className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.email}</strong><span className="mt-1 block text-sm text-trace-muted">General enquiries</span></span></a><div className="flex items-start gap-4"><MapPin className="mt-1 h-5 w-5 text-trace-orange" /><span><strong className="block text-trace-ink">{contact.address}</strong><span className="mt-1 block text-sm text-trace-muted">{contact.hours}</span></span></div></div></SectionReveal><SectionReveal delay={0.1}><form onSubmit={submit} className="border border-trace-ink/10 bg-white p-7 sm:p-10"><AnimatePresence mode="wait">{sent ? <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid min-h-[390px] place-items-center text-center"><div><CheckCircle2 className="mx-auto h-12 w-12 text-trace-teal" /><h2 className="mt-5 font-display text-4xl font-extrabold tracking-[-0.06em] text-trace-ink">Message received.</h2><p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-trace-muted">Thank you for outlining your mandate. The TRACE team will respond within one business day.</p><button onClick={() => setSent(false)} type="button" className="mt-7 text-sm font-extrabold text-trace-teal">Send another message</button></div></motion.div> : <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><div className="grid gap-5 sm:grid-cols-2">{[["First name", "firstName"], ["Last name", "lastName"], ["Email address", "email"], ["Mobile number", "phone"], ["Organization", "organization"], ["Subject / service area", "subject"]].map(([label, field]) => <label key={field} className="grid gap-2"><span className="text-xs font-bold text-trace-ink">{label}{["firstName", "lastName", "email", "phone", "subject"].includes(field) && <span className="text-trace-orange"> *</span>}</span><input required={["firstName", "lastName", "email", "phone", "subject"].includes(field)} name={field} type={field === "email" ? "email" : "text"} defaultValue={field === "subject" ? initialSubject : ""} className="border-b border-trace-ink/20 bg-trace-paper px-3 py-3 text-sm outline-none transition-colors focus:border-trace-teal" /></label>)}</div><label className="mt-5 grid gap-2"><span className="text-xs font-bold text-trace-ink">Tell us about your project or challenge <span className="text-trace-orange">*</span></span><textarea required name="message" rows={5} className="resize-none border-b border-trace-ink/20 bg-trace-paper px-3 py-3 text-sm outline-none transition-colors focus:border-trace-teal" /></label><div className="mt-7"><SpecularButton
-  type="submit"
-  size="lg"
-  radius={4}
-  baseColor="#123D67"
-  textColor="#ffffff"
-  lineColor="#D7F3F0"
-  shineSize={10}
-  shineFade={45}
-  intensity={1}
-  thickness={1}
-  speed={0.35}
-  followMouse
-  proximity={280}
->Send message <Send className="h-4 w-4" /></SpecularButton></div><p className="mt-5 text-xs leading-5 text-trace-muted">By submitting this form, you agree to the Privacy Policy. TRACE does not share your submitted data.</p></motion.div>}</AnimatePresence></form></SectionReveal></div></section></main></Shell>;
+  return (
+    <Shell>
+      <main>
+        <PageHero
+          label="CONTACT"
+          title={<>Let's start a <span className="text-trace-teal">conversation.</span></>}
+          description="Whether you are a government agency, development partner, or private company, TRACE is ready to understand the mandate behind your next move."
+          tone="navy"
+        />
+
+        {/* ── Main grid: left info cards + right elevated form ── */}
+        <section className="relative py-16 sm:py-24">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-14">
+
+              {/* ── LEFT: Contact Us + Our Office + Find Us info cards ── */}
+              <div className="space-y-5">
+                {/* Contact Us card */}
+                <SectionReveal>
+                  <div className="relative overflow-hidden rounded-2xl bg-white p-7 shadow-[0_12px_32px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/5 sm:p-8">
+                    <span className="absolute left-0 top-0 h-full w-1 bg-trace-teal" aria-hidden="true" />
+                    <div className="flex items-center gap-3 pl-3">
+                      <span className="grid h-10 w-10 place-items-center rounded-lg bg-trace-teal/12 text-trace-teal">
+                        <Phone className="h-4 w-4" />
+                      </span>
+                      <h2 className="font-display text-xl font-extrabold tracking-[-0.03em] text-trace-ink">Contact Us</h2>
+                    </div>
+                    <p className="mt-4 pl-3 text-sm leading-6 text-trace-muted">Reach the TRACE team directly for new mandates, partnership opportunities, or press enquiries.</p>
+                    <div className="mt-6 space-y-4 pl-3">
+                      <a href={`tel:${contact.phone}`} className="group flex items-start gap-3">
+                        <Phone className="mt-0.5 h-4 w-4 shrink-0 text-trace-orange" />
+                        <span>
+                          <strong className="block text-sm text-trace-ink transition-colors group-hover:text-trace-teal">{contact.phone}</strong>
+                          <span className="mt-0.5 block text-xs text-trace-muted">Head Office — Dhaka</span>
+                        </span>
+                      </a>
+                      <a href={`mailto:${contact.email}`} className="group flex items-start gap-3">
+                        <Mail className="mt-0.5 h-4 w-4 shrink-0 text-trace-orange" />
+                        <span>
+                          <strong className="block text-sm text-trace-ink transition-colors group-hover:text-trace-teal">{contact.email}</strong>
+                          <span className="mt-0.5 block text-xs text-trace-muted">General enquiries</span>
+                        </span>
+                      </a>
+                    </div>
+                  </div>
+                </SectionReveal>
+
+                {/* Our Office card */}
+                <SectionReveal delay={0.06}>
+                  <div className="relative overflow-hidden rounded-2xl bg-white p-7 shadow-[0_12px_32px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/5 sm:p-8">
+                    <span className="absolute left-0 top-0 h-full w-1 bg-trace-navy" aria-hidden="true" />
+                    <div className="flex items-center gap-3 pl-3">
+                      <span className="grid h-10 w-10 place-items-center rounded-lg bg-trace-navy/10 text-trace-navy">
+                        <Briefcase className="h-4 w-4" />
+                      </span>
+                      <h2 className="font-display text-xl font-extrabold tracking-[-0.03em] text-trace-ink">Our Office</h2>
+                    </div>
+                    <div className="mt-5 space-y-3 pl-3">
+                      <p className="text-sm font-semibold leading-6 text-trace-ink">{contact.address}</p>
+                      <div className="flex items-center gap-2 border-t border-trace-ink/8 pt-3">
+                        <Clock className="h-3.5 w-3.5 text-trace-teal" />
+                        <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-trace-muted">{contact.hours.toUpperCase()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </SectionReveal>
+
+                {/* Find Us card — anchor to map at bottom */}
+                <SectionReveal delay={0.1}>
+                  <a href="#find-us-map" className="group relative block overflow-hidden rounded-2xl bg-trace-ink p-7 text-white shadow-[0_14px_36px_rgba(7,27,43,0.18)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_20px_48px_rgba(7,27,43,0.26)] sm:p-8">
+                    <span className="absolute left-0 top-0 h-full w-1 bg-trace-orange" aria-hidden="true" />
+                    <div className="flex items-center gap-3 pl-3">
+                      <span className="grid h-10 w-10 place-items-center rounded-lg bg-white/10 text-trace-mint">
+                        <MapPin className="h-4 w-4" />
+                      </span>
+                      <h2 className="font-display text-xl font-extrabold tracking-[-0.03em] text-white">Find Us</h2>
+                    </div>
+                    <p className="mt-4 pl-3 text-sm leading-6 text-white/72">Our Dhaka office is in Mohakhali DOHS. Jump down to the map for directions.</p>
+                    <span className="mt-5 inline-flex items-center gap-2 pl-3 font-mono text-[10px] font-bold tracking-[0.16em] text-trace-mint transition-colors group-hover:text-white">
+                      VIEW ON MAP <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </a>
+                </SectionReveal>
+              </div>
+
+              {/* ── RIGHT: Elevated contact form ── */}
+              <SectionReveal delay={0.12}>
+                <form onSubmit={submit} className="relative overflow-hidden rounded-2xl bg-white p-7 shadow-[0_28px_70px_rgba(7,27,43,0.18),0_8px_20px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/5 sm:p-10">
+                  {/* Teal → mint top accent */}
+                  <span className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-trace-teal via-trace-mint to-trace-teal" aria-hidden="true" />
+                  <AnimatePresence mode="wait">
+                    {sent ? (
+                      <motion.div
+                        key="sent"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="grid min-h-[420px] place-items-center text-center"
+                      >
+                        <div>
+                          <CheckCircle2 className="mx-auto h-14 w-14 text-trace-teal" />
+                          <h2 className="mt-5 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-4xl">Message received.</h2>
+                          <p className="mx-auto mt-4 max-w-sm text-sm leading-6 text-trace-muted">Thank you for outlining your mandate. The TRACE team will respond within one business day.</p>
+                          <button onClick={() => setSent(false)} type="button" className="mt-7 text-sm font-extrabold text-trace-teal transition-colors hover:text-trace-navy">
+                            Send another message
+                          </button>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <div>
+                          <p className="font-mono text-[11px] font-bold tracking-[0.22em] text-trace-teal">SEND US A MESSAGE</p>
+                          <h2 className="mt-3 font-display text-2xl font-extrabold tracking-[-0.045em] text-trace-ink sm:text-3xl">Tell us about your mandate.</h2>
+                          <p className="mt-3 text-sm leading-6 text-trace-muted">Required fields are marked with <span className="font-bold text-trace-orange">*</span>.</p>
+                        </div>
+
+                        <div className="mt-7 grid gap-5 sm:grid-cols-2">
+                          {([
+                            ["First name", "firstName"],
+                            ["Last name", "lastName"],
+                            ["Email address", "email"],
+                            ["Mobile number", "phone"],
+                            ["Organization", "organization"],
+                            ["Subject / service area", "subject"],
+                          ] as const).map(([label, field]) => (
+                            <label key={field} className="grid gap-2">
+                              <span className="text-xs font-bold text-trace-ink">
+                                {label}
+                                {["firstName", "lastName", "email", "phone", "subject"].includes(field) && (
+                                  <span className="text-trace-orange"> *</span>
+                                )}
+                              </span>
+                              <input
+                                required={["firstName", "lastName", "email", "phone", "subject"].includes(field)}
+                                name={field}
+                                type={field === "email" ? "email" : "text"}
+                                defaultValue={field === "subject" ? initialSubject : ""}
+                                className="rounded-lg border border-trace-ink/12 bg-trace-paper/60 px-3.5 py-3 text-sm outline-none transition-all focus:border-trace-teal focus:bg-white focus:ring-2 focus:ring-trace-teal/15"
+                              />
+                            </label>
+                          ))}
+                        </div>
+
+                        <label className="mt-5 grid gap-2">
+                          <span className="text-xs font-bold text-trace-ink">
+                            Tell us about your project or challenge <span className="text-trace-orange">*</span>
+                          </span>
+                          <textarea
+                            required
+                            name="message"
+                            rows={6}
+                            className="resize-none rounded-lg border border-trace-ink/12 bg-trace-paper/60 px-3.5 py-3 text-sm outline-none transition-all focus:border-trace-teal focus:bg-white focus:ring-2 focus:ring-trace-teal/15"
+                          />
+                        </label>
+
+                        <div className="mt-7">
+                          <button
+                            type="submit"
+                            className="group inline-flex items-center gap-2.5 rounded-xl bg-trace-orange px-7 py-3.5 text-sm font-extrabold text-white shadow-[0_14px_32px_rgba(244,122,32,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_42px_rgba(244,122,32,0.55)]"
+                          >
+                            Send message
+                            <Send className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                          </button>
+                        </div>
+
+                        <p className="mt-5 text-xs leading-5 text-trace-muted">
+                          By submitting this form, you agree to the Privacy Policy. TRACE does not share your submitted data.
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </form>
+              </SectionReveal>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Map at the bottom ── */}
+        <section id="find-us-map" className="bg-trace-paper py-16 sm:py-20">
+          <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+            <div className="mb-8 flex items-end justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-3">
+                  <span className="h-6 w-1 rounded-full bg-trace-orange" aria-hidden="true" />
+                  <p className="font-mono text-[11px] font-bold tracking-[0.22em] text-trace-teal">FIND US</p>
+                </div>
+                <h2 className="mt-3 font-display text-3xl font-extrabold tracking-[-0.055em] text-trace-ink sm:text-4xl">Visit our Dhaka office.</h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-trace-muted">{contact.address}</p>
+              </div>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.address)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="hidden items-center gap-2 rounded-lg border border-trace-ink/15 bg-white px-5 py-3 text-sm font-extrabold text-trace-ink transition-all hover:-translate-y-0.5 hover:border-trace-teal hover:text-trace-teal hover:shadow-md sm:inline-flex"
+              >
+                Open in Google Maps <ArrowUpRight className="h-4 w-4" />
+              </a>
+            </div>
+            <div className="overflow-hidden rounded-2xl shadow-[0_14px_40px_rgba(7,27,43,0.1)] ring-1 ring-trace-ink/5">
+              <iframe
+                src={`https://www.google.com/maps?q=${encodeURIComponent(contact.address)}&output=embed`}
+                title="TRACE Consulting office location"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="block h-[420px] w-full border-0 sm:h-[480px]"
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+    </Shell>
+  );
 }
 
 function NotFoundEntity() {
