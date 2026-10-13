@@ -170,7 +170,6 @@
   section[class*="bg-trace-paper"] {
     position: relative;
     isolation: isolate;
-    overflow: hidden;
   }
   section[class*="bg-white"]::before,
   section[class*="bg-trace-paper"]::before {
@@ -216,7 +215,6 @@
   section[class*="bg-trace-ink"] {
     position: relative;
     isolation: isolate;
-    overflow: hidden;
   }
   section[class*="bg-trace-navy"]::before,
   section[class*="bg-trace-ink"]::before {

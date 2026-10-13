@@ -71,6 +71,6 @@ function ExpertiseNetwork() {
 
 export default function Home() {
   return <div className="min-h-screen overflow-x-hidden"><SiteHeader overlay /><main><VideoHero />
-    <TracePositioningSection /><ProjectShowcase /><ProjectFocusStage /><DepthCarousel /><InnovationFeature /><TeamLeadershipPreview /><PartnerRail /><OfficeMapPanel />
+    <TracePositioningSection /><ProjectShowcase /><ProjectFocusStage /><DepthCarousel /><TeamLeadershipPreview /><PartnerRail /><OfficeMapPanel />
   </main><SiteFooter /></div>;
 }
