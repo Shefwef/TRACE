@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Briefcase, CalendarDays, CheckCirc
 import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 import { SectionReveal } from "@/components/SectionReveal";
+import { BrandFloaters } from "@/components/BrandFloaters";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { TeamPortrait } from "@/components/TeamPortrait";
@@ -43,7 +44,14 @@ const projectImage = (project: Project) => projectMedia[project.slug] ?? ASSETS.
 const insightImage = (insight: Insight) => insight.image ?? ASSETS.insightReform;
 
 function Shell({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen overflow-x-hidden bg-trace-paper"><SiteHeader />{children}<SiteFooter /></div>;
+  return (
+    <div className="relative min-h-screen overflow-x-hidden bg-trace-paper">
+      <BrandFloaters />
+      <SiteHeader />
+      {children}
+      <SiteFooter />
+    </div>
+  );
 }
 
 function PageHero({ label, title, description, tone = "light", kicker, titleText }: { label: string; title: ReactNode; description: string; tone?: "light" | "dark" | "navy"; kicker?: string; titleText?: string }) {
@@ -1074,7 +1082,7 @@ export function ServiceDetailPage() {
           <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
             <BackLink href="/services" label="services" />
 
-            <div ref={readingRef} className="mt-10 grid gap-12 lg:grid-cols-[220px_1fr] lg:gap-16">
+            <div ref={readingRef} className="mt-10 grid gap-12 lg:grid-cols-[220px_1fr] lg:items-start lg:gap-16">
               {/* Sticky side nav — thin, minimal, with scroll progress rail */}
               <aside className="hidden lg:block">
                 <div className="sticky top-28">
@@ -1226,8 +1234,9 @@ export function ProjectDetailPage() {
               <span className="line-clamp-1 text-trace-ink">{project.title.toUpperCase()}</span>
             </nav>
 
-            {/* Grid: content + floating facts sidebar */}
-            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:gap-14">
+            {/* Grid: content + floating facts sidebar. items-start keeps the sidebar sticky
+                within the full column height instead of collapsing to its content height. */}
+            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-14">
               {/* ──────────── LEFT: content column ──────────── */}
               <div className="space-y-16">
                 {/* 01 — Project Overview */}
@@ -1307,7 +1316,7 @@ export function ProjectDetailPage() {
                               whileInView={{ opacity: 1, y: 0 }}
                               viewport={{ once: true, margin: "-40px" }}
                               transition={{ duration: 0.4, delay: i * 0.05 }}
-                              className="relative overflow-hidden rounded-xl bg-gradient-to-br from-trace-mint/35 to-white p-5 ring-1 ring-trace-teal/15"
+                              className="relative overflow-hidden rounded-xl bg-white p-5 shadow-[0_6px_18px_rgba(7,27,43,0.06)] ring-1 ring-trace-ink/8 transition-shadow duration-300 hover:shadow-[0_12px_28px_rgba(7,27,43,0.1)]"
                             >
                               <span className="absolute left-0 top-0 h-full w-1 bg-trace-teal" aria-hidden="true" />
                               <p className="pl-2 text-sm font-semibold leading-6 text-trace-ink sm:text-[15px]">{item}</p>
@@ -1406,8 +1415,7 @@ export function ProjectDetailPage() {
               </div>
 
               {/* ──────────── RIGHT: Project Facts floating card ──────────── */}
-              <SectionReveal delay={0.08}>
-                <aside className="sticky top-28 overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(7,27,43,0.14),0_6px_16px_rgba(7,27,43,0.06)] ring-1 ring-trace-ink/5 transition-shadow duration-300 hover:shadow-[0_32px_72px_rgba(7,27,43,0.2),0_8px_20px_rgba(7,27,43,0.08)]">
+              <aside className="lg:sticky lg:top-28 overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(7,27,43,0.14),0_6px_16px_rgba(7,27,43,0.06)] ring-1 ring-trace-ink/5 transition-shadow duration-300 hover:shadow-[0_32px_72px_rgba(7,27,43,0.2),0_8px_20px_rgba(7,27,43,0.08)]">
                   {/* Thin teal top accent */}
                   <span className="block h-1 w-full bg-gradient-to-r from-trace-teal via-trace-mint to-trace-teal" aria-hidden="true" />
                   <div className="p-6 sm:p-7">
@@ -1446,7 +1454,6 @@ export function ProjectDetailPage() {
                     </Link>
                   </div>
                 </aside>
-              </SectionReveal>
             </div>
           </div>
         </section>
