@@ -740,22 +740,22 @@ function ServiceProductTile({ product, index }: { product: ServiceProduct; index
         transformStyle: "preserve-3d",
         transition: "transform 0.18s ease-out",
       }}
-      className={`group relative flex h-full flex-col items-start gap-4 overflow-hidden rounded-2xl border border-trace-ink/10 bg-white p-5 ${innovation ? "hover:border-trace-teal/40 hover:shadow-[0_22px_44px_rgba(7,27,43,0.14)]" : "hover:shadow-[0_12px_30px_rgba(7,27,43,0.08)]"}`}
+      className={`group relative flex h-full flex-col items-start gap-4 overflow-hidden rounded-2xl border border-trace-ink/10 bg-white p-5 transition-all duration-300 ${innovation ? "hover:border-trace-teal/20 hover:shadow-[0_14px_32px_rgba(7,27,43,0.08)]" : "hover:border-trace-teal/15 hover:shadow-[0_10px_24px_rgba(7,27,43,0.06)]"}`}
     >
-      {/* Cursor-following radial glow */}
+      {/* Cursor-following radial glow — softened so hover doesn't flood the card */}
       {!reduceMotion && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           style={{
-            background: `radial-gradient(400px circle at ${tilt.mx}% ${tilt.my}%, rgba(0,156,166,0.10), transparent 45%)`,
+            background: `radial-gradient(360px circle at ${tilt.mx}% ${tilt.my}%, rgba(0,156,166,0.04), transparent 55%)`,
           }}
         />
       )}
-      {/* Corner accent */}
+      {/* Corner accent — softened */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-trace-mint/30 to-transparent opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-trace-mint/18 to-transparent opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
       />
 
       <motion.div
@@ -818,6 +818,11 @@ export function ServiceDetailPage() {
   });
   const railScale = useSpring(readingProgress, { stiffness: 90, damping: 22 });
 
+  // Related data — computed outside the chapters memo so Connected Work can render it.
+  const relatedProjects = useMemo(() => (service ? projects.filter((p) => p.serviceSlugs.includes(service.slug)) : []), [service]);
+  const relatedTeam = useMemo(() => (service ? team.filter((m) => m.serviceSlugs.includes(service.slug)) : []), [service]);
+  const relatedInsights = useMemo(() => (service ? insights.filter((i) => i.serviceSlugs.includes(service.slug)) : []), [service]);
+
   const chapters = useMemo<ServiceChapter[]>(() => {
     if (!service) return [];
     const overviewParagraphs = service.overview ?? [service.description];
@@ -870,7 +875,7 @@ export function ServiceDetailPage() {
     if (products.length > 0) {
       list.push({
         id: "products",
-        label: "Products",
+        label: "Products & Solutions",
         eyebrow: "PRODUCTS & SOLUTIONS",
         title: "Tools built to support this service.",
         body: (
@@ -883,20 +888,86 @@ export function ServiceDetailPage() {
       });
     }
 
+    // Connected Work: Related Projects, Related Insights, Subject Matter Experts — all nested
+    // inside this single chapter so the sticky sidebar keeps covering them.
     list.push({
       id: "connected",
       label: "Connected Work",
       eyebrow: "CONNECTED WORK",
       title: "See the record behind the recommendation.",
       body: (
-        <p className="text-base leading-8 text-trace-muted">
-          Every TRACE service links to the projects, experts, and knowledge outputs that put it into practice. The rails below list the delivery records, subject-matter leads, and published insights currently connected to {service.title}.
-        </p>
+        <div className="space-y-14">
+          {/* Related Projects */}
+          {relatedProjects.length > 0 && (
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="h-5 w-1 rounded-full bg-trace-orange" aria-hidden="true" />
+                <h3 className="font-display text-xl font-extrabold tracking-[-0.03em] text-trace-ink">Related Projects</h3>
+              </div>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {relatedProjects.map((project) => (
+                  <Link key={project.slug} href={`/projects/${project.slug}`} className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(7,27,43,0.14)]">
+                    <div className="relative aspect-[16/9] overflow-hidden">
+                      <img src={projectImage(project)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <span className={`absolute left-3 top-3 px-2.5 py-1 font-mono text-[9px] font-bold tracking-[0.14em] ${project.status === "Ongoing" ? "bg-trace-teal text-white" : "bg-white/95 text-trace-navy"}`}>{project.status.toUpperCase()}</span>
+                    </div>
+                    <div className="flex flex-1 flex-col p-4">
+                      <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">{project.client.toUpperCase()}</p>
+                      <h4 className="mt-2 line-clamp-3 text-sm font-extrabold leading-5 text-trace-ink transition-colors group-hover:text-trace-teal">{project.title}</h4>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Related Insights */}
+          {relatedInsights.length > 0 && (
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="h-5 w-1 rounded-full bg-trace-orange" aria-hidden="true" />
+                <h3 className="font-display text-xl font-extrabold tracking-[-0.03em] text-trace-ink">Related Insights</h3>
+              </div>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {relatedInsights.map((insight) => (
+                  <Link key={insight.slug} href={`/insights/${insight.slug}`} className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(7,27,43,0.14)]">
+                    <div className="relative aspect-[16/9] overflow-hidden">
+                      <img src={insightImage(insight)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <span className="absolute left-3 top-3 bg-white/95 px-2.5 py-1 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-navy">{insight.type.toUpperCase()}</span>
+                    </div>
+                    <div className="flex flex-1 flex-col p-4">
+                      <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">{insight.date.toUpperCase()}</p>
+                      <h4 className="mt-2 line-clamp-3 text-sm font-extrabold leading-5 text-trace-ink transition-colors group-hover:text-trace-teal">{insight.title}</h4>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Subject Matter Experts — uses the Our Team card so images stay large and prominent */}
+          {relatedTeam.length > 0 && (
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="h-5 w-1 rounded-full bg-trace-orange" aria-hidden="true" />
+                <h3 className="font-display text-xl font-extrabold tracking-[-0.03em] text-trace-ink">Subject Matter Experts</h3>
+              </div>
+              <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {relatedTeam.map((member) => (
+                  <TeamPhotoCard key={member.slug} member={member} />
+                ))}
+              </div>
+            </div>
+          )}
+          {relatedProjects.length === 0 && relatedInsights.length === 0 && relatedTeam.length === 0 && (
+            <p className="text-base leading-8 text-trace-muted">
+              Project records, experts, and published insights connected to {service.title} will appear here as they are added.
+            </p>
+          )}
+        </div>
       ),
     });
 
     return list;
-  }, [service]);
+  }, [service, relatedProjects, relatedInsights, relatedTeam]);
 
   useEffect(() => {
     if (!service || chapters.length === 0) return;
@@ -920,9 +991,6 @@ export function ServiceDetailPage() {
   }, [service, chapters.length]);
 
   if (!service) return <NotFoundEntity />;
-  const relatedProjects = projects.filter((project) => project.serviceSlugs.includes(service.slug));
-  const relatedTeam = team.filter((member) => member.serviceSlugs.includes(service.slug));
-  const relatedInsights = insights.filter((insight) => insight.serviceSlugs.includes(service.slug));
 
   const scrollToChapter = (index: number) => {
     chapterRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1028,27 +1096,31 @@ export function ServiceDetailPage() {
                     <ol className="relative space-y-1">
                       {chapters.map((chapter, index) => {
                         const isActive = index === activeChapter;
+                        const num = String(index + 1).padStart(2, "0");
                         return (
                           <li key={chapter.id} className="relative">
                             <button
                               type="button"
                               onClick={() => scrollToChapter(index)}
-                              className={`group relative flex w-full items-center gap-4 py-2 pl-4 text-left text-sm font-semibold transition-colors ${isActive ? "text-trace-ink" : "text-trace-muted hover:text-trace-ink"}`}
+                              className={`group relative flex w-full items-center gap-3 py-2.5 pl-4 text-left transition-colors ${isActive ? "text-trace-ink" : "text-trace-muted hover:text-trace-ink"}`}
                             >
                               {/* Active pill highlight */}
                               {isActive && !reduceMotion && (
                                 <motion.span
                                   layoutId="service-nav-active"
-                                  className="absolute inset-y-0 -left-2 -right-2 rounded-lg bg-trace-teal/6"
+                                  className="absolute inset-y-0 -left-2 -right-2 rounded-lg bg-trace-teal/8"
                                   transition={{ type: "spring", stiffness: 280, damping: 30 }}
                                   aria-hidden="true"
                                 />
                               )}
+                              {/* Numbered badge — much more visible than the old dot */}
                               <span
-                                className={`relative z-10 h-2 w-2 -translate-x-[7px] rounded-full ring-2 ring-white transition-all duration-300 ${isActive ? "scale-125 bg-trace-teal shadow-[0_0_0_4px_rgba(0,156,166,0.15)]" : "bg-trace-ink/30 group-hover:bg-trace-ink/50"}`}
+                                className={`relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-md font-mono text-[11px] font-black tracking-[0.08em] transition-all duration-300 ${isActive ? "bg-trace-teal text-white shadow-[0_6px_14px_rgba(0,156,166,0.3)]" : "bg-trace-paper text-trace-muted group-hover:bg-trace-ink/8 group-hover:text-trace-ink"}`}
                                 aria-hidden="true"
-                              />
-                              <span className="relative z-10 flex-1">{chapter.label}</span>
+                              >
+                                {num}
+                              </span>
+                              <span className={`relative z-10 flex-1 text-sm font-bold ${isActive ? "text-trace-ink" : ""}`}>{chapter.label}</span>
                             </button>
                           </li>
                         );
@@ -1098,29 +1170,6 @@ export function ServiceDetailPage() {
               </div>
             </div>
 
-            <div className="mt-4">
-              <RelationshipRail
-                title="Work we have delivered"
-                action={<Link href="/projects" className="text-sm font-extrabold text-trace-teal">All projects <ArrowRight className="inline h-4 w-4" /></Link>}
-              >
-                {relatedProjects.length
-                  ? relatedProjects.map((project) => <MiniProject key={project.slug} project={project} />)
-                  : <p className="text-sm text-trace-muted">Project records will be connected here as they are published.</p>}
-              </RelationshipRail>
-              <RelationshipRail
-                title="Experts in this area"
-                action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}
-              >
-                {relatedTeam.length
-                  ? relatedTeam.map((member) => <MiniMember key={member.slug} member={member} />)
-                  : <p className="text-sm text-trace-muted">Associated experts will be published here.</p>}
-              </RelationshipRail>
-              <RelationshipRail title="Relevant insights">
-                {relatedInsights.length
-                  ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />)
-                  : <p className="text-sm text-trace-muted">Related insights will be published here.</p>}
-              </RelationshipRail>
-            </div>
           </div>
         </section>
       </main>
@@ -1147,6 +1196,11 @@ export function ProjectDetailPage() {
   const relatedServices = services.filter((service) => project.serviceSlugs.includes(service.slug));
   const contributors = team.filter((member) => project.teamSlugs.includes(member.slug));
   const relatedInsights = insights.filter((insight) => insight.projectSlugs.includes(project.slug));
+  const overviewParas = project.overview ?? [project.summary];
+  const scope = project.scope ?? [];
+  const outcomes = project.outcomes ?? [];
+  const sector = project.sector ?? relatedServices[0]?.title ?? "Advisory";
+  const location = project.location ?? "Bangladesh";
 
   return (
     <Shell>
@@ -1162,14 +1216,21 @@ export function ProjectDetailPage() {
 
         {/* ── Main content ── */}
         <section className="bg-white py-16 sm:py-20">
-          <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
-            <BackLink href="/projects" label="projects" />
+          <div className="mx-auto max-w-[1280px] px-5 lg:px-10">
+            {/* Breadcrumb */}
+            <nav className="flex items-center gap-2 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-muted">
+              <Link href="/" className="transition-colors hover:text-trace-teal">HOME</Link>
+              <span>/</span>
+              <Link href="/projects" className="transition-colors hover:text-trace-teal">PROJECTS</Link>
+              <span>/</span>
+              <span className="line-clamp-1 text-trace-ink">{project.title.toUpperCase()}</span>
+            </nav>
 
-            {/* Two-column: overview left, facts sidebar right */}
-            <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_340px] lg:gap-16">
-
-              {/* LEFT — Overview */}
-              <div>
+            {/* Grid: content + floating facts sidebar */}
+            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:gap-14">
+              {/* ──────────── LEFT: content column ──────────── */}
+              <div className="space-y-16">
+                {/* 01 — Project Overview */}
                 <SectionReveal>
                   <div className="relative">
                     <GhostNumber value="01" />
@@ -1177,107 +1238,218 @@ export function ProjectDetailPage() {
                       <AnimatedEyebrow number="01" text="PROJECT OVERVIEW" />
                       <div className="mt-4">
                         <AnimatedHeading
-                          text="A practical intervention with an institutional line of sight."
-                          className="font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.06em] text-trace-ink sm:text-5xl"
+                          text="A practical intervention with institutional line of sight."
+                          className="font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl"
                         />
                       </div>
-                      <p className="mt-6 text-base leading-8 text-trace-muted">{project.summary}</p>
-                      <p className="mt-4 text-base leading-8 text-trace-muted">
-                        This TRACE record links the mandate with its named client, connected service areas, delivery team, and published knowledge content—so the work remains visible in context.
-                      </p>
+                      <div className="mt-6 space-y-5">
+                        {overviewParas.map((para, i) => (
+                          <p key={i} className="text-base leading-8 text-trace-muted">{para}</p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </SectionReveal>
 
-                {/* Delivery metrics */}
-                <SectionReveal delay={0.08}>
-                  <div className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-trace-ink/10 bg-trace-ink/10">
-                    <div className="bg-white p-6">
-                      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted">CONNECTED SERVICES</p>
-                      <p className="mt-3 font-display text-5xl font-extrabold tracking-[-0.07em] text-trace-ink">{relatedServices.length}</p>
+                {/* 02 — Project Details / Scope */}
+                {scope.length > 0 && (
+                  <SectionReveal delay={0.05}>
+                    <div className="relative">
+                      <GhostNumber value="02" />
+                      <div className="relative">
+                        <AnimatedEyebrow number="02" text="PROJECT DETAILS" />
+                        <div className="mt-4">
+                          <AnimatedHeading
+                            text="Scope of services."
+                            className="font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl"
+                          />
+                        </div>
+                        <ul className="mt-7 space-y-3">
+                          {scope.map((item, i) => (
+                            <motion.li
+                              key={i}
+                              initial={{ opacity: 0, x: -8 }}
+                              whileInView={{ opacity: 1, x: 0 }}
+                              viewport={{ once: true, margin: "-40px" }}
+                              transition={{ duration: 0.35, delay: i * 0.04 }}
+                              className="flex items-start gap-4 rounded-xl border border-trace-ink/8 bg-white p-4 transition-all duration-300 hover:border-trace-teal/30 hover:shadow-[0_8px_24px_rgba(7,27,43,0.08)] sm:p-5"
+                            >
+                              <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-trace-teal/12 text-trace-teal">
+                                <CheckCircle2 className="h-4 w-4" />
+                              </span>
+                              <span className="text-sm leading-6 text-trace-ink sm:text-base sm:leading-7">{item}</span>
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <div className="bg-white p-6">
-                      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-trace-muted">TEAM CONTRIBUTORS</p>
-                      <p className="mt-3 font-display text-5xl font-extrabold tracking-[-0.07em] text-trace-ink">{contributors.length}</p>
-                    </div>
-                  </div>
-                </SectionReveal>
+                  </SectionReveal>
+                )}
 
-                {/* Service areas */}
-                <SectionReveal delay={0.12}>
-                  <div className="mt-10">
-                    <AnimatedEyebrow text="SERVICE AREAS" />
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {relatedServices.map((service) => (
-                        <Link key={service.slug} href={`/services/${service.slug}`}>
-                          <span className="inline-flex items-center gap-2 rounded-full border border-trace-teal/25 bg-trace-teal/6 px-4 py-2 font-mono text-[10px] font-bold tracking-[0.1em] text-trace-teal transition-colors hover:bg-trace-teal/12">
-                            {service.title}
-                          </span>
-                        </Link>
-                      ))}
+                {/* 03 — Key Outcomes */}
+                {outcomes.length > 0 && (
+                  <SectionReveal delay={0.05}>
+                    <div className="relative">
+                      <GhostNumber value="03" />
+                      <div className="relative">
+                        <AnimatedEyebrow number="03" text="KEY OUTCOMES" />
+                        <div className="mt-4">
+                          <AnimatedHeading
+                            text="What this project delivers."
+                            className="font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl"
+                          />
+                        </div>
+                        <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                          {outcomes.map((item, i) => (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, y: 12 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true, margin: "-40px" }}
+                              transition={{ duration: 0.4, delay: i * 0.05 }}
+                              className="relative overflow-hidden rounded-xl bg-gradient-to-br from-trace-mint/35 to-white p-5 ring-1 ring-trace-teal/15"
+                            >
+                              <span className="absolute left-0 top-0 h-full w-1 bg-trace-teal" aria-hidden="true" />
+                              <p className="pl-2 text-sm font-semibold leading-6 text-trace-ink sm:text-[15px]">{item}</p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </SectionReveal>
+                  </SectionReveal>
+                )}
+
+                {/* 04 — Subject Matter Experts */}
+                {contributors.length > 0 && (
+                  <SectionReveal delay={0.05}>
+                    <div className="relative">
+                      <GhostNumber value="04" />
+                      <div className="relative">
+                        <AnimatedEyebrow number="04" text="SUBJECT MATTER EXPERTS" />
+                        <div className="mt-4">
+                          <AnimatedHeading
+                            text="The team behind this mandate."
+                            className="font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl"
+                          />
+                        </div>
+                        <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                          {contributors.map((member, i) => (
+                            <SectionReveal key={member.slug} delay={i * 0.05} className="h-full">
+                              <TeamPhotoCard member={member} />
+                            </SectionReveal>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </SectionReveal>
+                )}
+
+                {/* 05 — Related Insights */}
+                {relatedInsights.length > 0 && (
+                  <SectionReveal delay={0.05}>
+                    <div className="relative">
+                      <GhostNumber value="05" />
+                      <div className="relative">
+                        <AnimatedEyebrow number="05" text="RELATED INSIGHTS" />
+                        <div className="mt-4">
+                          <AnimatedHeading
+                            text="Published knowledge from this work."
+                            className="font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl"
+                          />
+                        </div>
+                        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {relatedInsights.map((insight) => (
+                            <Link key={insight.slug} href={`/insights/${insight.slug}`} className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-[0_8px_24px_rgba(7,27,43,0.08)] ring-1 ring-trace-ink/8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(7,27,43,0.14)]">
+                              <div className="relative aspect-[16/9] overflow-hidden">
+                                <img src={insightImage(insight)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                <span className="absolute left-3 top-3 bg-white/95 px-2.5 py-1 font-mono text-[9px] font-bold tracking-[0.14em] text-trace-navy">{insight.type.toUpperCase()}</span>
+                              </div>
+                              <div className="flex flex-1 flex-col p-4">
+                                <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-trace-teal">{insight.date.toUpperCase()}</p>
+                                <h3 className="mt-2 line-clamp-2 text-sm font-extrabold leading-5 text-trace-ink transition-colors group-hover:text-trace-teal">{insight.title}</h3>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </SectionReveal>
+                )}
+
+                {/* 06 — Related Areas */}
+                {relatedServices.length > 0 && (
+                  <SectionReveal delay={0.05}>
+                    <div className="relative">
+                      <GhostNumber value="06" />
+                      <div className="relative">
+                        <AnimatedEyebrow number="06" text="RELATED AREAS" />
+                        <div className="mt-4">
+                          <AnimatedHeading
+                            text="Where this fits in our service map."
+                            className="font-display text-3xl font-extrabold leading-[1.05] tracking-[-0.055em] text-trace-ink sm:text-4xl"
+                          />
+                        </div>
+                        <div className="mt-6 flex flex-wrap gap-2.5">
+                          {relatedServices.map((service) => (
+                            <Link key={service.slug} href={`/services/${service.slug}`}>
+                              <span className="inline-flex items-center gap-2 rounded-full border border-trace-teal/30 bg-trace-teal/8 px-4 py-2 text-xs font-extrabold text-trace-teal transition-all hover:bg-trace-teal hover:text-white hover:shadow-[0_8px_20px_rgba(0,156,166,0.3)]">
+                                {service.title}
+                                <ArrowUpRight className="h-3.5 w-3.5" />
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </SectionReveal>
+                )}
               </div>
 
-              {/* RIGHT — Facts sidebar */}
-              <SectionReveal delay={0.1}>
-                <aside className="sticky top-28 overflow-hidden rounded-2xl border border-trace-ink/10 bg-[#F7FBFC] shadow-[0_8px_32px_rgba(7,27,43,0.07)]">
-                  <div className="h-1 w-full bg-trace-teal" />
+              {/* ──────────── RIGHT: Project Facts floating card ──────────── */}
+              <SectionReveal delay={0.08}>
+                <aside className="sticky top-28 overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(7,27,43,0.14),0_6px_16px_rgba(7,27,43,0.06)] ring-1 ring-trace-ink/5 transition-shadow duration-300 hover:shadow-[0_32px_72px_rgba(7,27,43,0.2),0_8px_20px_rgba(7,27,43,0.08)]">
+                  {/* Thin teal top accent */}
+                  <span className="block h-1 w-full bg-gradient-to-r from-trace-teal via-trace-mint to-trace-teal" aria-hidden="true" />
                   <div className="p-6 sm:p-7">
-                    <p className="section-label">PROJECT FACTS</p>
-                    <dl className="mt-5 divide-y divide-trace-ink/8">
-                      <div className="flex justify-between gap-4 py-3.5">
-                        <dt className="text-xs font-bold text-trace-muted">Client</dt>
-                        <dd className="max-w-[58%] text-right text-xs font-extrabold text-trace-ink">{project.client}</dd>
-                      </div>
-                      <div className="flex justify-between gap-4 py-3.5">
-                        <dt className="text-xs font-bold text-trace-muted">Period</dt>
-                        <dd className="text-right text-xs font-extrabold text-trace-ink">{project.period}</dd>
-                      </div>
-                      <div className="flex justify-between gap-4 py-3.5">
-                        <dt className="text-xs font-bold text-trace-muted">Status</dt>
-                        <dd>
-                          <span className={`rounded-full px-3 py-1 font-mono text-[9px] font-bold tracking-[0.1em] ${project.status === "Ongoing" ? "bg-trace-teal/12 text-trace-teal" : "bg-trace-ink/8 text-trace-muted"}`}>
+                    <div className="flex items-center gap-2.5">
+                      <span className="grid h-9 w-9 place-items-center rounded-lg bg-trace-teal/12 text-trace-teal">
+                        <FileText className="h-4 w-4" />
+                      </span>
+                      <p className="font-display text-base font-extrabold tracking-[-0.02em] text-trace-ink">Project Facts</p>
+                    </div>
+                    <dl className="mt-6 space-y-5">
+                      {([
+                        ["Client", project.client],
+                        ["Sector", sector],
+                        project.standard && ["Standard", project.standard],
+                        ["Location", location],
+                        ["Duration", project.period],
+                      ].filter(Boolean) as Array<[string, string]>).map(([label, value]) => (
+                        <div key={label}>
+                          <dt className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">{label.toUpperCase()}</dt>
+                          <dd className="mt-1 text-[13px] font-semibold leading-6 text-trace-ink">{value}</dd>
+                        </div>
+                      ))}
+                      <div>
+                        <dt className="font-mono text-[10px] font-bold tracking-[0.18em] text-trace-muted">STATUS</dt>
+                        <dd className="mt-2">
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.14em] ${project.status === "Ongoing" ? "bg-trace-teal/15 text-trace-teal" : "bg-trace-ink/8 text-trace-ink"}`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${project.status === "Ongoing" ? "animate-pulse bg-trace-teal" : "bg-trace-ink/40"}`} />
                             {project.status.toUpperCase()}
                           </span>
                         </dd>
                       </div>
-                      <div className="py-3.5">
-                        <dt className="text-xs font-bold text-trace-muted">Services</dt>
-                        <dd className="mt-3 flex flex-wrap gap-1.5">
-                          {relatedServices.map((service) => (
-                            <Link key={service.slug} href={`/services/${service.slug}`}>
-                              <EntityTag>{service.title.toUpperCase()}</EntityTag>
-                            </Link>
-                          ))}
-                        </dd>
-                      </div>
                     </dl>
+                    {/* CTA */}
+                    <Link href="/contact" className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-trace-orange px-5 py-3 text-sm font-extrabold text-white shadow-[0_10px_24px_rgba(244,122,32,0.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(244,122,32,0.5)]">
+                      Discuss a similar project <ArrowRight className="h-4 w-4" />
+                    </Link>
                   </div>
                 </aside>
               </SectionReveal>
             </div>
-
-            {/* ── Experts rail ── */}
-            <RelationshipRail
-              title="Experts on this mandate"
-              action={<Link href="/team" className="text-sm font-extrabold text-trace-teal">Full team <ArrowRight className="inline h-4 w-4" /></Link>}
-            >
-              {contributors.length
-                ? contributors.map((member) => <MiniMember key={member.slug} member={member} />)
-                : <p className="text-sm text-trace-muted">Contributors will be connected here as they are verified.</p>}
-            </RelationshipRail>
-
-            {/* ── Related insights rail ── */}
-            <RelationshipRail title="Related insights">
-              {relatedInsights.length
-                ? relatedInsights.map((insight) => <MiniInsight key={insight.slug} insight={insight} />)
-                : <p className="text-sm text-trace-muted">Related knowledge content will be added as it is published.</p>}
-            </RelationshipRail>
           </div>
         </section>
-
       </main>
     </Shell>
   );

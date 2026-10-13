@@ -159,34 +159,41 @@
   @media (min-width: 640px) { .container { padding-left: 1.5rem; padding-right: 1.5rem; } }
   @media (min-width: 1024px) { .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; } }
 
-  /* ── Ambient background field: drifting orbs + floating particle layer on all sections ──
-     Uses ::before for large gradient orbs that slowly float, and ::after for a drifting
-     repeating dot grid. z-index: -1 inside isolation: isolate puts them above the
-     section's own bg-color but behind all child content. Values are brand-locked to
-     teal / navy / mint so the whole site reads as a cohesive signal field. */
+  /* ── Ambient background field: drifting teal/navy orbs on every section ──
+     ::before holds a stack of large gradient orbs that slowly float. z-index: -1
+     inside isolation: isolate puts them above the section's own bg-color but behind
+     all child content. Mint is dropped on light backgrounds (it's near-white → invisible);
+     teal + navy are used at a materially higher opacity so the drift is actually noticeable. */
 
-  /* Light sections — slightly more visible since they sit on bright backgrounds. */
+  /* Light sections (white / paper). */
   section[class*="bg-white"],
   section[class*="bg-trace-paper"] {
     position: relative;
     isolation: isolate;
+    overflow: hidden;
   }
   section[class*="bg-white"]::before,
   section[class*="bg-trace-paper"]::before {
     content: "";
     position: absolute;
-    inset: -8%;
+    inset: -10%;
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 32% 42% at 88%  12%, rgba(0, 156, 166, 0.055) 0%, transparent 60%),
-      radial-gradient(ellipse 28% 36% at 10%  86%, rgba(18,  61, 103, 0.060) 0%, transparent 60%),
-      radial-gradient(ellipse 24% 30% at 55%  48%, rgba(215, 243, 240, 0.080) 0%, transparent 58%),
-      radial-gradient(ellipse 18% 24% at 25%  18%, rgba(0, 156, 166, 0.040) 0%, transparent 60%),
-      radial-gradient(ellipse 18% 24% at 80%  70%, rgba(18,  61, 103, 0.040) 0%, transparent 60%);
+      /* Big teal sphere, top-right */
+      radial-gradient(circle 32vw at 88% 12%, rgba(0, 156, 166, 0.14) 0%, rgba(0, 156, 166, 0.06) 32%, transparent 62%),
+      /* Big navy sphere, bottom-left */
+      radial-gradient(circle 30vw at 10% 88%, rgba(18, 61, 103, 0.14) 0%, rgba(18, 61, 103, 0.055) 32%, transparent 62%),
+      /* Medium teal, center-ish */
+      radial-gradient(circle 20vw at 55% 48%, rgba(0, 156, 166, 0.10) 0%, transparent 65%),
+      /* Small teal top-left accent */
+      radial-gradient(circle 14vw at 22% 18%, rgba(0, 156, 166, 0.09) 0%, transparent 65%),
+      /* Small navy mid-right accent */
+      radial-gradient(circle 14vw at 82% 68%, rgba(18, 61, 103, 0.09) 0%, transparent 65%);
     animation: trace-ambient-orb-float 32s ease-in-out infinite;
     will-change: transform;
   }
+  /* Faint particle dot lattice on top of the orbs. */
   section[class*="bg-white"]::after,
   section[class*="bg-trace-paper"]::after {
     content: "";
@@ -195,43 +202,58 @@
     z-index: -1;
     pointer-events: none;
     background-image:
-      radial-gradient(circle 1.5px at 1px 1px, rgba(0, 156, 166, 0.11) 0%, transparent 100%),
-      radial-gradient(circle 1px   at 1px 1px, rgba(18, 61, 103, 0.08)  0%, transparent 100%);
+      radial-gradient(circle 1.5px at 1px 1px, rgba(0, 156, 166, 0.18) 0%, transparent 100%),
+      radial-gradient(circle 1px   at 1px 1px, rgba(18, 61, 103, 0.14) 0%, transparent 100%);
     background-size: 46px 46px, 72px 72px;
     background-position: 0 0, 23px 36px;
-    mask-image: radial-gradient(ellipse 90% 84% at center, black 12%, transparent 72%);
-    -webkit-mask-image: radial-gradient(ellipse 90% 84% at center, black 12%, transparent 72%);
+    mask-image: radial-gradient(ellipse 92% 85% at center, black 10%, transparent 72%);
+    -webkit-mask-image: radial-gradient(ellipse 92% 85% at center, black 10%, transparent 72%);
     animation: trace-ambient-dots 70s linear infinite;
   }
 
-  /* Dark sections (navy / ink) — faint teal + mint washes so the background never looks flat. */
+  /* Dark sections (navy / ink) — teal + mint washes so the background never looks flat. */
   section[class*="bg-trace-navy"],
   section[class*="bg-trace-ink"] {
     position: relative;
     isolation: isolate;
+    overflow: hidden;
   }
   section[class*="bg-trace-navy"]::before,
   section[class*="bg-trace-ink"]::before {
     content: "";
     position: absolute;
-    inset: -6%;
+    inset: -8%;
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 36% 44% at 92%  8%, rgba(0, 156, 166, 0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 28% 36% at 6%   92%, rgba(215, 243, 240, 0.09) 0%, transparent 60%),
-      radial-gradient(ellipse 20% 26% at 48%  60%, rgba(0, 156, 166, 0.07) 0%, transparent 62%);
+      radial-gradient(circle 34vw at 92% 10%, rgba(0, 156, 166, 0.22) 0%, rgba(0, 156, 166, 0.08) 35%, transparent 62%),
+      radial-gradient(circle 28vw at 6%  90%, rgba(215, 243, 240, 0.14) 0%, transparent 60%),
+      radial-gradient(circle 18vw at 48% 60%, rgba(0, 156, 166, 0.10) 0%, transparent 62%);
     animation: trace-ambient-orb-float 36s ease-in-out infinite;
     will-change: transform;
   }
+  section[class*="bg-trace-navy"]::after,
+  section[class*="bg-trace-ink"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle 1.2px at 1px 1px, rgba(215, 243, 240, 0.14) 0%, transparent 100%);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 88% 80% at center, black 10%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 88% 80% at center, black 10%, transparent 70%);
+    animation: trace-ambient-dots 90s linear infinite;
+  }
 
-  /* Large orbs translate slowly in a figure-8 so each stop in the loop lands in a different
-     place; combined with gentle scale changes this reads as drifting ambient spheres. */
+  /* Figure-8 drift keyframe: the orb layer visibly translates up/down/left/right
+     over the 30+ second cycle, giving a slow floating-sphere effect. */
   @keyframes trace-ambient-orb-float {
-    0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
-    25%      { transform: translate(-28px, 18px) scale(1.04); opacity: 0.82; }
-    50%      { transform: translate(16px, -22px) scale(0.97); opacity: 0.9; }
-    75%      { transform: translate(22px, 10px) scale(1.03); opacity: 0.86; }
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    25%      { transform: translate3d(-30px, 22px, 0) scale(1.05); }
+    50%      { transform: translate3d(20px, -24px, 0) scale(0.98); }
+    75%      { transform: translate3d(26px, 14px, 0) scale(1.03); }
   }
   @keyframes trace-ambient-dots {
     to { background-position: 46px 46px, 69px 108px; }
