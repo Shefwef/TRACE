@@ -43,7 +43,10 @@ const projectImage = (project: Project) => projectMedia[project.slug] ?? ASSETS.
 const insightImage = (insight: Insight) => insight.image ?? ASSETS.insightReform;
 
 function Shell({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen overflow-x-hidden bg-trace-paper"><SiteHeader />{children}<SiteFooter /></div>;
+  // NOTE: overflow-x-clip (not overflow-x-hidden) prevents horizontal scroll bleed WITHOUT
+  // creating an implicit scroll container — which would break position: sticky on descendants
+  // (the service page's side nav, the project page's facts panel, etc.).
+  return <div className="min-h-screen overflow-x-clip bg-trace-paper"><SiteHeader />{children}<SiteFooter /></div>;
 }
 
 function PageHero({ label, title, description, tone = "light", kicker, titleText }: { label: string; title: ReactNode; description: string; tone?: "light" | "dark" | "navy"; kicker?: string; titleText?: string }) {
@@ -1074,7 +1077,7 @@ export function ServiceDetailPage() {
           <div className="mx-auto max-w-[1200px] px-5 lg:px-10">
             <BackLink href="/services" label="services" />
 
-            <div ref={readingRef} className="mt-10 grid gap-12 lg:grid-cols-[220px_1fr] lg:items-start lg:gap-16">
+            <div ref={readingRef} className="mt-10 grid gap-12 lg:grid-cols-[220px_1fr] lg:gap-16">
               {/* Sticky side nav — thin, minimal, with scroll progress rail */}
               <aside className="hidden lg:block">
                 <div className="sticky top-28">
@@ -1338,9 +1341,10 @@ export function ProjectDetailPage() {
               <span className="line-clamp-1 text-trace-ink">{project.title.toUpperCase()}</span>
             </nav>
 
-            {/* Grid: content + floating facts sidebar. items-start keeps the sidebar sticky
-                within the full column height instead of collapsing to its content height. */}
-            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-14">
+            {/* Grid: content + floating facts sidebar.
+                NOTE: no items-start — we WANT the aside to stretch to the grid's full
+                height so position: sticky has room to engage as the content column scrolls. */}
+            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:gap-14">
               {/* ──────────── LEFT: content column ──────────── */}
               <div className="space-y-16">
                 {/* 01 — Project Overview */}
@@ -1518,8 +1522,12 @@ export function ProjectDetailPage() {
                 )}
               </div>
 
-              {/* ──────────── RIGHT: Project Facts floating card ──────────── */}
-              <aside className="lg:sticky lg:top-28 overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(7,27,43,0.14),0_6px_16px_rgba(7,27,43,0.06)] ring-1 ring-trace-ink/5 transition-shadow duration-300 hover:shadow-[0_32px_72px_rgba(7,27,43,0.2),0_8px_20px_rgba(7,27,43,0.08)]">
+              {/* ──────────── RIGHT: Project Facts floating card ────────────
+                   The outer <aside> stretches to the grid height; the inner <div> has
+                   position: sticky so the Project Facts card stays pinned to the top-right
+                   of the viewport while the content column scrolls past it. */}
+              <aside>
+                <div className="lg:sticky lg:top-28 overflow-hidden rounded-2xl bg-white shadow-[0_24px_60px_rgba(7,27,43,0.14),0_6px_16px_rgba(7,27,43,0.06)] ring-1 ring-trace-ink/5 transition-shadow duration-300 hover:shadow-[0_32px_72px_rgba(7,27,43,0.2),0_8px_20px_rgba(7,27,43,0.08)]">
                   {/* Thin teal top accent */}
                   <span className="block h-1 w-full bg-gradient-to-r from-trace-teal via-trace-mint to-trace-teal" aria-hidden="true" />
                   <div className="p-6 sm:p-7">
@@ -1557,7 +1565,8 @@ export function ProjectDetailPage() {
                       Discuss a similar project <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
-                </aside>
+                </div>
+              </aside>
             </div>
           </div>
         </section>
@@ -2083,7 +2092,7 @@ export function InsightDetailPage() {
         <section className="bg-white py-16 sm:py-20">
           <div className="mx-auto max-w-[1280px] px-5 lg:px-10">
             <BackLink href="/insights" label="insights" />
-            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:items-start lg:gap-14">
+            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px] lg:gap-14">
               {/* ── Article body ── */}
               <article>
                 {/* Full image at the top (user explicitly asked for the image to be shown in full) */}
@@ -2129,8 +2138,11 @@ export function InsightDetailPage() {
                 )}
               </article>
 
-              {/* ── Right sidebar: View the publication card (sticky) ── */}
-              <aside className="lg:sticky lg:top-28 space-y-5">
+              {/* ── Right sidebar: View the publication card (sticky) ──
+                   Outer <aside> stretches to grid height; inner wrapper is sticky so the
+                   publication CTA + format card stay pinned on scroll. */}
+              <aside>
+                <div className="lg:sticky lg:top-28 space-y-5">
                 {insight.sourceUrl && (
                   <div className="overflow-hidden rounded-2xl bg-trace-ink p-6 text-white shadow-[0_18px_46px_rgba(7,27,43,0.18)] ring-1 ring-white/10">
                     <p className="font-mono text-[10px] font-bold tracking-[0.22em] text-trace-mint">PUBLISHED SOURCE</p>
@@ -2176,6 +2188,7 @@ export function InsightDetailPage() {
                     </div>
                   </div>
                 )}
+                </div>
               </aside>
             </div>
 
