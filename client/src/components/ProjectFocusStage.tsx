@@ -6,15 +6,19 @@ import { ProjectCard } from "@/components/ui/glass-blog-card-shadcnui";
 import { SectionReveal } from "@/components/SectionReveal";
 
 const projectMediaMap: Record<string, string> = {
-  "national-tariff-modernization": ASSETS.heroTrade,
-  "bsti-textile-testing":          ASSETS.heroLaboratory,
-  "animal-health-reform":          ASSETS.heroColdChain,
-  "bafisa-intelligence":           ASSETS.heroInteroperability,
-  "prtc-accreditation":            ASSETS.heroLaboratory,
-  "export-compliance":             ASSETS.heroColdChain,
+  "trs-customs-reform":             "/media/projects/time-release-study.png",
+  "taraps-policy-reform":           "/media/projects/taraps-agriculture.png",
+  "national-tariff-modernization":  "/media/projects/national-tariff-modernization.jpg",
+  "btp-elearning-platform":         ASSETS.heroInteroperability,
+  "bsti-textile-testing":           ASSETS.heroLaboratory,
+  "animal-health-reform":           ASSETS.heroColdChain,
+  "bafisa-intelligence":            ASSETS.heroInteroperability,
+  "prtc-accreditation":             ASSETS.heroLaboratory,
+  "export-compliance":              ASSETS.heroColdChain,
 };
 
 export function ProjectFocusStage() {
+  const visibleProjects = projects.slice(0, 6);
   return (
     <section className="bg-[#F6FAFC] py-16 sm:py-[4.5rem]" aria-labelledby="featured-projects-title">
       <div className="mx-auto max-w-[1380px] px-5 lg:px-10">
@@ -39,7 +43,7 @@ export function ProjectFocusStage() {
 
         {/* 3-column card grid */}
         <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {projects.map((project, index) => (
+          {visibleProjects.map((project, index) => (
             <SectionReveal key={project.slug} delay={index * 0.05} className="h-full">
               <ProjectCard
                 project={project}

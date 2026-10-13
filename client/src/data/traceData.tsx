@@ -22,6 +22,10 @@ export const ASSETS = {
   teamSushanta: portableMedia("/media/team/sushanta-sarker.jpg", "/manus-storage/sushanta-sarker_b98ed157.jpg"),
   teamMichael: portableMedia("/media/team/michael-parr.jpg", "/manus-storage/michael-parr_2a74fa09.jpg"),
   teamShafi: portableMedia("/media/team/shafi-uddin.png", "/manus-storage/shafi-uddin_78ac23a4.png"),
+  teamMobarak: portableMedia("/media/team/mobarok.png", "/media/team/mobarok.png"),
+  teamNahrin: portableMedia("/media/team/Swarna.jpg", "/media/team/Swarna.jpg"),
+  teamLopa: portableMedia("/media/team/lopa.png", "/media/team/lopa.png"),
+  teamShefayat: portableMedia("/media/team/shefayat.png", "/media/team/shefayat.png"),
   heroPolicy: portableMedia("/media/hero/trace-hero-policy-workshop.jpg", "/manus-storage/trace-hero-policy-workshop_246b77c1.jpg"),
   heroTrade: portableMedia("/media/hero/trace-hero-trade-port.jpg", "/manus-storage/trace-hero-trade-port_7d949111.jpg"),
   heroInteroperability: portableMedia("/media/hero/trace-hero-dhaka-interoperability.jpg", "/manus-storage/trace-hero-dhaka-interoperability_26245c20.jpg"),
@@ -35,7 +39,6 @@ export const ASSETS = {
 
 export const partnerLogos = [
   { name: "Partner organization 01", src: portableMedia("/media/partners/partner-01.png", "/manus-storage/partner-01_585c0c4c.png") },
-  { name: "Partner organization 02", src: portableMedia("/media/partners/partner-02.png", "/manus-storage/partner-02_ca82b097.png") },
   { name: "Partner organization 03", src: portableMedia("/media/partners/partner-03.png", "/manus-storage/partner-03_4229128c.png") },
   { name: "Partner organization 04", src: portableMedia("/media/partners/partner-04.png", "/manus-storage/partner-04_fbe137b2.png") },
   { name: "Partner organization 05", src: portableMedia("/media/partners/partner-05.png", "/manus-storage/partner-05_923a7547.png") },
@@ -78,7 +81,34 @@ export type Project = {
   teamSlugs: string[];
   summary: string;
   theme: "navy" | "teal" | "sand";
+  /** Optional long-form detail used by ProjectDetailPage. If omitted, falls back to summary. */
+  overview?: string[];
+  /** Bullet list rendered as the "Project Details — Scope of Services" section. */
+  scope?: string[];
+  /** Bullet list rendered as the "Key Outcomes" section. */
+  outcomes?: string[];
+  /** Project Facts panel fields. */
+  sector?: string;
+  location?: string;
+  standard?: string;
 };
+
+export type Department =
+  | "Executive Leadership & Business Development"
+  | "Trade Facilitation & Customs Modernization"
+  | "Quality Infrastructure & SPS"
+  | "Policy, Research & Operations"
+  | "Digital Systems & Technology Delivery"
+  | "Markets, Compliance & Sector Development";
+
+export const departmentOrder: Department[] = [
+  "Executive Leadership & Business Development",
+  "Trade Facilitation & Customs Modernization",
+  "Quality Infrastructure & SPS",
+  "Policy, Research & Operations",
+  "Digital Systems & Technology Delivery",
+  "Markets, Compliance & Sector Development",
+];
 
 export type TeamMember = {
   slug: string;
@@ -86,11 +116,16 @@ export type TeamMember = {
   role: string;
   specialty: string;
   initials: string;
+  department: Department;
   serviceSlugs: string[];
   projectSlugs: string[];
   bio: string;
   color: string;
   image?: string;
+  /** Specialty chips rendered on the profile and photoless list cards. */
+  tags?: string[];
+  linkedin?: string;
+  email?: string;
 };
 
 export type Insight = {
@@ -114,7 +149,7 @@ export const navItems = [
   { label: "Services", href: "/services" },
   { label: "Projects", href: "/projects" },
   { label: "Team", href: "/team" },
-  { label: "Insights", href: "/insights" },
+  { label: "News & Insights", href: "/latest-updates" },
   { label: "Innovations", href: "/innovations" },
   { label: "Careers", href: "/careers" },
 ];
@@ -162,8 +197,8 @@ export const services: Service[] = [
   {
     slug: "trade-facilitation",
     title: "Trade Facilitation",
-    strapline: "Advance cross-border trade.",
-    description: "Technology-driven trade facilitation, customs modernization, trade policy reform, and institutional strengthening.",
+    strapline: "Advancing Cross-Border Trade and Customs Modernization",
+    description: "TRACE delivers technology-driven trade facilitation, trade policy reform, digital transformation, and institutional strengthening to modernize cross-border trade, accelerate border clearance, reduce the time and cost of trade, and strengthen regulatory transparency, export competitiveness, and investment.",
     solutions: 8,
     disciplines: ["Customs", "Border systems", "Trade policy"],
     color: "teal",
@@ -200,8 +235,8 @@ export const services: Service[] = [
   {
     slug: "policy-regulatory-reform",
     title: "Policy & Regulatory Reform",
-    strapline: "Turn reform into practice.",
-    description: "Evidence-based policy, legislative reform, and institutional modernisation aligned with international practice.",
+    strapline: "Evidence-Based Policy & Legislative Reform",
+    description: "TRACE advances evidence-based policy and regulatory reform, helping governments modernize legislation, strengthen institutions, and align national frameworks with international best practices.",
     solutions: 6,
     disciplines: ["Legislation", "Governance", "Implementation"],
     color: "navy",
@@ -235,8 +270,8 @@ export const services: Service[] = [
   {
     slug: "laboratory-improvement",
     title: "Laboratory Improvement",
-    strapline: "Build trust in every result.",
-    description: "LIMS, ISO accreditation, GLP compliance, technical advisory, and capacity building for quality systems.",
+    strapline: "Precision in Every LAB Solution",
+    description: "TRACE modernizes laboratory systems through technical advisory, LIMS implementation, ISO accreditation, GLP compliance, and capacity building, enabling quality assurance, regulatory compliance, and trusted data for global trade.",
     solutions: 9,
     disciplines: ["ISO", "LIMS", "Quality systems"],
     color: "orange",
@@ -270,9 +305,9 @@ export const services: Service[] = [
   },
   {
     slug: "market-access-sps",
-    title: "Market Access & SPS Compliance",
-    strapline: "Open markets with confidence.",
-    description: "Compliance, traceability, quality assurance, and resilient supply chains for agricultural trade.",
+    title: "Market Access & SPS Compliance Service",
+    strapline: "Expanding Market Access Worldwide",
+    description: "TRACE helps agricultural businesses and exporters navigate complex international regulatory requirements, successfully ensuring seamless global market access through compliance, quality assurance, traceability, and resilient supply chains.",
     solutions: 12,
     disciplines: ["SPS", "Traceability", "Export readiness"],
     color: "sand",
@@ -314,8 +349,8 @@ export const services: Service[] = [
   {
     slug: "technology-solutions",
     title: "Technology Solutions",
-    strapline: "Make systems work smarter.",
-    description: "Digital platforms and automation systems that translate institutional reform into reliable workflows.",
+    strapline: "Transforming Systems through Smart Technology Solutions",
+    description: "TRACE deploys advanced digital platforms and automation systems, seamlessly integrating technology with institutional reform to streamline workflows, strengthen regulatory performance, and accelerate cross-border trade.",
     solutions: 8,
     disciplines: ["Platforms", "Automation", "Data"],
     color: "teal",
@@ -349,8 +384,8 @@ export const services: Service[] = [
   {
     slug: "research-innovation",
     title: "Research & Innovation",
-    strapline: "Turn insight into advantage.",
-    description: "Trade, economic and development research with technology-enabled innovation and applied learning.",
+    strapline: "In-Depth Trade, Economic & Development Research & Innovation",
+    description: "TRACE strengthens institutional capacity through targeted training, policy research, and technology-driven innovation, enabling public and private stakeholders to adopt sustainable international best practices.",
     solutions: 5,
     disciplines: ["Research", "Foresight", "Innovation"],
     color: "navy",
@@ -387,9 +422,9 @@ export const services: Service[] = [
   {
     slug: "training-capacity-building",
     title: "Training & Capacity Building",
-    strapline: "Equip institutions with lasting expertise.",
-    description: "Evidence-based training programs equipping public and private stakeholders with technical expertise for global compliance.",
-    solutions: 7,
+    strapline: "Capacity Building for Resilient Trade Systems",
+    description: "TRACE delivers evidence-based training and capacity-building programs, equipping public and private stakeholders with technical expertise to enhance operational efficiency and global compliance.",
+    solutions: 4,
     disciplines: ["Training", "e-Learning", "Institutional development"],
     color: "teal",
     overview: [
@@ -416,9 +451,9 @@ export const services: Service[] = [
   {
     slug: "technical-assistance-project-management",
     title: "Technical Assistance & Project Management",
-    strapline: "Translate priorities into results.",
-    description: "End-to-end technical assistance and project management for governments, development partners, and private institutions.",
-    solutions: 8,
+    strapline: "Managing Change through Strategic Project Execution",
+    description: "TRACE translates complex development priorities into practical, results-oriented solutions that enhance competitiveness, efficiency, and regulatory compliance across sectors.",
+    solutions: 7,
     disciplines: ["Project management", "Advisory", "Delivery"],
     color: "navy",
     overview: [
@@ -452,8 +487,8 @@ export const services: Service[] = [
   {
     slug: "temperature-controlled-logistics",
     title: "Temperature-Controlled Logistics Solutions",
-    strapline: "Deliver cold-chain integrity end-to-end.",
-    description: "Advisory and implementation for temperature-controlled logistics and cold-chain systems across the value chain.",
+    strapline: "Cold chain Solutions for Sustainable Trade",
+    description: "TRACE takes a holistic approach to the management of the cold chain ecosystem, covering activities including production, aggregation, processing, storage, transportation, and distribution; providing technical assistance and advisories to ensure that systems deliver consistent temperature and quality maintenance throughout the supply chain.",
     solutions: 7,
     disciplines: ["Cold chain", "Logistics", "Infrastructure planning"],
     color: "orange",
@@ -486,42 +521,88 @@ export const services: Service[] = [
 ];
 
 export const projects: Project[] = [
-  { slug: "national-tariff-modernization", title: "National Tariff Modernization and Trade Systems Integration", client: "National Board of Revenue (NBR)", period: "2026", status: "Ongoing", serviceSlugs: ["trade-facilitation", "technology-solutions"], teamSlugs: ["fuad-khalid", "mahraj-samrat", "tahsina-shiva"], summary: "Supporting a major tariff and trade-systems modernization effort with the National Board of Revenue.", theme: "navy" },
-  { slug: "bsti-textile-testing", title: "Strengthening Export-Oriented Textile Testing Capacity at BSTI", client: "Bangladesh Standards and Testing Institution", period: "2025–2026", status: "Completed", serviceSlugs: ["laboratory-improvement", "research-innovation"], teamSlugs: ["mimma-afrin", "sushanta-sarker"], summary: "A strategic assessment to strengthen textile testing capacity and alignment with export standards.", theme: "teal" },
-  { slug: "animal-health-reform", title: "Trade Policy and Regulatory Reform for the Animal Health Sector", client: "AHCAB", period: "2026", status: "Completed", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], teamSlugs: ["fuad-khalid", "bushra-haque", "rubayat-anik"], summary: "Technical and policy advisory support for the animal health sector’s trade and regulatory systems.", theme: "sand" },
-  { slug: "bafisa-intelligence", title: "HS Code-Based Import Intelligence Database and Digital Platform", client: "BAFISA", period: "2025", status: "Completed", serviceSlugs: ["trade-facilitation", "technology-solutions"], teamSlugs: ["mahraj-samrat", "tahsina-shiva", "ahmed-nine"], summary: "Digital modernization through an HS-code-based import intelligence system and trade platform.", theme: "navy" },
-  { slug: "prtc-accreditation", title: "ISO/IEC 17025:2017 Accreditation and Laboratory Systems Strengthening", client: "PRTC, CVASU", period: "2025–2026", status: "Completed", serviceSlugs: ["laboratory-improvement"], teamSlugs: ["mimma-afrin", "mahmudur-rahman"], summary: "Technical assistance for laboratory strengthening and ISO/IEC 17025:2017 accreditation readiness.", theme: "teal" },
-  { slug: "export-compliance", title: "Strengthening Export Compliance and International Market Readiness", client: "Department of Agricultural Marketing", period: "2026", status: "Completed", serviceSlugs: ["market-access-sps", "research-innovation"], teamSlugs: ["nabeel-khan", "tanjum-tushi"], summary: "Export-readiness capacity building for agricultural entrepreneurs and processors.", theme: "sand" },
+  { slug: "trs-customs-reform", title: "Time Release Study at Key Custom Houses: Strengthening Evidence-Based Customs Modernization in Bangladesh (SD-13)", client: "National Board of Revenue (NBR), The World Bank", period: "Oct 2026 – Jul 2028", status: "Ongoing", serviceSlugs: ["trade-facilitation", "research-innovation"], teamSlugs: ["masud-sadiq", "fuad-khalid", "mahraj-samrat", "nahrin-swarna"], summary: "A 21-month, six-location Time Release Study measuring clearance times and benchmarking reform progress against the 2022 TRS baseline across Chattogram Seaport, Dhaka Airport, Benapole, Bhomra, Burimari and ICD Kamalapur.", theme: "navy", sector: "Trade Facilitation", location: "Bangladesh", standard: "WTO TFA Article 7.6", overview: ["TRACE Consulting has secured a World Bank-financed contract to deliver a Time Release Study (TRS) at six key Bangladeshi custom houses under Package SD-13 of the Customs Modernization and Infrastructure Development Project. The firm serves as sub-consultant to a TTT Global-led JV, with Md. Masud Sadiq as Team Leader.", "A time-release study is more than a conventional survey — it integrates customs procedure expertise, WCO methodology, extensive data analysis, and engagement with relevant stakeholders. TRACE brings deep experience in customs modernization, digital trade systems, and regulatory reform to this 21-month assignment covering Chattogram Seaport, Dhaka Airport, Benapole, Bhomra, Burimari Land Ports, and ICD Kamalapur."], scope: ["Release-Time Measurement — quantifying cargo release durations from arrival through physical release across selected imports and exports", "Multi-Location Assessment at Chattogram Seaport, Dhaka Airport, Benapole, Bhomra, Burimari Land Ports, and ICD Kamalapur", "Commodity-Specific Analysis across eight categories including food items, pharmaceuticals, and apparel", "WCO Methodology & Sampling design aligned with international best practice", "Process Mapping & Bottleneck Analysis to identify delays and procedural redundancies", "2022 TRS Progress Review benchmarking reform progress against the previous baseline", "Stakeholder Engagement & Capacity Building across customs, ports, regulatory agencies, and trade community members", "Reform Recommendations & Implementation Tracking with actionable, time-bound measures", "Validation & Dissemination of findings with government and private-sector stakeholders"], outcomes: ["Evidence-based clearance benchmarks across six strategic customs locations", "Clear identification of procedural bottlenecks and redundancies in current workflows", "Measurable progress tracking against the 2022 TRS baseline", "Actionable customs reform recommendations with implementation roadmaps", "Strengthened institutional capacity for sustained performance monitoring", "A durable monitoring framework for ongoing TRS performance tracking by NBR"] },
+  { slug: "taraps-policy-reform", title: "Repurposing Agricultural Public Support for a Sustainable Food System: Policy Reform Consultancy for TARAPS (SD/TARAPS-C2-MoA/03)", client: "Ministry of Agriculture, Department of Agricultural Extension, The World Bank", period: "Oct 2026 – Jan 2028", status: "Ongoing", serviceSlugs: ["policy-regulatory-reform", "research-innovation"], teamSlugs: ["fuad-khalid", "nahrin-swarna", "rubayat-anik", "mahanaz-lopa"], summary: "Policy reform, institutional strengthening, and public expenditure monitoring to redirect agricultural subsidies toward more sustainable, equitable, and climate-responsive outcomes.", theme: "teal", sector: "Policy & Regulatory Reform", location: "Bangladesh", standard: "World Bank TARAPS Framework", overview: ["TRACE Consulting partnered with TTT Global and BUILD to secure a consultancy contract for TARAPS (Technical Assistance for Repurposing of Agricultural Public Support Towards a Sustainable Food Systems Transformation in Bangladesh). The agreement became effective on October 5, 2026.", "The initiative operates under the Department of Agricultural Extension within Bangladesh's Ministry of Agriculture, with funding from the World Bank. The engagement emphasizes redirecting agricultural subsidies toward outcomes that are more sustainable, efficient, equitable, and climate-responsive — while strengthening ministerial capacity for data-driven decision-making."], scope: ["Review of existing agricultural policies, programs, and institutional frameworks", "Examination of public expenditure and subsidy frameworks across the agricultural sector", "Identification of policy, regulatory, and institutional shortcomings", "Formulation of reform strategies aligned with sustainable food-system goals", "Design of enhanced systems for policy execution, monitoring, and assessment", "Capacity building for data-driven decision-making within the Ministry"], outcomes: ["A reformed agricultural support architecture redirecting subsidies toward sustainability", "Stronger policy and institutional infrastructure for public resource allocation", "Climate-responsive and equitable support frameworks for farmers", "Enhanced ministerial capacity for evidence-based policy design", "Measurable improvement in food-system resilience across the value chain"] },
+  { slug: "national-tariff-modernization", title: "National Tariff Modernization and Trade Systems Integration", client: "National Board of Revenue (NBR)", period: "2026", status: "Ongoing", serviceSlugs: ["trade-facilitation", "technology-solutions"], teamSlugs: ["fuad-khalid", "mahraj-samrat", "tahsina-shiva"], summary: "TRACE Consulting, as a sub-consultant to AARC Ltd., is supporting the National Board of Revenue (NBR) in implementing a major tariff and trade-systems modernization effort.", theme: "navy", sector: "Trade Facilitation", location: "Bangladesh", standard: "HS 2022 / WTO TFA", overview: ["TRACE Consulting, as sub-consultant to AARC Ltd., is supporting the National Board of Revenue (NBR) in a major tariff modernization and trade-systems integration effort. The engagement spans tariff policy design, HS classification updates, and the technical integration of trade and customs systems across government agencies.", "The project links policy expertise, digital system design, and institutional reform — ensuring that modernized tariff instruments translate into predictable, efficient, and compliant trade processes."], scope: ["Tariff policy design and HS classification alignment with international standards", "Integration of customs and trade-related information systems across NBR and partner agencies", "Technical and institutional support for the modernization roadmap", "Capacity building for NBR officials on the modernized tariff and systems architecture"], outcomes: ["A modernized national tariff schedule aligned with HS 2022 and WTO commitments", "Interoperable trade and customs systems across government agencies", "Faster, more predictable tariff decisions for the private sector", "Strengthened NBR capacity for sustained tariff and systems governance"] },
+  { slug: "btp-elearning-platform", title: "Strengthening Trade Facilitation Capacity through the Bangladesh Trade Portal e-Learning Platform (SD-59)", client: "Ministry of Commerce, The World Bank", period: "2026", status: "Ongoing", serviceSlugs: ["technology-solutions", "trade-facilitation", "technical-assistance-project-management"], teamSlugs: ["fuad-khalid", "tahsina-shiva"], summary: "Developing 20+ bilingual interactive e-learning modules through the Bangladesh Trade Portal (BTP) to build trade literacy on WTO agreements, import-export procedures, risk-based compliance, and AEO certification.", theme: "navy" },
+  { slug: "bsti-textile-testing", title: "Strengthening Export-Oriented Textile Testing Capacity at BSTI Laboratory", client: "Bangladesh Standards and Testing Institution (BSTI)", period: "2025–2026", status: "Completed", serviceSlugs: ["laboratory-improvement", "research-innovation", "training-capacity-building"], teamSlugs: ["mimma-afrin", "sushanta-sarker"], summary: "Strategic assessment to strengthen the export-oriented textile testing capacity of the BSTI laboratory and improve alignment with international buyer requirements.", theme: "teal" },
+  { slug: "animal-health-reform", title: "Trade Policy and Regulatory Reform for the Animal Health Sector", client: "Animal Health Companies Association of Bangladesh (AHCAB)", period: "2026", status: "Completed", serviceSlugs: ["policy-regulatory-reform", "research-innovation", "trade-facilitation"], teamSlugs: ["fuad-khalid", "rubayat-anik"], summary: "Technical and policy advisory support to AHCAB to strengthen the animal health sector's trade and regulatory systems.", theme: "sand" },
+  { slug: "bafisa-intelligence", title: "Development of an HS Code-Based Import Intelligence Database and Digital Platform for BAFISA", client: "Bangladesh Foodstuff Importers and Suppliers Association (BAFISA)", period: "2025", status: "Completed", serviceSlugs: ["technology-solutions", "trade-facilitation"], teamSlugs: ["mahraj-samrat", "tahsina-shiva", "ahmed-nine"], summary: "Supported BAFISA's digital modernization through an HS code-based import intelligence system and enhanced trade data platform.", theme: "navy" },
+  { slug: "prtc-accreditation", title: "ISO/IEC 17025:2017 Accreditation and Laboratory Systems Strengthening for PRTC, CVASU", client: "Poultry Research & Training Centre, CVASU", period: "2025–2026", status: "Completed", serviceSlugs: ["laboratory-improvement"], teamSlugs: ["mimma-afrin", "mahmudur-rahman"], summary: "Technical assistance to strengthen laboratory systems and support ISO/IEC 17025:2017 accreditation readiness for PRTC, CVASU.", theme: "teal" },
+  { slug: "export-compliance", title: "Strengthening Export Compliance and International Market Readiness for Agricultural Enterprises", client: "Department of Agricultural Marketing (DAM)", period: "2026", status: "Completed", serviceSlugs: ["market-access-sps", "training-capacity-building"], teamSlugs: ["nabeel-khan", "tanjum-tushi"], summary: "Capacity-building program for agricultural entrepreneurs and processors aimed at unlocking international markets for Bangladesh's agricultural products.", theme: "sand" },
 ];
 
 const allTeamProfiles: TeamMember[] = [
-  { slug: "fuad-khalid", name: "Fuad M Khalid Hossen", role: "Chief Executive Officer", specialty: "Trade facilitation & policy reform", initials: "FK", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], projectSlugs: ["national-tariff-modernization", "animal-health-reform"], bio: "A trade facilitation and trade policy reform expert with more than 14 years in system modernization, export-led growth, and regulatory reform.", color: "teal", image: ASSETS.teamFuad },
-  { slug: "masud-sadiq", name: "Md. Masud Sadiq", role: "Senior Public Finance, Trade Policy & Trade Facilitation Lead", specialty: "Customs administration", initials: "MS", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], projectSlugs: ["national-tariff-modernization"], bio: "Former Grade-1 NBR member and senior customs modernization, multi-agency coordination, and trade facilitation expert.", color: "navy", image: ASSETS.teamMasud },
-  { slug: "mahraj-samrat", name: "Mohammed Mahraj-ul-Alam Samrat", role: "Head of Trade Facilitation and Regulatory Compliance", specialty: "Customs modernization", initials: "MS", serviceSlugs: ["trade-facilitation", "technology-solutions"], projectSlugs: ["national-tariff-modernization", "bafisa-intelligence"], bio: "Customs modernization and regulatory compliance leader with border-management, multimodal logistics, and trade facilitation experience.", color: "orange", image: ASSETS.teamMahraj },
-  { slug: "mimma-afrin", name: "Mimma Afrin", role: "Technical Lead, Laboratory Operations", specialty: "Laboratory systems & accreditation", initials: "MA", serviceSlugs: ["laboratory-improvement"], projectSlugs: ["bsti-textile-testing", "prtc-accreditation"], bio: "Laboratory and quality-management specialist with experience in ISO accreditation, food safety, LIMS, and international standards.", color: "teal", image: ASSETS.teamMimma },
-  { slug: "nahrin-swarna", name: "Nahrin Rahman Swarna", role: "Technical Director", specialty: "Trade policy & automation", initials: "NS", serviceSlugs: ["trade-facilitation", "technology-solutions"], projectSlugs: ["national-tariff-modernization"], bio: "Development professional leading trade facilitation, automation systems, policy analysis, and cross-sector collaboration.", color: "navy" },
-  { slug: "nabeel-khan", name: "Nabeel Khan", role: "Head of Partnerships & Strategic Growth", specialty: "Cold-chain & private-sector development", initials: "NK", serviceSlugs: ["market-access-sps"], projectSlugs: ["export-compliance"], bio: "Partnership and strategic-growth leader with experience across trade, logistics, investment, and private-sector development.", color: "orange", image: ASSETS.teamNabeel },
-  { slug: "abu-saleh-saifullah", name: "Abu Saleh Muhammad Saifullah", role: "Director & Chief Operating Officer", specialty: "Strategic leadership & digital transformation", initials: "AS", serviceSlugs: ["policy-regulatory-reform", "technology-solutions"], projectSlugs: [], bio: "Director and Chief Operating Officer with over 20 years of experience in strategic leadership, digital transformation, and complex development delivery for government agencies and international stakeholders.", color: "navy", image: ASSETS.teamAbuSaleh },
-  { slug: "rubayat-anik", name: "Rubayat E Shams Anik", role: "Policy, Research, and Business Development Specialist", specialty: "Policy research & analysis", initials: "RA", serviceSlugs: ["policy-regulatory-reform", "research-innovation"], projectSlugs: ["animal-health-reform"], bio: "Experienced researcher and project manager specializing in applied policy analysis, multi-country stakeholder engagement, and international event coordination.", color: "teal", image: ASSETS.teamRubayat },
-  { slug: "tahsina-shiva", name: "Tahsina Shiva", role: "IT Project Manager", specialty: "Digital systems delivery", initials: "TS", serviceSlugs: ["technology-solutions"], projectSlugs: ["national-tariff-modernization", "bafisa-intelligence"], bio: "IT project manager supporting the design and delivery of practical digital systems for TRACE programmes.", color: "orange", image: ASSETS.teamTahsina },
-  { slug: "ahmed-nine", name: "Ahmed Julker Nine", role: "Research and Policy Analyst", specialty: "Trade facilitation reforms", initials: "AJ", serviceSlugs: ["trade-facilitation", "research-innovation"], projectSlugs: ["bafisa-intelligence"], bio: "Research and policy analyst supporting trade facilitation reform and evidence-led programme delivery.", color: "navy", image: ASSETS.teamAhmedNine },
-  { slug: "moudud-sujan", name: "Moudud Ahmmed Sujan", role: "Head of External Affairs", specialty: "Content development & external affairs", initials: "MS", serviceSlugs: ["research-innovation"], projectSlugs: [], bio: "External-affairs lead supporting TRACE communications, content development, and institutional engagement.", color: "teal", image: ASSETS.teamMoudud },
-  { slug: "recardo-halder", name: "Recardo Saurav Antor Halder", role: "Manager, Business Development", specialty: "Business development & stakeholder engagement", initials: "RH", serviceSlugs: ["policy-regulatory-reform", "research-innovation"], projectSlugs: [], bio: "Business-development professional combining policy insight, research, programme operations, strategic communication, and stakeholder engagement.", color: "orange", image: ASSETS.teamRecardo },
-  { slug: "tanvir-kabir", name: "Tanvir Kabir", role: "Digital Content and Multimedia Specialist", specialty: "Graphic design & motion graphics", initials: "TK", serviceSlugs: ["technology-solutions", "research-innovation"], projectSlugs: [], bio: "Digital-content and multimedia specialist supporting TRACE storytelling, graphic design, and motion-led communication.", color: "navy", image: ASSETS.teamTanvir },
-  { slug: "umme-tama", name: "Umme Mahbuba Tama", role: "Research Associate", specialty: "Research & analysis", initials: "UT", serviceSlugs: ["research-innovation"], projectSlugs: [], bio: "Research associate supporting TRACE’s evidence-led analysis and programme delivery.", color: "teal", image: ASSETS.teamUmme },
-  { slug: "mobarak-uddin", name: "A.S. Mobarak Uddin Ahmed", role: "Chief Financial Officer", specialty: "Financial stewardship", initials: "MU", serviceSlugs: ["policy-regulatory-reform"], projectSlugs: [], bio: "Chief Financial Officer supporting TRACE financial stewardship and organizational operations.", color: "navy" },
-  { slug: "mahmudur-rahman", name: "Md. Mahmudur Rahman", role: "Laboratory Specialist", specialty: "Laboratory quality systems", initials: "MR", serviceSlugs: ["laboratory-improvement"], projectSlugs: ["prtc-accreditation"], bio: "Laboratory specialist supporting quality systems, operational readiness, and technical delivery.", color: "teal" },
-  { slug: "sushanta-sarker", name: "Sushanta Kumer Sarker", role: "Director & Head of MREL", specialty: "Monitoring, research, evaluation & learning", initials: "SS", serviceSlugs: ["research-innovation"], projectSlugs: ["bsti-textile-testing"], bio: "Results-management and private-sector development specialist with research, programme supervision, and economic analysis experience.", color: "orange", image: ASSETS.teamSushanta },
-  { slug: "ferdous-alam", name: "S.M. Ferdous Alam", role: "Head of Government Engagement", specialty: "Government engagement", initials: "FA", serviceSlugs: ["policy-regulatory-reform"], projectSlugs: [], bio: "Government-engagement leader with executive experience in quality infrastructure, institutional modernization, and public-sector governance.", color: "navy", image: ASSETS.teamFerdous },
-  { slug: "shafi-uddin", name: "Dr. Md. Shafi Uddin", role: "Technical Expert — Plant Quarantine and SPS Compliance Systems", specialty: "SPS compliance", initials: "SU", serviceSlugs: ["market-access-sps"], projectSlugs: [], bio: "Plant health, quarantine, and SPS compliance expert with senior agricultural-extension and phytosanitary experience.", color: "teal", image: ASSETS.teamShafi },
-  { slug: "michael-parr", name: "Michael J. Parr", role: "Strategic Advisor", specialty: "Project management & finance", initials: "MP", serviceSlugs: ["policy-regulatory-reform", "research-innovation"], projectSlugs: [], bio: "International development leader with programme, policy, finance, internal-audit, and institutional-strengthening experience.", color: "navy", image: ASSETS.teamMichael },
-  { slug: "tabassum-munira", name: "Tabassum Sirajam Munira", role: "Pharmaceutical Quality & Regulatory Affairs Specialist", specialty: "Regulatory affairs", initials: "TM", serviceSlugs: ["laboratory-improvement", "policy-regulatory-reform"], projectSlugs: [], bio: "Quality and regulatory-affairs specialist supporting technical compliance and institutional practice.", color: "orange" },
-  { slug: "bushra-haque", name: "Bushra Haque", role: "Legislative Specialist", specialty: "Legislative reform", initials: "BH", serviceSlugs: ["policy-regulatory-reform"], projectSlugs: ["animal-health-reform"], bio: "Legislative specialist supporting policy design, regulatory reform, and implementation alignment.", color: "navy" },
-  { slug: "tanjum-tushi", name: "Tanjum Tushi", role: "Research Associate", specialty: "Research & analysis", initials: "TT", serviceSlugs: ["research-innovation"], projectSlugs: ["export-compliance"], bio: "Research associate supporting evidence development, policy analysis, and programme delivery.", color: "teal" },
+  // ───────────────────────────────────────────────────────────────────────────
+  // 1. EXECUTIVE LEADERSHIP & BUSINESS DEVELOPMENT
+  // ───────────────────────────────────────────────────────────────────────────
+  { slug: "fuad-khalid", name: "Fuad M Khalid Hossen", role: "Chief Executive Officer (CEO)", specialty: "Trade facilitation & policy reform", initials: "FK", department: "Executive Leadership & Business Development", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], projectSlugs: ["national-tariff-modernization", "animal-health-reform", "trs-customs-reform", "taraps-policy-reform"], bio: "Fuad M Khalid Hossen, currently serving as CEO of TRACE Consulting, is widely recognized as Bangladesh's leading expert in trade facilitation and trade policy reform, with more than 14 years of experience in system modernization, export-led growth, and regulatory reform. He most recently served as Deputy Chief of Party and Technical Lead for the US$32.4 million USDA-funded Bangladesh Trade Facilitation Project, where he guided implementation of 30 policy and regulatory reforms and deployed 14 automated trade-service IT systems enabling the digital issuance of more than one million certificates annually. His earlier work included contributions to the Bangladesh National Single Window (BSW) and the Online Licensing Module through the IFC–World Bank Group.", color: "teal", image: ASSETS.teamFuad, tags: ["Trade Facilitation", "International Trade Policy Reform", "Agri Trade & Market Access", "Digital Trade Systems", "Governance Innovation"], linkedin: "https://www.linkedin.com/in/md-khalid-hossen/", email: "fuad.khalid@traceconsultingltd.com" },
+  { slug: "ferdous-alam", name: "S.M. Ferdous Alam", role: "Head of Government Engagement", specialty: "Government engagement", initials: "FA", department: "Executive Leadership & Business Development", serviceSlugs: ["policy-regulatory-reform"], projectSlugs: [], bio: "Two-time National Integrity Award recipient and a former Grade-1 Bangladesh Civil Service officer with more than 32 years of leadership in quality infrastructure, institutional modernization, and public-sector governance.", color: "navy", image: ASSETS.teamFerdous, tags: ["Quality Infrastructure", "Institutional Modernization", "Public Sector Governance"] },
+  { slug: "abu-saleh-saifullah", name: "Abu Saleh Muhammad Saifullah", role: "Director & Chief Operating Officer", specialty: "Strategic leadership & digital transformation", initials: "AS", department: "Executive Leadership & Business Development", serviceSlugs: ["policy-regulatory-reform", "technology-solutions"], projectSlugs: [], bio: "Director and Chief Operating Officer with over 20 years of experience in strategic leadership, digital transformation, and managing complex, large-scale development projects for government agencies and international stakeholders.", color: "navy", image: ASSETS.teamAbuSaleh, tags: ["Strategic Leadership", "Digital Transformation", "Compliance & Reform"] },
+  { slug: "nabeel-khan", name: "Nabeel Khan", role: "Head of Partnerships & Strategic Growth", specialty: "Cold-chain & private-sector development", initials: "NK", department: "Executive Leadership & Business Development", serviceSlugs: ["market-access-sps", "temperature-controlled-logistics"], projectSlugs: ["export-compliance"], bio: "Brings over a decade of comprehensive experience in trade, retail, training, investment, and private-sector development.", color: "orange", image: ASSETS.teamNabeel, tags: ["Temperature Controlled Logistic Solution", "Business Strategy & Management", "Private Sector Development"] },
+  { slug: "michael-parr", name: "Michael J. Parr", role: "Strategic Advisor", specialty: "Project management & finance", initials: "MP", department: "Executive Leadership & Business Development", serviceSlugs: ["policy-regulatory-reform", "research-innovation"], projectSlugs: [], bio: "Global development leader with 35+ years' experience delivering large-scale programs in agribusiness, trade, and regulatory reform, known for building cross-sector partnerships and driving sustainable economic transformation across multiple regions.", color: "navy", image: ASSETS.teamMichael, tags: ["Project Management", "Finance & Internal Audit"] },
+  { slug: "mobarak-uddin", name: "A.S. Mobarak Uddin Ahmed", role: "Chief Financial Officer", specialty: "Financial stewardship", initials: "MU", department: "Executive Leadership & Business Development", serviceSlugs: ["policy-regulatory-reform"], projectSlugs: [], bio: "Accomplished finance and operations leader with 30+ years of experience. Specializes in strategic financial management, regulatory compliance, and organizational operations.", color: "navy", image: ASSETS.teamMobarak, tags: ["Financial Management", "Internal Audit and Compliance", "Procurement & Organizational Operations"] },
+  { slug: "sushanta-sarker", name: "Sushanta Kumer Sarker", role: "Director & Head of MREL (Monitoring, Research, Evaluation & Learning)", specialty: "Monitoring, research, evaluation & learning", initials: "SS", department: "Executive Leadership & Business Development", serviceSlugs: ["research-innovation"], projectSlugs: ["bsti-textile-testing"], bio: "Results-management and private-sector development specialist with over 18 years of professional experience in qualitative and quantitative research methods, program supervision, and economic analysis.", color: "orange", image: ASSETS.teamSushanta, tags: ["Qualitative & Quantitative Research", "Program Supervision", "Economic Analysis"] },
+  { slug: "recardo-halder", name: "Recardo Saurav Antor Halder", role: "Manager, Business Development", specialty: "Business development & stakeholder engagement", initials: "RH", department: "Executive Leadership & Business Development", serviceSlugs: ["policy-regulatory-reform", "research-innovation"], projectSlugs: [], bio: "Possesses extensive expertise in trade policy, research, and program operations, combining policy insight with strategic communication and stakeholder engagement.", color: "orange", image: ASSETS.teamRecardo, tags: ["Business Development", "Program Operations & Procurement", "Stakeholder Engagement"] },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 2. TRADE FACILITATION & CUSTOMS MODERNIZATION
+  // ───────────────────────────────────────────────────────────────────────────
+  { slug: "masud-sadiq", name: "Md. Masud Sadiq", role: "Senior Trade Facilitation, Customs & Trade Policy Lead", specialty: "Customs administration", initials: "MS", department: "Trade Facilitation & Customs Modernization", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], projectSlugs: ["national-tariff-modernization", "trs-customs-reform"], bio: "Accomplished trade facilitation strategist and former Grade-1 Member of the National Board of Revenue (NBR), with more than 30 years of premier leadership in customs administration.", color: "navy", image: ASSETS.teamMasud, tags: ["Customs Administration", "Trade Facilitation", "Multi-agency Coordination"] },
+  { slug: "mahraj-samrat", name: "Mohammed Mahraj-ul-Alam Samrat", role: "Head of Trade Facilitation & Regulatory Compliance", specialty: "Customs modernization", initials: "MS", department: "Trade Facilitation & Customs Modernization", serviceSlugs: ["trade-facilitation", "technology-solutions"], projectSlugs: ["national-tariff-modernization", "bafisa-intelligence"], bio: "Trade facilitation expert with over 12 years of experience in customs modernization and logistics. Formerly with the NBR.", color: "orange", image: ASSETS.teamMahraj, tags: ["Customs Specialist", "Trade Facilitation", "Multimodal Logistics Development"] },
+  { slug: "nahrin-swarna", name: "Nahrin Rahman Swarna", role: "Technical Director", specialty: "Trade policy & automation", initials: "NS", department: "Trade Facilitation & Customs Modernization", serviceSlugs: ["trade-facilitation", "technology-solutions"], projectSlugs: ["national-tariff-modernization", "taraps-policy-reform"], bio: "Senior development professional with ten years of experience, excelling in leading international trade and trade facilitation initiatives.", color: "navy", image: ASSETS.teamNahrin, tags: ["Trade Policy Analysis & Regulatory Reform", "International Trade Compliance", "Risk-Based Clearance"] },
+  { slug: "rubayat-anik", name: "Rubayat E Shams Anik", role: "Senior Portfolio Manager - Trade Facilitation", specialty: "Policy research & analysis", initials: "RA", department: "Trade Facilitation & Customs Modernization", serviceSlugs: ["policy-regulatory-reform", "research-innovation"], projectSlugs: ["animal-health-reform", "taraps-policy-reform"], bio: "Experienced researcher and project manager specializing in applied policy analysis, multi-country stakeholder engagement, and international event coordination.", color: "teal", image: ASSETS.teamRubayat, tags: ["Policy Research & Analysis", "Stakeholder Engagement", "Project Management"] },
+  { slug: "mahanaz-lopa", name: "Mahanaz Akter Lopa", role: "Trade Facilitation Specialist", specialty: "Trade facilitation & investment analysis", initials: "ML", department: "Trade Facilitation & Customs Modernization", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], projectSlugs: ["taraps-policy-reform"], bio: "Serves as a trade facilitation specialist with over four years of experience in trade facilitation and international affairs management.", color: "teal", image: ASSETS.teamLopa, tags: ["Trade Policy Analysis & Regulatory Reform", "Investment Analysis", "Stakeholder Consultations"] },
+  { slug: "satish-reddy", name: "Satish Kumar Reddy", role: "Senior Trade Facilitation & Customs Expert", specialty: "Customs modernization & cross-border architecture", initials: "SR", department: "Trade Facilitation & Customs Modernization", serviceSlugs: ["trade-facilitation"], projectSlugs: [], bio: "A former Indian Revenue Service commissioner with 32 years of experience, specializing in customs modernization, border systems, and digital trade infrastructure, advising governments and international agencies on efficient, compliant trade ecosystems.", color: "navy", tags: ["Customs Modernization", "Cross-Border Architecture"] },
+  { slug: "mohammed-shahabuddin", name: "Mohammed Shahabuddin", role: "Senior Trade Facilitation & Customs Expert", specialty: "Customs administration & tax policy", initials: "MS", department: "Trade Facilitation & Customs Modernization", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], projectSlugs: [], bio: "Seasoned Bangladeshi revenue administration expert with extensive experience in customs, value-added tax (VAT), and excise duties, contributing practical insights into tax policy reform, institutional modernization, and trade facilitation.", color: "navy", tags: ["Customs Administration", "SME Budget Engineering"] },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 3. QUALITY INFRASTRUCTURE & SPS
+  // ───────────────────────────────────────────────────────────────────────────
+  { slug: "shafi-uddin", name: "Dr. Md. Shafi Uddin", role: "Technical Expert — Plant Quarantine & SPS Compliance Systems", specialty: "SPS compliance", initials: "SU", department: "Quality Infrastructure & SPS", serviceSlugs: ["market-access-sps"], projectSlugs: [], bio: "Bangladeshi agricultural expert with over 32 years of experience in the Department of Agricultural Extension (DAE), specializing in plant health, quarantine, biosecurity, and SPS compliance.", color: "teal", image: ASSETS.teamShafi, tags: ["Plant Health & Biosecurity", "SPS Compliance & International Agricultural Trade", "Training & Capacity Building"] },
+  { slug: "mimma-afrin", name: "Mimma Afrin", role: "Technical Lead, Laboratory Operations", specialty: "Laboratory systems & accreditation", initials: "MA", department: "Quality Infrastructure & SPS", serviceSlugs: ["laboratory-improvement"], projectSlugs: ["bsti-textile-testing", "prtc-accreditation"], bio: "Highly regarded quality and laboratory management specialist with over 10 years of experience. Excels in ISO accreditation, food safety, LIMS, and international standards.", color: "teal", image: ASSETS.teamMimma, tags: ["Laboratory Accreditation (ISO/IEC 17025)", "Laboratory QMS", "LIMS Training"] },
+  { slug: "mahmudur-rahman", name: "Md. Mahmudur Rahman", role: "Laboratory Specialist", specialty: "Laboratory quality systems", initials: "MR", department: "Quality Infrastructure & SPS", serviceSlugs: ["laboratory-improvement"], projectSlugs: ["prtc-accreditation"], bio: "Laboratory quality and compliance specialist with over 16 years of experience in laboratory operations, ISO accreditation, and food safety management.", color: "teal", tags: ["Laboratory Operations", "ISO Accreditation", "Food Safety Management"] },
+  { slug: "tabassum-munira", name: "Tabassum Sirajam Munira", role: "QMS Expert (Medical Laboratory Accreditation)", specialty: "Regulatory & quality affairs", initials: "TM", department: "Quality Infrastructure & SPS", serviceSlugs: ["laboratory-improvement", "policy-regulatory-reform"], projectSlugs: [], bio: "Accomplished pharmaceutical quality and regulatory professional with over 22 years of experience spanning laboratory accreditation, WHO prequalification, and medical laboratory QMS.", color: "orange", tags: ["Laboratory QMS", "WHO Prequalification & Benchmarking Tool", "ISO/IEC 17025 & ISO 15189 Accreditation"] },
+  { slug: "sankaran-subramanian", name: "Sankaran Subramanian", role: "Senior Laboratory Quality Systems & Accreditation Expert", specialty: "Calibration & proficiency testing", initials: "SS", department: "Quality Infrastructure & SPS", serviceSlugs: ["laboratory-improvement"], projectSlugs: [], bio: "Recognized for his extensive expertise in laboratory quality management and accreditation. Specializes in calibration, proficiency testing, and helping organizations achieve international standards while ensuring compliance across sectors.", color: "navy", tags: ["ISO Standardization", "Laboratory Auditing"] },
+  { slug: "sohel-ahmed", name: "Dr. Sohel Ahmed", role: "Technical Expert — Public Health & Biomedical Research", specialty: "Molecular diagnostics & biomedical labs", initials: "SA", department: "Quality Infrastructure & SPS", serviceSlugs: ["laboratory-improvement", "research-innovation"], projectSlugs: [], bio: "Premier biomedical laboratory authority with 30+ years of experience designing advanced molecular diagnostics, clinical research systems, and global biomedical infrastructure.", color: "teal", tags: ["Molecular Diagnostics", "Laboratory Systems Design"] },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 4. POLICY, RESEARCH & OPERATIONS
+  // ───────────────────────────────────────────────────────────────────────────
+  { slug: "ashis-ratan-sen", name: "Dr. Ashis Ratan Sen", role: "National Food Safety & Quality System Management Specialist", specialty: "Food safety & laboratory accreditation", initials: "AS", department: "Policy, Research & Operations", serviceSlugs: ["laboratory-improvement", "market-access-sps"], projectSlugs: [], bio: "An expert in senior laboratory and food safety, with five decades of experience in chemical testing and standards compliance, ensuring operational excellence and adherence to international safety benchmarks.", color: "navy", tags: ["Laboratory Accreditation", "Residue Analysis"] },
+  { slug: "mehedi-hossain", name: "Dr. Md. Mehedi Hossain", role: "Technical Expert — Livestock Compliance & Trade", specialty: "Livestock systems & export policy", initials: "MH", department: "Policy, Research & Operations", serviceSlugs: ["market-access-sps", "policy-regulatory-reform"], projectSlugs: [], bio: "Former Director of the Department of Livestock Services (DLS) with 40+ years of experience in livestock systems, focusing on food safety, regulatory compliance, and aligning agricultural practices with international trade requirements.", color: "navy", tags: ["Export Policy Facilitation", "Epidemiological Disease Tracking"] },
+  { slug: "nurul-islam", name: "Gazi Md. Nurul Islam", role: "Technical Expert — Laboratory Quality Management", specialty: "BSTI standards & regulatory compliance", initials: "NI", department: "Policy, Research & Operations", serviceSlugs: ["laboratory-improvement", "policy-regulatory-reform"], projectSlugs: [], bio: "A laboratory quality systems specialist with strong experience in BSTI standards, focusing on regulatory compliance, operational quality, and strengthening testing infrastructure.", color: "navy", tags: ["Quality Management", "Standards Compliance"] },
+  { slug: "habibur-khondaker", name: "Dr. Habibur Rahman Khondaker", role: "Technical Expert — Aquaculture & Fisheries Development", specialty: "Fisheries & aquaculture systems", initials: "HK", department: "Policy, Research & Operations", serviceSlugs: ["market-access-sps"], projectSlugs: [], bio: "With over four decades of experience, a fisheries and aquaculture expert supporting sustainable production, food safety, and export compliance to improve global market access.", color: "teal", tags: ["Sustainable Aquaculture", "Fisheries Export Compliance"] },
+  { slug: "nittya-biswas", name: "Nittya Ranjan Biswas", role: "Technical Expert — Aquaculture & Sanitary Compliance Systems", specialty: "SPS & aquaculture compliance", initials: "NB", department: "Policy, Research & Operations", serviceSlugs: ["market-access-sps"], projectSlugs: [], bio: "A specialist in aquaculture systems and Sanitary and Phytosanitary (SPS) compliance, focusing on quarantine, food safety, and regulatory alignment to meet international export standards.", color: "navy", tags: ["Sanitary Compliance", "Aquaculture Food Safety"] },
+  { slug: "muftikhar-ahmed", name: "Dr. Muftikhar Ahmed", role: "Technical Expert — Laboratory Quality Development & Training", specialty: "International laboratory accreditation", initials: "MA", department: "Policy, Research & Operations", serviceSlugs: ["laboratory-improvement", "training-capacity-building"], projectSlugs: [], bio: "With over 2 decades of experience across four countries, an international laboratory accreditation expert specializing in quality development and training.", color: "orange", tags: ["Lab Accreditation", "Technical Training"] },
+  { slug: "anamul-hoque", name: "Md. Anamul Hoque", role: "Technical Expert — Laboratory Quality Management & International Compliance Systems", specialty: "Compliance auditing", initials: "AH", department: "Policy, Research & Operations", serviceSlugs: ["laboratory-improvement"], projectSlugs: [], bio: "A laboratory assessor with 16 years of experience in international inspection and certification systems.", color: "navy", tags: ["Compliance Auditing", "Inspection Systems"] },
+  { slug: "ahmed-nine", name: "Ahmed Julker Nine", role: "Research & Policy Analyst", specialty: "Trade facilitation reforms", initials: "AN", department: "Policy, Research & Operations", serviceSlugs: ["trade-facilitation", "research-innovation"], projectSlugs: ["bafisa-intelligence"], bio: "Research and policy analyst specializing in logistics, trade facilitation, and regulatory reform, with over five years of experience.", color: "navy", image: ASSETS.teamAhmedNine, tags: ["Policy Reform", "Regulatory Analysis", "Trade Facilitation Reforms"] },
+  { slug: "fahmida-akter", name: "Fahmida Akter", role: "Legal & Operations Associate", specialty: "Program & project management", initials: "FA", department: "Policy, Research & Operations", serviceSlugs: ["policy-regulatory-reform"], projectSlugs: [], bio: "Legal and operations associate at TRACE Consulting, bringing over five years of experience across legal support, program execution, and operations management.", color: "teal", tags: ["Program & Project Management", "Legal & Regulatory Compliance", "Operations Management"] },
+  { slug: "umme-tama", name: "Umme Mahbuba Tama", role: "Research Associate", specialty: "Research & analysis", initials: "UT", department: "Policy, Research & Operations", serviceSlugs: ["research-innovation"], projectSlugs: [], bio: "Research professional with five years of experience in administrative logistics, human resources, and research coordination.", color: "teal", image: ASSETS.teamUmme, tags: ["Human Resource & Management", "Research Analysis", "Procurement & Organizational Operations"] },
+  { slug: "tanjum-tushi", name: "Tanjum Tushi", role: "Research Associate", specialty: "Research & data analysis", initials: "TT", department: "Policy, Research & Operations", serviceSlugs: ["research-innovation"], projectSlugs: ["export-compliance"], bio: "Research professional with experience in governance, trade facilitation, and social development. Has supported government and private stakeholders through evidence-based research.", color: "teal", tags: ["Research & Data Analysis", "Trade Facilitation", "Technical Proposal Writing"] },
+  { slug: "riya-biswas", name: "Riya Biswas", role: "Research Intern", specialty: "Climate & policy research", initials: "RB", department: "Policy, Research & Operations", serviceSlugs: ["research-innovation"], projectSlugs: [], bio: "Research Intern at TRACE Consulting, contributing to evidence-based research and analysis in the areas of climate change, economic policy, and development economics.", color: "navy", tags: ["Data Management", "Project Operations", "Research & Policy Analysis"] },
+  { slug: "mahamudul-hasan", name: "Md. Mahamudul Hasan", role: "Research Intern", specialty: "Social research & policy", initials: "MH", department: "Policy, Research & Operations", serviceSlugs: ["research-innovation"], projectSlugs: [], bio: "Research intern at TRACE Consulting with experience in social research, data analysis, and evidence-based policy work in Bangladesh.", color: "teal", tags: ["Data Analysis", "Project Coordination", "Policy Research"] },
+  { slug: "naved-afnan", name: "Naved Afnan", role: "Research Intern", specialty: "Strategic research", initials: "NA", department: "Policy, Research & Operations", serviceSlugs: ["research-innovation"], projectSlugs: [], bio: "Research intern at TRACE Consulting and an economics undergraduate at East West University, bringing hands-on experience in strategic research and data assessment.", color: "navy", tags: ["Strategic Research", "Program Coordination", "Data Assessment"] },
+  { slug: "mahbubul-shakib", name: "Md. Mahbubul Alam Shakib", role: "Expert — Research & Policy", specialty: "Agricultural research & trade", initials: "MS", department: "Policy, Research & Operations", serviceSlugs: ["research-innovation", "market-access-sps"], projectSlugs: [], bio: "Possessing a strong academic background, specializes in agricultural systems, value chains, and trade facilitation, delivering evidence-based insights to inform policy decisions and advance sustainable agricultural development.", color: "teal", tags: ["Agricultural Research & Development", "Trade Facilitation"] },
+  { slug: "bushra-haque", name: "Bushra Haque", role: "Legislative Specialist", specialty: "Legislative reform", initials: "BH", department: "Policy, Research & Operations", serviceSlugs: ["policy-regulatory-reform"], projectSlugs: ["animal-health-reform"], bio: "Legislative specialist supporting policy design, regulatory reform, and implementation alignment.", color: "navy" },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 5. DIGITAL SYSTEMS & TECHNOLOGY DELIVERY
+  // ───────────────────────────────────────────────────────────────────────────
+  { slug: "tahsina-shiva", name: "Tahsina Shiva", role: "Senior IT Project Manager", specialty: "Business analysis & delivery", initials: "TS", department: "Digital Systems & Technology Delivery", serviceSlugs: ["technology-solutions"], projectSlugs: ["national-tariff-modernization", "bafisa-intelligence", "btp-elearning-platform"], bio: "IT project manager with a strong background in business analysis, technical documentation, and data-driven solution development.", color: "orange", image: ASSETS.teamTahsina, tags: ["Project Management", "Business Analysis", "Requirement Engineering"] },
+  { slug: "shefayat-adib", name: "Shefayat E Shams Adib", role: "Full Stack Developer", specialty: "Full-stack engineering & applied AI", initials: "SA", department: "Digital Systems & Technology Delivery", serviceSlugs: ["technology-solutions"], projectSlugs: [], bio: "Full-stack developer at TRACE Consulting, with experience in web engineering, applied AI, and scalable system architecture.", color: "teal", image: ASSETS.teamShefayat, tags: ["Full-Stack Development", "AI & Machine Learning", "Natural Language Processing"] },
+  { slug: "tanvir-kabir", name: "Tanvir Kabir", role: "Digital Content & Multimedia Specialist", specialty: "Graphic design & motion graphics", initials: "TK", department: "Digital Systems & Technology Delivery", serviceSlugs: ["technology-solutions", "research-innovation"], projectSlugs: [], bio: "Digital content and multimedia specialist with over 12 years of experience in creative branding, graphic design, and storytelling.", color: "navy", image: ASSETS.teamTanvir, tags: ["Digital Content Creation", "Video Production", "Graphic Design & Motion Graphics"] },
+  { slug: "akebul-sarder", name: "Md. Akebul Sarder", role: "Technical Expert — Innovations & Digital Solutions", specialty: "Scalable ICT systems", initials: "AS", department: "Digital Systems & Technology Delivery", serviceSlugs: ["technology-solutions"], projectSlugs: [], bio: "A digital transformation specialist with over 13 years of experience designing scalable ICT systems and platforms to modernize trade, agriculture, and public sector service delivery.", color: "teal", tags: ["ICT Solutions", "System Architecture & Development"] },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // 6. MARKETS, COMPLIANCE & SECTOR DEVELOPMENT
+  // ───────────────────────────────────────────────────────────────────────────
+  { slug: "faruque-hossain", name: "Mr. Md. Faruque Hossain", role: "Public Procurement Policy & Implementation Expert", specialty: "Procurement reform & e-governance", initials: "FH", department: "Markets, Compliance & Sector Development", serviceSlugs: ["policy-regulatory-reform"], projectSlugs: [], bio: "An accomplished government secretary spearheading public procurement reform, policy design, and regulatory oversight to deliver modern, transparent, and high-performing systems for national public spending.", color: "navy", tags: ["E-Procurement Portal", "Skills Governance"] },
+  { slug: "mrinal-sircar", name: "Mrinal Sircar", role: "Senior Private Sector Development & Market Systems Expert", specialty: "SME competitiveness & inclusive growth", initials: "MS", department: "Markets, Compliance & Sector Development", serviceSlugs: ["market-access-sps"], projectSlugs: [], bio: "With over three decades of experience advancing SME competitiveness and inclusive growth through strategic reforms and business ecosystem strengthening, an expert in private sector development.", color: "teal", tags: ["Climate Business Advisory", "Microcredit Framework"] },
 ];
 
-// Public team directory: show only people whose approved portraits have been supplied.
-export const team: TeamMember[] = allTeamProfiles.filter((member) => Boolean(member.image));
+// Public team directory: show ALL profiles — members without portraits render as text-only info cards.
+export const team: TeamMember[] = allTeamProfiles;
 
 export const insights: Insight[] = [
   { slug: "somoy-structural-economic-reform", title: "Sustainable economic stability requires structural reform", type: "Video", date: "Jul 21, 2026", summary: "A SOMOY TV business-bulletin discussion connected by TRACE’s Insights index to structural reform, foreign-exchange resilience, export competitiveness, and trade facilitation.", serviceSlugs: ["trade-facilitation", "policy-regulatory-reform"], projectSlugs: ["national-tariff-modernization"], teamSlugs: ["fuad-khalid"], image: ASSETS.insightReform, accent: "teal", sourceUrl: "https://www.youtube.com/watch?v=bFoY0vfBQfw", sourceLabel: "Watch on YouTube" },
@@ -556,6 +637,16 @@ export const innovations = [
 
 export type LatestUpdateCategory = "Publication" | "Article" | "Innovation" | "Event" | "Workshop" | "Meeting";
 
+export type UpdateSection = {
+  heading?: string;
+  paragraphs: string[];
+};
+
+export type UpdateBody = {
+  sections: UpdateSection[];
+  team?: { name: string; role: string }[];
+};
+
 export type LatestUpdate = {
   slug: string;
   title: string;
@@ -566,9 +657,84 @@ export type LatestUpdate = {
   image: string;
   url: string;
   external: boolean;
+  body?: UpdateBody;
 };
 
 export const latestUpdates: LatestUpdate[] = [
+  {
+    slug: "trs-customs-reform-assignment",
+    title: "TRACE Signs World Bank-Financed Time Release Study Assignment for Evidence-Based Customs Reform in Bangladesh",
+    category: "Event",
+    date: "Oct 07, 2026",
+    isoDate: "2026-10-07",
+    summary: "TRACE Consulting has secured a World Bank-financed contract for the Time Release Study at key Bangladeshi custom houses, measuring clearance times and driving evidence-based customs reform.",
+    image: "/media/updates/trs-customs-reform.png",
+    url: "/latest-updates/trs-customs-reform-assignment",
+    external: false,
+    body: {
+      sections: [
+        {
+          heading: "A Milestone for TRACE Consulting",
+          paragraphs: [
+            "TRACE Consulting has secured a contract for the Time Release Study (TRS) at key Bangladeshi custom houses (Package SD-13) under the Customs Modernization and Infrastructure Development Project, financed by the World Bank. The firm will serve as sub-consultant to a TTT Global-led JV, with Md. Masud Sadiq as Team Leader.",
+            "A time-release study is more than a conventional survey. It integrates customs procedure expertise, WCO methodology, extensive data analysis, and engagement with relevant stakeholders. TRACE Consulting brings deep experience in customs modernization, digital trade systems, and regulatory reform to this assignment.",
+          ],
+        },
+        {
+          heading: "Why the Study Matters",
+          paragraphs: [
+            "Previous 2022 data showed import clearance averaged 11 days at Benapole, 12 days at Chattogram, and 8 days at Dhaka Airport. Document preparation consumed 72–78% of total clearance time. This new assignment will measure changes since 2022, assess prior recommendation implementation, and examine modernization initiatives including Bangladesh’s National Single Window system.",
+            "The study also supports implementation of the WTO Trade Facilitation Agreement’s Article 7.6 — a key international commitment for Bangladesh’s trade competitiveness.",
+          ],
+        },
+        {
+          heading: "Key Deliverables",
+          paragraphs: [
+            "The 21-month assignment covers six customs locations: Chattogram Seaport, Dhaka Airport, Benapole, Bhomra and Burimari Land Ports, and ICD Kamalapur. Deliverables include measuring release times for diverse products, analyzing system data, identifying bottlenecks, engaging stakeholders, and establishing sustainable measurement frameworks.",
+            "The core objective centers on turning measurement into action — providing NBR with evidence-based insights on delays and effective reforms to strengthen Bangladesh’s trade competitiveness.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Md. Masud Sadiq", role: "Team Leader" },
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+      ],
+    },
+  },
+  {
+    slug: "taraps-agriculture-assignment",
+    title: "TRACE signed the World Bank–financed TARAPS assignment to help Bangladesh’s Ministry of Agriculture repurpose public support for sustainable food systems",
+    category: "Event",
+    date: "Oct 05, 2026",
+    isoDate: "2026-10-05",
+    summary: "TRACE Consulting partnered with TTT Global and BUILD to support Bangladesh’s Ministry of Agriculture in redirecting agricultural public support toward more sustainable, equitable, and climate-responsive outcomes.",
+    image: "/media/updates/taraps-agriculture.jpeg",
+    url: "/latest-updates/taraps-agriculture-assignment",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "TRACE Consulting partnered with TTT Global and BUILD to secure a consultancy contract for TARAPS (Technical Assistance for Repurposing of Agricultural Public Support Towards a Sustainable Food Systems Transformation in Bangladesh). The agreement became effective on October 5, 2026.",
+            "The initiative operates under the Department of Agricultural Extension within Bangladesh’s Ministry of Agriculture, with funding from the World Bank. TRACE’s scope includes reviewing agricultural policies and programs, examining public expenditure and subsidy frameworks, identifying policy and institutional shortcomings, proposing reform strategies, and enhancing systems for policy execution and assessment.",
+          ],
+        },
+        {
+          heading: "Redirecting Public Support Towards Sustainability",
+          paragraphs: [
+            "The engagement emphasizes redirecting agricultural subsidies toward outcomes that are more sustainable, efficient, equitable, and climate-responsive while strengthening ministerial capacity for data-driven decision-making.",
+            "Agriculture significantly influences Bangladesh’s economy, food security, and rural communities. TRACE aims to reinforce the policy and institutional infrastructure governing public resource allocation throughout the agricultural sector.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Nahrin Rahman Swarna", role: "Technical Director" },
+        { name: "Rubayat E Shams Anik", role: "Senior Portfolio Manager" },
+        { name: "Mahanaz Akter Lopa", role: "Trade Facilitation Specialist" },
+      ],
+    },
+  },
   {
     slug: "import-policy-order-2026-29-english",
     title: "Import Policy Order (2026–29) Unofficial English Translation",
@@ -577,19 +743,69 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-09-02",
     summary: "The Import Policy Order (IPO) 2026–2029 governs virtually every import into Bangladesh. To help address the language gap, TRACE Consulting has prepared a complete, clause-by-clause unofficial English translation.",
     image: "https://traceconsultingltd.com/storage/923/IPO-Eng-SM-Post-%281200-x-800-px%29.jpg",
-    url: "https://traceconsultingltd.com/article-details/40",
-    external: true,
+    url: "/latest-updates/import-policy-order-2026-29-english",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "The Import Policy Order (IPO) 2026–2029 establishes regulatory frameworks governing imports into Bangladesh. This policy document outlines the conditions, procedures, restrictions, exemptions, and other requirements that importers, businesses, foreign investors, and compliance teams need to navigate.",
+            "A significant challenge has persisted: the IPO was gazetted in Bangla only, without an English translation released alongside it. This mirrors the previous iteration from 2021–2024, which similarly lacked an official English version.",
+          ],
+        },
+        {
+          heading: "Closing the Language Gap",
+          paragraphs: [
+            "The absence of an authorized translation creates practical difficulties. Businesses frequently resort to independent translators or automated translation tools to interpret intricate regulatory language. This dependency risks misconstruction of HS-code specifications, documentation requirements, conditional provisions, and exemption criteria — potentially causing preventable operational delays and legal uncertainty.",
+            "TRACE Consulting responded to this gap by developing a complete, clause-by-clause unofficial English translation of the Import Policy Order 2026–2029, making it accessible to international businesses, investors, and compliance teams.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Mimma Afrin", role: "Technical Lead" },
+        { name: "Mohammed Mahraj-ul-Alam Samrat", role: "Head of Trade Facilitation & Regulatory Compliance" },
+        { name: "Rubayat E Shams Anik", role: "Senior Portfolio Manager" },
+      ],
+    },
   },
   {
     slug: "beyond-tariffs-biggest-trade-opportunity",
     title: "Beyond Tariffs Lies Bangladesh’s Biggest Trade Opportunity",
     category: "Article",
-    date: "Jul 30, 2026",
-    isoDate: "2026-07-30",
+    date: "Jul 16, 2026",
+    isoDate: "2026-07-16",
     summary: "Analysis exploring how Bangladesh can extend trade gains well beyond tariff considerations by investing in facilitation, regulatory predictability, and private-sector readiness.",
     image: "https://traceconsultingltd.com/storage/676/11-Insights_Beyond-Traiffs-Lies-Bangladesh.jpg",
-    url: "https://traceconsultingltd.com/article-details/35",
-    external: true,
+    url: "/latest-updates/beyond-tariffs-biggest-trade-opportunity",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "Published in The Business Standard by TRACE CEO Fuad M Khalid Hossen, this article argues that modern economic competitiveness depends increasingly on institutional efficiency rather than tariffs alone. Bangladesh faces significant trade challenges despite automation progress, with cargo at Chattogram Port taking approximately 270 hours for release compared to 95 hours in India and 30 hours in Thailand.",
+            "The US–Bangladesh Agreement on Reciprocal Trade (ART) provides a framework addressing customs modernization, sanitary measures, digital trade, investment facilitation, and regulatory cooperation. Key provisions include technological solutions for full pre-arrival processing, paperless trade, and digitalized border procedures by 2030.",
+          ],
+        },
+        {
+          heading: "Facilitation as Competitive Advantage",
+          paragraphs: [
+            "The piece highlights Bangladesh’s existing progress through USDA-funded initiatives, where digital pre-arrival processing reduced regulatory clearance times by approximately three to four days. Risk-based regulatory approaches could potentially reduce clearance times by around 50%.",
+            "Stronger inter-agency coordination through the Bangladesh Single Window (BSW) initiative reduces duplicate documentation and sequential approvals. Trade facilitation alone proves insufficient; the nation must strengthen compliance with international sanitary and phytosanitary standards to diversify exports beyond ready-made garments.",
+          ],
+        },
+        {
+          heading: "The Path Forward",
+          paragraphs: [
+            "The ART promotes science-based measures consistent with WTO principles and international standards from the Codex Alimentarius Commission and World Organization for Animal Health.",
+            "Successful implementation requires capable institutions, effective coordination, technology investment, and private sector partnerships to enhance competitiveness in regional and global markets.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+      ],
+    },
   },
   {
     slug: "tariff-trade-intelligence-platform-launch",
@@ -610,8 +826,34 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-07-20",
     summary: "TRACE organised the launch event for the Ministry of Commerce’s e-learning modules supporting the Bangladesh Trade Portal initiative.",
     image: "https://traceconsultingltd.com/storage/997/inception.jpg",
-    url: "https://traceconsultingltd.com/article-details/44",
-    external: true,
+    url: "/latest-updates/mocom-trade-portal-e-learning-inception",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "An Inception Workshop titled ‘Developing E-Learning Modules through the Bangladesh Trade Portal (BTP)’ took place at the ATM Shamsul Haque Auditorium, CIRDAP. TRACE Consulting’s CEO Fuad M. Khalid Hossen presented the keynote address.",
+            "The initiative operates under Package SD-59, funded by the World Bank’s Bangladesh Regional Connectivity Project-1 (BRCP-1) under the Ministry of Commerce, with Orangebd as the lead firm and TRACE Consulting as sub-consultant.",
+          ],
+        },
+        {
+          heading: "Building Trade Literacy",
+          paragraphs: [
+            "The project will develop over 20 bilingual interactive e-learning modules addressing WTO agreements, trade policies and laws, import-export procedures, trade compliance, and good practices such as risk-based compliance. The platform targets awareness gaps, noting that approximately 20 Bangladeshi companies hold Authorized Economic Operator (AEO) status compared to 4,500 in India.",
+            "The CEO emphasized that many trade facilitation reforms already exist but go unused because businesses are not aware of them. The modules will guide traders through risk-based clearance, AEO certification, Advance Rulings, SPS and TBT compliance, and export diversification as Bangladesh approaches LDC graduation.",
+          ],
+        },
+        {
+          heading: "A Long-Standing Commitment",
+          paragraphs: [
+            "This assignment carries special significance, as the CEO previously helped establish the Bangladesh Trade Portal in 2014 under an IFC–World Bank Group initiative.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+      ],
+    },
   },
   {
     slug: "bfsa-safe-food-import-workshop",
@@ -621,8 +863,36 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-07-09",
     summary: "TRACE participated as a key discussant in the Bangladesh Food Safety Authority’s workshop on digital governance for safe food imports.",
     image: "https://traceconsultingltd.com/storage/993/Fuad-bhai-BFSA-speech.jpg",
-    url: "https://traceconsultingltd.com/article-details/43",
-    external: true,
+    url: "/latest-updates/bfsa-safe-food-import-workshop",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "TRACE Consulting’s leadership participated in a Bangladesh Food Safety Authority stakeholder meeting to help finalize electronic food import guidelines. CEO Fuad M. Khalid Hossen and Mohammed Mahraj-ul-Alam Samrat, Head of Trade Facilitation and Regulatory Compliance, served as invited discussants.",
+            "The guidelines resulted from TRACE’s earlier work on the USDA Bangladesh Trade Facilitation Project. The team designed an electronic framework for safe food imports and collaborated with the Ministry of Commerce to integrate provisions into the Import Policy Order 2026–2029.",
+          ],
+        },
+        {
+          heading: "Key Recommendations",
+          paragraphs: [
+            "Key recommendations included making non-BSTI food item clearance fully digital, covering pre-arrival processing, automated risk assessment, post-clearance oversight, laboratory integration, and customs coordination. TRACE developed the National Food Import Information Management System (NFIIMS) to support execution.",
+            "During discussions, the CEO recommended starting with 50 to 100 priority products to establish risk profiles and testing parameters before expanding. He emphasized that stakeholder awareness is essential so the system facilitates rather than burdens trade.",
+          ],
+        },
+        {
+          heading: "International Best Practice",
+          paragraphs: [
+            "The presentation examined BFSA’s Food Safety Act authority, electronic importer registration, No Objection Certificates, and pre-arrival notification processes. It referenced risk-based models from India, Vietnam, Cambodia, Australia, and New Zealand and proposed establishing a dedicated Risk Management Unit.",
+            "When fully operational, the system is expected to reduce clearance timelines from approximately 15 days to several days.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Mohammed Mahraj-ul-Alam Samrat", role: "Head of Trade Facilitation & Regulatory Compliance" },
+      ],
+    },
   },
   {
     slug: "amcham-investment-climate-reforms",
@@ -632,8 +902,28 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-07-09",
     summary: "A working engagement with the American Chamber of Commerce in Bangladesh focused on investment facilitation and regulatory improvements.",
     image: "https://traceconsultingltd.com/storage/645/2_1200-X800.jpg",
-    url: "https://traceconsultingltd.com/article-details/29",
-    external: true,
+    url: "/latest-updates/amcham-investment-climate-reforms",
+    external: false,
+    body: {
+      sections: [
+        {
+          heading: "Strategic Dialogue with AmCham Bangladesh",
+          paragraphs: [
+            "TRACE recently held a high-level strategic meeting with the American Chamber of Commerce in Bangladesh (AmCham). The session was a powerful platform for TRACE to drive meaningful dialogue on critical trade and investment framework improvements.",
+            "The discussion was guided by Mr. Syed Ershad Ahmed, former AmCham Bangladesh president, and other leadership members. During the session, TRACE collaborated on regulatory reforms aimed at enhancing Bangladesh’s competitiveness in global markets.",
+          ],
+        },
+        {
+          paragraphs: [
+            "The focus centered on creating business-friendly conditions and attracting both domestic and foreign direct investment (FDI). TRACE’s engagement with AmCham reflects the firm’s commitment to cross-sector dialogue and investment climate reform.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Mohammed Mahraj-ul-Alam Samrat", role: "Head of Trade Facilitation & Regulatory Compliance" },
+      ],
+    },
   },
   {
     slug: "bsti-textile-testing-modernization",
@@ -643,8 +933,30 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-06-16",
     summary: "An initiative to upgrade the Bangladesh Standards and Testing Institution’s textile testing capabilities so Bangladeshi exports meet global buyer requirements.",
     image: "https://traceconsultingltd.com/storage/649/BSTI.jpg",
-    url: "https://traceconsultingltd.com/article-details/31",
-    external: true,
+    url: "/latest-updates/bsti-textile-testing-modernization",
+    external: false,
+    body: {
+      sections: [
+        {
+          paragraphs: [
+            "TRACE Consulting organized a stakeholder engagement workshop at the Bangladesh Standards and Testing Institution (BSTI). The event brought together the BSTI Director General and representatives from BGMEA, BKMEA, buying houses, and international brands.",
+            "Key focus areas included mapping current barriers to test report acceptance, identifying actionable improvements for service efficiency and reliability, and achieving global compliance standards.",
+          ],
+        },
+        {
+          heading: "Empowering National Infrastructure",
+          paragraphs: [
+            "The objective was to shorten testing lead times, reinforce international buyer trust, and future-proof Bangladesh’s export-oriented RMG sector.",
+            "The project — Strengthening Export-Oriented Textile Testing Capacity at BSTI Laboratory — aims to deliver the speed, reliability, and world-class compliance demanded by international buyers.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Abu Saleh Muhammad Saifullah", role: "Director & Chief Operating Officer" },
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+        { name: "Mimma Afrin", role: "Technical Lead, Laboratory Operations" },
+      ],
+    },
   },
   {
     slug: "dls-strategic-dialogue-agro-trade",
@@ -654,8 +966,29 @@ export const latestUpdates: LatestUpdate[] = [
     isoDate: "2026-06-04",
     summary: "A strategic dialogue with Bangladesh’s Department of Livestock on modernising agricultural trade systems and inter-agency coordination.",
     image: "https://traceconsultingltd.com/storage/647/1_1200-X800.jpg",
-    url: "https://traceconsultingltd.com/article-details/30",
-    external: true,
+    url: "/latest-updates/dls-strategic-dialogue-agro-trade",
+    external: false,
+    body: {
+      sections: [
+        {
+          heading: "Strategic Dialogue with DLS Leadership",
+          paragraphs: [
+            "TRACE Consulting facilitated an executive-level meeting with Department of Livestock Services (DLS) leadership. The session concentrated on actionable strategies to accelerate the digital transformation of livestock trade-related services and implement robust, risk-based inspection frameworks.",
+            "Key discussion areas included modernizing legislative procedures, advancing laboratory accreditation, and ensuring compliance with international Sanitary and Phytosanitary (SPS) standards.",
+          ],
+        },
+        {
+          paragraphs: [
+            "The organization aims to help DLS streamline agro-trade facilitation, reduce administrative burdens, and expand international market access for Bangladesh’s livestock sector.",
+          ],
+        },
+      ],
+      team: [
+        { name: "Michael J. Parr", role: "Strategic Advisor" },
+        { name: "Mimma Afrin", role: "Technical Lead, Laboratory Operations" },
+        { name: "Fuad M Khalid Hossen", role: "Chief Executive Officer" },
+      ],
+    },
   },
 ];
 

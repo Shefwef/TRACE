@@ -168,7 +168,7 @@ function HowTraceWorksCard() {
           {/* Left: image — object-contain so the full square photo is visible; no crop */}
           <div className="relative w-full shrink-0 bg-white lg:w-[42%]">
             <img
-              src={ASSETS.aboutTrace}
+              src="/media/about/about_us_trace_home.jpg"
               alt="Overhead view of the TRACE team around a table shaped like the TRACE logo"
               className="block h-auto w-full object-contain"
             />
@@ -460,6 +460,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
 }
 
 export function ProjectShowcase() {
+  const visibleServices = services.slice(0, 6);
   return (
     <section className="bg-[#F7FBFC] py-16 sm:py-[4.5rem]" aria-labelledby="services-showcase-title">
       <div className="mx-auto max-w-[1380px] px-5 lg:px-10">
@@ -473,7 +474,7 @@ export function ProjectShowcase() {
         </div>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service, index) => (
+          {visibleServices.map((service, index) => (
             <ServiceCard key={service.slug} service={service} index={index} />
           ))}
         </div>

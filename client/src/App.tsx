@@ -7,8 +7,7 @@ import { useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import { AboutPage, CareerDetailPage, CareersPage, ContactPage, InnovationsPage, InsightDetailPage, InsightsPage, LatestUpdatesPage, ProjectDetailPage, ProjectsPage, ServiceDetailPage, ServicesPage, TeamDetailPage, TeamPage } from "./pages/TracePages";
-import { TeamHierarchyPage } from "./components/TeamHierarchy";
+import { AboutPage, CareerDetailPage, CareersPage, ContactPage, InnovationsPage, InsightDetailPage, InsightsPage, LatestUpdateDetailPage, LatestUpdatesPage, ProjectDetailPage, ProjectsPage, ServiceDetailPage, ServicesPage, TeamDetailPage, TeamPage } from "./pages/TracePages";
 
 
 function RouteEntryReset() {
@@ -32,12 +31,13 @@ function Router() {
         <Route path={"/services/:slug"} component={ServiceDetailPage} />
         <Route path={"/projects"} component={ProjectsPage} />
         <Route path={"/projects/:slug"} component={ProjectDetailPage} />
-        <Route path={"/team"} component={TeamHierarchyPage} />
+        <Route path={"/team"} component={TeamPage} />
         <Route path={"/team/:slug"} component={TeamDetailPage} />
         <Route path={"/insights"} component={InsightsPage} />
         <Route path={"/insights/:slug"} component={InsightDetailPage} />
         <Route path={"/innovations"} component={InnovationsPage} />
         <Route path={"/latest-updates"} component={LatestUpdatesPage} />
+        <Route path={"/latest-updates/:slug"} component={LatestUpdateDetailPage} />
         <Route path={"/careers"} component={CareersPage} />
         <Route path={"/careers/:slug"} component={CareerDetailPage} />
         <Route path={"/contact"} component={ContactPage} />

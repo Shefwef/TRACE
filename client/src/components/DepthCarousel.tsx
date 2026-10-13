@@ -1,14 +1,35 @@
-/** Civic Signal Field component: a media-first ScrollDepth 3D coverflow stage for TRACE's Featured Insights.
- *  Progression comes from (a) a continuous slow auto-drift (pause on hover/focus/drag), (b) horizontal pointer drag,
- *  (c) mouse-wheel/trackpad over the stage, and (d) page scroll — scrolling down nudges cards right, up nudges left,
- *  additive to the auto-drift. Smoothed by a soft spring so transitions feel buttery.
- *  Inspired by Framer's ScrollDepth 3D Carousel; implemented locally with framer-motion to avoid an extra dep. */
+/** Media-first 3D coverflow stage for TRACE's Latest News & Features.
+ *  Progression comes from (a) a continuous slow right-to-left auto-drift (pauses on hover/focus/drag),
+ *  (b) horizontal pointer drag (lets the user pull cards left-to-right manually), and
+ *  (c) horizontal mouse-wheel / shift+wheel while hovered. Vertical page scroll does NOT affect the carousel. */
 import { motion, useAnimationFrame, useMotionValue, useReducedMotion, useSpring, useTransform, type PanInfo } from "framer-motion";
 import { FileText } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { insights, type Insight } from "@/data/traceData";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { latestUpdates, type Insight, type LatestUpdate } from "@/data/traceData";
 import { InsightPreviewDialog } from "@/components/InsightPreviewDialog";
 import { ShineBorder } from "@/components/ui/ShineBorder";
+
+/** Convert a LatestUpdate into the Insight shape that the carousel + dialog already render.
+ *  Keeps the component's internals untouched while letting us drive it from the news feed. */
+function updateToInsight(u: LatestUpdate): Insight {
+  // Insight.type doesn't include "Workshop" — fold that into "Event" so the chip stays valid.
+  const normalisedType: Insight["type"] =
+    u.category === "Workshop" ? "Event" : (u.category as Insight["type"]);
+  return {
+    slug: u.slug,
+    title: u.title,
+    type: normalisedType,
+    date: u.date,
+    summary: u.summary,
+    serviceSlugs: [],
+    projectSlugs: [],
+    teamSlugs: [],
+    image: u.image,
+    accent: "navy",
+    sourceUrl: u.external ? u.url : undefined,
+    sourceLabel: u.external ? "Open original" : undefined,
+  };
+}
 
 const fallbackPatterns = ["from-[#0B9FA8] via-[#064a5a] to-[#071B2B]", "from-[#081f35] via-[#175879] to-[#ff7a3d]", "from-[#765542] via-[#1c3947] to-[#0b9fa8]", "from-[#073647] via-[#0b9fa8] to-[#b9f3ec]", "from-[#582941] via-[#101f38] to-[#ff7a3d]"];
 
@@ -17,10 +38,17 @@ const SECONDS_PER_CARD = 7;
 const DRAG_PX_PER_CARD = 240;
 // Wheel sensitivity — larger value means more wheel delta needed to advance.
 const WHEEL_PX_PER_CARD = 320;
-// Page-scroll sensitivity — advance one card for every ~500px of page scroll.
-const PAGE_SCROLL_PX_PER_CARD = 500;
 
 export function DepthCarousel() {
+  // Source: 6 most-recent, non-external news items from the latestUpdates feed, adapted to the Insight shape the carousel already renders.
+  const insights = useMemo<Insight[]>(() =>
+    latestUpdates
+      .filter((u) => !u.external)
+      .slice()
+      .sort((a, b) => b.isoDate.localeCompare(a.isoDate))
+      .slice(0, 6)
+      .map(updateToInsight),
+  []);
   const [preview, setPreview] = useState<Insight | null>(null);
   const [paused, setPaused] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -122,34 +150,21 @@ export function DepthCarousel() {
     return () => stage.removeEventListener("wheel", onWheel);
   }, [reduceMotion, scheduleSnap, setPosition]);
 
-  // Page scroll → additive nudge to the carousel (ScrollDepth-style).
-  // Scrolling down the page drifts cards right; scrolling up drifts them left.
-  useEffect(() => {
-    if (reduceMotion) return;
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const current = window.scrollY;
-      const delta = current - lastY;
-      lastY = current;
-      if (Math.abs(delta) < 1) return;
-      setPosition(positionRef.current + delta / PAGE_SCROLL_PX_PER_CARD);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [reduceMotion, setPosition]);
+  // Page scroll no longer drives the carousel — direction stays as the auto right-to-left
+  // drift. Drag still works to pull cards left-to-right manually; hover still pauses.
 
   useEffect(() => () => {
     if (snapTimerRef.current) window.clearTimeout(snapTimerRef.current);
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-trace-paper py-24 sm:py-32" aria-labelledby="featured-insights-heading">
+    <section className="relative overflow-hidden bg-trace-paper py-24 sm:py-32" aria-labelledby="latest-news-features-heading">
       <motion.div className="pointer-events-none absolute left-1/2 top-[46%] h-[300px] w-[680px] -translate-x-1/2 rounded-full bg-trace-mint/30 blur-[105px]" style={{ opacity: glow }} />
       <div className="relative mx-auto max-w-[1480px] px-5 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="section-label">FEATURED INSIGHTS</p>
-          <h2 id="featured-insights-heading" className="mt-5 font-display text-5xl font-extrabold tracking-[-0.065em] text-trace-ink sm:text-6xl">Follow the idea.</h2>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-trace-muted">Scroll, drag, or swipe — browse the evidence behind the policies, systems, and decisions shaping Bangladesh’s next economy.</p>
+          <p className="section-label">LATEST NEWS &amp; FEATURES</p>
+          <h2 id="latest-news-features-heading" className="mt-5 font-display text-5xl font-extrabold tracking-[-0.065em] text-trace-ink sm:text-6xl">Follow the idea.</h2>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-trace-muted">Scroll, drag, or swipe — browse the latest news, features, and evidence shaping Bangladesh&rsquo;s next economy.</p>
         </div>
 
         <motion.div
