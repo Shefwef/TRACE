@@ -2,7 +2,7 @@
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, ChevronRight, ExternalLink, MapPin, PlayCircle, Plus } from "lucide-react";
 import { Link } from "wouter";
-import { DepthCarousel } from "@/components/DepthCarousel";
+import { UpdatesMarquee } from "@/pages/TracePages";
 import { VideoHero } from "@/components/VideoHero";
 import { ProjectFocusStage } from "@/components/ProjectFocusStage";
 import { OfficeMapPanel } from "@/components/OfficeMapPanel";
@@ -69,8 +69,37 @@ function ExpertiseNetwork() {
         <div className="grid gap-px border border-trace-ink/8 bg-trace-ink/8 sm:grid-cols-2">{team.slice(0, 4).map((member, index) => <SectionReveal key={member.slug} delay={index * 0.06}><StarBorder color="#009CA6" speed="8s" className="block h-full"><Link href={`/team/${member.slug}`} className="group relative flex min-h-[290px] flex-col bg-white transition-colors hover:bg-trace-paper"><ShineBorder shineColor={["#009CA6", "#D7F3F0", "#123D67"]} duration={11} borderWidth={1} /><div className="relative h-36 overflow-hidden bg-trace-paper"><TeamPortrait member={member} className="h-full w-full" imageClassName="transition-transform duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-trace-ink/25 via-transparent to-transparent" /><Plus className="absolute right-5 top-5 h-5 w-5 text-trace-orange transition-transform group-hover:rotate-90" /></div><div className="mt-auto p-6"><p className="font-display text-2xl font-extrabold tracking-[-0.05em] text-trace-ink">{member.name}</p><p className="mt-2 text-xs font-bold leading-5 text-trace-muted">{member.role}</p><p className="mt-4 font-mono text-[10px] font-bold tracking-[0.14em] text-trace-teal">{member.specialty.toUpperCase()}</p></div></Link></StarBorder></SectionReveal>)}</div></div></div></section>;
 }
 
+function LatestUpdatesSection() {
+  const items = latestUpdates
+    .filter((u) => !u.external)
+    .sort((a, b) => b.isoDate.localeCompare(a.isoDate))
+    .slice(0, 6);
+  return (
+    <section className="overflow-hidden bg-[#F3F8FA] py-24 sm:py-32">
+      <div className="mx-auto max-w-[1480px] px-5 lg:px-10">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionReveal>
+            <p className="section-label">LATEST NEWS & UPDATES</p>
+            <h2 className="mt-5 max-w-xl font-display text-5xl font-extrabold leading-[0.94] tracking-[-0.065em] text-trace-ink sm:text-6xl">
+              News and insights.
+            </h2>
+          </SectionReveal>
+          <SectionReveal delay={0.1}>
+            <Link href="/about" className="inline-flex items-center gap-2 border-b border-trace-teal pb-2 text-sm font-extrabold text-trace-ink">
+              All updates <ArrowRight className="h-4 w-4 text-trace-teal" />
+            </Link>
+          </SectionReveal>
+        </div>
+        <div className="mt-10">
+          <UpdatesMarquee items={items} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return <div className="min-h-screen overflow-x-hidden"><SiteHeader overlay /><main><VideoHero />
-    <TracePositioningSection /><ProjectShowcase /><ProjectFocusStage /><DepthCarousel /><TeamLeadershipPreview /><PartnerRail /><OfficeMapPanel />
+    <TracePositioningSection /><ProjectShowcase /><ProjectFocusStage /><LatestUpdatesSection /><TeamLeadershipPreview /><PartnerRail />
   </main><SiteFooter /></div>;
 }
